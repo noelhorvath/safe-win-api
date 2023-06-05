@@ -33,8 +33,10 @@ impl To<Duration> for FILETIME {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-filetimetosystemtime
 pub fn file_time_to_system_time(file_time: FILETIME) -> Result<SYSTEMTIME> {
-    call_BOOL!(FileTimeToSystemTime(
-        addr_of!(file_time),
-        addr_of_mut!(sys_time)
-    ) -> mut sys_time: SYSTEMTIME)
+    call_BOOL! {
+        FileTimeToSystemTime(
+            addr_of!(file_time),
+            addr_of_mut!(sys_time)
+        ) -> mut sys_time: SYSTEMTIME
+    }
 }

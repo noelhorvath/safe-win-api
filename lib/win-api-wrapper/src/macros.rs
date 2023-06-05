@@ -1,61 +1,61 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! call_BOOL {
-    ($func:ident($($arg:expr), *)) => {
+    { $func:ident($($arg:expr), *) } => {
         $crate::handle_BOOL!($func($($arg), *) -> ())
     };
-    ($func:ident($($arg:expr), *) return Error) => {
-        $crate::handle_BOOL!($func($($arg), *) return Error)
+    { $func:ident($($arg:expr), *) return Error; } => {
+        $crate::handle_BOOL!($func($($arg), *) return Error )
     };
-    ($func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty) => {
+    { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let mut $res = $crate::default_sized!($res_type);
             $crate::handle_BOOL!($func($($arg), *) -> $res)
         }
     };
-    ($func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty as $ret_type:ty) => {
+    { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty as $ret_type:ty } => {
         {
             let mut $res = <$res_type>::default();
             $crate::handle_BOOL!($func($($arg), *) -> $res.to())
         }
     };
-    ($func:ident($($arg:expr), *) -> $res:ident = $init_val:expr) => {
+    { $func:ident($($arg:expr), *) -> $res:ident = $init_val:expr } => {
         {
             let $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) -> $res)
         }
     };
-    ($func:ident($($arg:expr), *) -> mut $res:ident = $init_val:expr) => {
+    { $func:ident($($arg:expr), *) -> mut $res:ident = $init_val:expr } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) -> $res)
         }
     };
-    ($func:ident($($arg:expr), *) -> mut ($($res_var:ident), *): $res_tuple_type:ty) => {
+    { $func:ident($($arg:expr), *) -> mut ($($res_var:ident), *): $res_tuple_type:ty } => {
         {
             let ($(mut $res_var), *) = <$res_tuple_type>();
             $crate::handle_BOOL!($func($($arg), *) -> ($($res_var), *))
         }
     };
-    ($func:ident($($arg:expr), *) -> From { mut $res:ident = $init_val:expr; }) => {
+    { $func:ident($($arg:expr), *) -> From { mut $res:ident = $init_val:expr; } } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) -> $res.into())
         }
     };
-    ($func:ident($($arg:expr), *) -> Option { mut $res:ident = $init_val:expr; }) => {
+    { $func:ident($($arg:expr), *) -> Option { mut $res:ident = $init_val:expr; } } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) Option { $res })
         }
     };
-    ($func:ident($($arg:expr), *) -> Result<Option>
+    { $func:ident($($arg:expr), *) -> Result<Option>
         {
             mut $res:ident = $init_val:expr;
             $win_error:expr => None;
         }
-    ) => {
+    } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) Result<Option> { $res, $win_error => None })
@@ -112,29 +112,29 @@ macro_rules! handle_BOOL {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! call_int {
-    ($func:ident($($arg:expr), *) != $error_val:literal) => {
+macro_rules! call_num {
+    { $func:ident($($arg:expr), *) != $error_val:literal } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_int!(Ok => res, res, $error_val)
         }
     };
-    ($func:ident($($arg:expr), *) != $error_val:literal as $ret_type:ty) => {
+    { $func:ident($($arg:expr), *) != $error_val:literal as $ret_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_int!(Ok => res, res.to(), $error_val)
         }
     };
-    ($func:ident($($arg:expr), *) != $error_val:expr) => {
+    { $func:ident($($arg:expr), *) != $error_val:expr } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_int!(Ok => res, res, $error_val)
         }
     };
-    ($func:ident($($arg:expr), *) == $success_val:literal) => {
+    { $func:ident($($arg:expr), *) == $success_val:literal } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };

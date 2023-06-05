@@ -23,10 +23,13 @@ pub fn get_pids() -> Result<Box<[u32]>> {
     let mut bytes_written = 0;
     while buffer.len() < MAX_PID_BUFFER_SIZE {
         bytes_written = 0;
-        call_BOOL!(EnumProcesses(
+        call_BOOL! {
+            EnumProcesses(
                 buffer.as_mut_ptr(),
                 (buffer.len() * size_of::<u32>()) as u32,
-                &mut bytes_written) return Error);
+                &mut bytes_written)
+            return Error;
+        };
         if bytes_written as usize / size_of::<u32>() < buffer.len() {
             break;
         }
@@ -54,9 +57,12 @@ pub fn get_pids() -> Result<Box<[u32]>> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses
 pub fn get_pids_with_buffer(buffer: &mut [u32]) -> Result<usize> {
     let mut bytes_written = 0;
-    call_BOOL!(EnumProcesses(
+    call_BOOL! {
+        EnumProcesses(
             buffer.as_mut_ptr(),
             size_of_val(buffer) as u32,
-            &mut bytes_written) return Error);
+            &mut bytes_written)
+        return Error;
+    };
     Ok(bytes_written as usize / size_of::<u32>())
 }

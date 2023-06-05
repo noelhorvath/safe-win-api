@@ -43,11 +43,12 @@ pub fn get_token_information<T>(handle: isize) -> Result<T>
 where
     T: Default + Copy + TokenInformation,
 {
-    call_BOOL!(GetTokenInformation(
-        handle,
-        T::token_information_class(),
-        addr_of_mut!(token_info).cast::<c_void>(),
-        size_of_val(&token_info) as u32,
-        &mut 0
-    ) -> mut token_info: T)
+    call_BOOL! {
+        GetTokenInformation(
+            handle,
+            T::token_information_class(),
+            addr_of_mut!(token_info).cast::<c_void>(),
+            size_of_val(&token_info) as u32,
+            &mut 0) -> mut token_info: T
+    }
 }

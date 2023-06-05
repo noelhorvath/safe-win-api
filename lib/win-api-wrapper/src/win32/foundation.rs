@@ -21,7 +21,7 @@ pub use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, ERROR_INVALID_WIN
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
 pub fn close_handle(handle: isize) -> Result<()> {
-    call_BOOL!(CloseHandle(handle))
+    call_BOOL! { CloseHandle(handle) }
 }
 
 #[inline]
