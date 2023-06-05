@@ -53,7 +53,7 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), *) -> Result<Option>
         {
             mut $res:ident = $init_val:expr;
-            $win_error:expr => None;
+            $win_error:tt => None;
         }
     } => {
         {
@@ -97,13 +97,13 @@ macro_rules! handle_BOOL {
             }
         }
     };
-    ($func:ident($($arg:expr), *) Result<Option> { $ret_expr:expr, $win_error:expr => None }) => {
+    ($func:ident($($arg:expr), *) Result<Option> { $ret_expr:expr, $win_error:tt => None }) => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            match res {
+            match res as u32 {
                 0 => Ok(Some($ret_expr)),
-                $crate::common::To::<i32>::to(&$win_error) => Ok(None),
+                $win_error => Ok(None),
                 _ => Err($crate::win32::core::Win32Error::get_last())
             }
         }
@@ -169,4 +169,10 @@ macro_rules! default_sized {
         // Safety: The sized type is not a reference or a pointer.
         unsafe { core::mem::zeroed::<$sized>() }
     };
+    (mut $entry:ty: SnapshotEntry) => {{
+        // Safety: The sized type is not a reference or a pointer.
+        let mut entry = unsafe { core::mem::zeroed::<$entry>() };
+        entry.dwSize = size_of::<$entry>() as u32;
+        entry
+    }};
 }
