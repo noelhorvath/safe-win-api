@@ -1,0 +1,11 @@
+[package]
+name = "safe-win-api"
+version = "0.0.1-pre"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build]
+target = ["x86_64-pc-windows-msvc"]
+
+[dependencies]
+win-api-wrapper = { path = "./lib/win-api-wrapper" }

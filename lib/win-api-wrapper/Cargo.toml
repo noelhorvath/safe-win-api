@@ -1,0 +1,25 @@
+[package]
+name = "win-api-wrapper"
+version = "0.1.0-pre"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build]
+target = ["x86_64-pc-windows-msvc"]
+
+[dependencies]
+widestring = { version = "1.0.*" }
+windows-sys = { version = "0.48.*", features = [
+    "Win32_Foundation",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_ProcessStatus",
+    "Win32_Security",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Kernel",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_System_Time",
+] }
