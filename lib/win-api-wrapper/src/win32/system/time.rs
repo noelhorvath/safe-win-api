@@ -24,7 +24,7 @@ impl To<Duration> for FILETIME {
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
 /// ## Possible errors
-/// - `file_time` is more than equal to `0x8000000000000000`
+/// * `file_time` is more than equal to `0x8000000000000000`
 ///
 /// # Examples
 /// TODO

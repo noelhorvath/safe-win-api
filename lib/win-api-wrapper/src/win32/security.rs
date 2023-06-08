@@ -29,9 +29,9 @@ impl TokenInformation for TOKEN_ELEVATION {
 ///
 /// # Possible errors
 ///
-/// - `handle` is invalid.
-/// - `handle` doesn't have [`TOKEN_QUERY`] access right.
-/// - `handle` doesn't have [`TOKEN_QUERY_SOURCE`] access right if the class returned by [`get_token_information`] specifies a [`TokenSource`].
+/// * `handle` is invalid.
+/// * `handle` doesn't have [`TOKEN_QUERY`] access right.
+/// * `handle` doesn't have [`TOKEN_QUERY_SOURCE`] access right if the class returned by [`get_token_information`] specifies a [`TokenSource`].
 ///
 /// # Examples
 /// TODO
