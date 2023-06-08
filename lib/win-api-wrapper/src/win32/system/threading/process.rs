@@ -483,9 +483,7 @@ pub fn get_handle_count(handle: isize) -> Result<u32> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocesscritical
 ///
 pub fn is_critical(handle: isize) -> Result<bool> {
-    let mut is_critical = 0;
-    call_BOOL! { IsProcessCritical(handle, &mut is_critical) return Error }
-    Ok(from_BOOL!(is_critical))
+    call_BOOL! { IsProcessCritical(handle, &mut is_critical) -> mut is_critical }
 }
 
 /// Gets the process identifier of the specified process.
@@ -551,9 +549,7 @@ pub fn get_io_counters(handle: isize) -> Result<IO_COUNTERS> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesspriorityboost
 ///
 pub fn has_priority_boost(handle: isize) -> Result<bool> {
-    let mut disabled = to_BOOL!(false);
-    call_BOOL! { GetProcessPriorityBoost(handle, &mut disabled) return Error };
-    Ok(from_BOOL!(disabled))
+    call_BOOL! { GetProcessPriorityBoost(handle, &mut disabled) -> mut !disabled }
 }
 
 /// Gets the priority class for the specified process.

@@ -10,6 +10,18 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), *) -> if Error == $error_val:tt return $(;)? else return $def_ret_val:expr $(;)? } => {
         $crate::handle_BOOL!($func($($arg), *) if Error == $error_val return else return $def_ret_val)
     };
+    { $func:ident($($arg:expr), *) -> mut !$res:ident } => {
+        {
+            let mut $res = 0;
+            $crate::handle_BOOL!($func($($arg), *) -> $crate::from_BOOL!(!$res))
+        }
+    };
+    { $func:ident($($arg:expr), *) -> mut $res:ident } => {
+        {
+            let mut $res = 0;
+            $crate::handle_BOOL!($func($($arg), *) -> $crate::from_BOOL!($res))
+        }
+    };
     { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
