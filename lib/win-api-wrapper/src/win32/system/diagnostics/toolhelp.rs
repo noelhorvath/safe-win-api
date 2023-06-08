@@ -16,10 +16,12 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 /// Takes a snapshot of the specified processes, as well as the heaps, modules, and threads used by these processes.
 ///
 /// # Arguments
+///
 /// * `flags`: The portions of the system to be included in the snapshot.
 /// * `pid`: The process identifier of the process to be included in the snapshot.
 ///
 /// # Remarks
+///
 /// - `pid` parameter can be zero to indicate the current process.
 /// - `pid` parameter is used when the [TH32CS_SNAPHEAPLIST], [TH32CS_SNAPMODULE], [TH32CS_SNAPMODULE32], or [TH32CS_SNAPALL] value is specified.
 ///   Otherwise, it is ignored and all processes are included in the snapshot.
@@ -29,6 +31,7 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
 /// ## Possible errors
+///
 /// - `pid` is the idle process or one of the CSRSS processes. ([ERROR_ACCESS_DENIED])
 /// - `pid` is a 64-bit process and the caller is a 32-bit process. ([ERROR_PARTIAL_COPY])
 ///
@@ -53,9 +56,9 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 ///
 /// # Remarks
 ///
-/// - [`first_process`] must be called once before calling [`next_process`] to successfully iterate over the processes.
+/// * [`first_process`] must be called once before calling [`next_process`] to successfully iterate over the processes.
 ///   Otherwise [`next_process`] will only yield `None`.
-/// - Each invokation of [`first_process`] resets the iteration to the first entry if there's any.
+/// * Each invokation of [`first_process`] resets the iteration to the first entry if there's any.
 ///
 /// # Errors
 ///
@@ -63,7 +66,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 ///
 /// # Possible errors
 ///
-/// - `handle` is invalid.
+/// * `handle` is invalid.
 ///
 /// # Examples
 /// TODO
@@ -85,9 +88,9 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// # Remarks
 ///
-/// - [`first_process`] must be called once before calling [`next_process`] to successfully iterate over the processes.
+/// * [`first_process`] must be called once before calling [`next_process`] to successfully iterate over the processes.
 ///   Otherwise [`next_process`] will only yield [`None`].
-/// - Each invokation of [`first_process`] resets the iteration to the first entry if there's any.
+/// * Each invokation of [`first_process`] resets the iteration to the first entry if there's any.
 ///
 /// # Errors
 ///
@@ -95,7 +98,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// # Possible errors
 ///
-/// - `handle` is invalid.
+/// * `handle` is invalid.
 ///
 /// # Examples
 /// TODO
@@ -117,9 +120,9 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///  
 /// # Remarks
 ///
-/// - [`first_thread`] must be called once before calling [`next_thread`] to successfully iterate over the processes.
+/// * [`first_thread`] must be called once before calling [`next_thread`] to successfully iterate over the processes.
 ///   Otherwise [`next_thread`] will only yield [`None`].
-/// - Each invokation of [`first_thread`] resets the iteration to the first entry if there's any.
+/// * Each invokation of [`first_thread`] resets the iteration to the first entry if there's any.
 ///
 /// # Errors
 ///
@@ -127,7 +130,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// # Possible errors
 ///
-/// - `handle` is invalid.
+/// * `handle` is invalid.
 ///
 /// # Examples
 /// TODO
@@ -149,9 +152,9 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 ///
 /// # Remarks
 ///
-/// - [`first_thread`] must be called once before calling [`next_thread`] to successfully iterate over the processes.
+/// * [`first_thread`] must be called once before calling [`next_thread`] to successfully iterate over the processes.
 ///   Otherwise [`next_thread`] will only yield [`None`].
-/// - Each invokation of [`first_thread`] resets the iteration to the first entry if there's any.
+/// * Each invokation of [`first_thread`] resets the iteration to the first entry if there's any.
 ///
 /// # Errors
 ///
@@ -159,7 +162,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 ///
 /// # Possible errors
 ///
-/// - `handle` is invalid.
+/// * `handle` is invalid.
 ///
 /// # Examples
 /// TODO
