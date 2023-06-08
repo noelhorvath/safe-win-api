@@ -8,13 +8,14 @@ edition = "2021"
 target = ["x86_64-pc-windows-msvc"]
 
 [dependencies]
-widestring = { version = "1.0.*" }
+widestring = { version = "1.0.*", features = ["alloc"] }
 windows-sys = { version = "0.48.*", features = [
     "Win32_Foundation",
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_ProcessStatus",
     "Win32_Security",
+    "Win32_System_Diagnostics_Debug",
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_Kernel",
     "Win32_System_LibraryLoader",
