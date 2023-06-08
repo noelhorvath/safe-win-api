@@ -46,3 +46,14 @@ macro_rules! to_BOOL {
         }
     };
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! from_BOOL {
+    (! $val:expr) => {
+        $val == 0
+    };
+    ($val:expr) => {
+        $val != 0
+    };
+}
