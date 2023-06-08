@@ -13,11 +13,17 @@ pub use windows_sys::Win32::Security::{
 pub trait TokenInformation {
     /// Gets the associated [`TOKEN_INFORMATION_CLASS`] of the type.
     fn token_information_class() -> TOKEN_INFORMATION_CLASS;
+    /// Creates a default value of the information type.
+    fn default_info() -> Self;
 }
 
 impl TokenInformation for TOKEN_ELEVATION {
     fn token_information_class() -> TOKEN_INFORMATION_CLASS {
         TokenElevation
+    }
+
+    fn default_info() -> Self {
+        TOKEN_ELEVATION { TokenIsElevated: 0 }
     }
 }
 
@@ -42,7 +48,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 ///
 pub fn get_token_information<T>(handle: isize) -> Result<T>
 where
-    T: Default + Copy + TokenInformation,
+    T: Copy + TokenInformation,
 {
     call_BOOL! {
         GetTokenInformation(
@@ -50,6 +56,6 @@ where
             T::token_information_class(),
             addr_of_mut!(token_info).cast::<c_void>(),
             size_of_val(&token_info) as u32,
-            &mut 0) -> mut token_info: T
+            &mut 0) -> mut token_info = T::default_info()
     }
 }
