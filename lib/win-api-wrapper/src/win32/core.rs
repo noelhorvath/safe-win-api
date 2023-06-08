@@ -1,4 +1,8 @@
-use super::foundation::get_last_error;
+use super::{
+    foundation::get_last_error,
+    system::diagnostics::debug::{format_message, FormatMessagetOptions, System},
+};
+use widestring::U16String;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 
 /// The result of an error-prone Win32 API call.
@@ -33,6 +37,13 @@ impl Win32Error {
     /// Determines whether the error code is not [`ERROR_SUCCESS`]. This method is the opposite of [`is_success`][`Win32Error::is_success`].
     pub const fn is_failure(&self) -> bool {
         !self.is_success()
+    }
+
+    /// Gets the error message that is associated with from a system message-table.
+    pub fn message(&self) -> String {
+        format_message(System, self.code, 0, None, FormatMessagetOptions::All)
+            .unwrap_or(U16String::from_str("Failed to get error message!"))
+            .to_string_lossy()
     }
 
     #[inline]
