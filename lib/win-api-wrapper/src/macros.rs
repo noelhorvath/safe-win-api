@@ -4,7 +4,7 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), *) } => {
         $crate::handle_BOOL!($func($($arg), *) -> ())
     };
-    { $func:ident($($arg:expr), *) return Error; } => {
+    { $func:ident($($arg:expr), *) return Error $(;)? } => {
         $crate::handle_BOOL!($func($($arg), *) return Error )
     };
     { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty } => {
@@ -20,31 +20,25 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!($func($($arg), *) -> $res.to())
         }
     };
-    { $func:ident($($arg:expr), *) -> $res:ident = $init_val:expr } => {
-        {
-            let $res = $init_val;
-            $crate::handle_BOOL!($func($($arg), *) -> $res)
-        }
-    };
-    { $func:ident($($arg:expr), *) -> mut $res:ident = $init_val:expr } => {
+    { $func:ident($($arg:expr), *) -> mut $res:ident = $init_val:expr} => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) -> $res)
         }
     };
-    { $func:ident($($arg:expr), *) -> mut ($($res_var:ident), *): $res_tuple_type:ty } => {
+    { $func:ident($($arg:expr), *) -> ($(mut $res_var:expr), *): $res_tuple_type:ty } => {
         {
-            let ($(mut $res_var), *) = <$res_tuple_type>();
+            let $(mut $res_var), * = <$res_tuple_type>();
             $crate::handle_BOOL!($func($($arg), *) -> ($($res_var), *))
         }
     };
-    { $func:ident($($arg:expr), *) -> From { mut $res:ident = $init_val:expr; } } => {
+    { $func:ident($($arg:expr), *) -> From { mut $res:ident = $init_val:expr $(;)? } } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) -> $res.into())
         }
     };
-    { $func:ident($($arg:expr), *) -> Option { mut $res:ident = $init_val:expr; } } => {
+    { $func:ident($($arg:expr), *) -> Option { mut $res:ident = $init_val:expr $(;)? } } => {
         {
             let mut $res = $init_val;
             $crate::handle_BOOL!($func($($arg), *) Option { $res })
@@ -53,7 +47,7 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), *) -> Result<Option>
         {
             mut $res:ident = $init_val:expr;
-            $win_error:tt => None;
+            $win_error:tt => None $(;)?
         }
     } => {
         {
@@ -141,6 +135,13 @@ macro_rules! call_num {
             $crate::handle_int!(Err => res, $success_val)
         }
     };
+    { ($func:ident($($arg:expr), *) == $error_val:literal) => return Error; } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_val = unsafe { $func($($arg),*) };
+            $crate::handle_int!(return Error res_val, $error_val)
+        }
+    };
 }
 
 #[doc(hidden)]
@@ -158,6 +159,13 @@ macro_rules! handle_int {
             Ok($ret_expr)
         } else {
             Err($crate::win32::core::Win32Error::get_last())
+        }
+    };
+    (return Error $res_val:ident, $error_val:expr) => {
+        if $res_val == $error_val {
+            return Err($crate::win32::core::Win32Error::get_last());
+        } else {
+            $res_val
         }
     };
 }
