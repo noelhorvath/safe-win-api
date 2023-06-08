@@ -27,7 +27,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// # Possible errors
+/// ## Possible errors
 ///
 /// * `handle` is invalid.
 /// * `handle` doesn't have [`TOKEN_QUERY`] access right.
@@ -39,6 +39,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+///
 pub fn get_token_information<T>(handle: isize) -> Result<T>
 where
     T: Default + Copy + TokenInformation,

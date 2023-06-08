@@ -24,6 +24,7 @@ impl To<Duration> for FILETIME {
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
 /// ## Possible errors
+///
 /// * `file_time` is more than equal to `0x8000000000000000`
 ///
 /// # Examples
@@ -32,6 +33,7 @@ impl To<Duration> for FILETIME {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-filetimetosystemtime
+///
 pub fn file_time_to_system_time(file_time: FILETIME) -> Result<SYSTEMTIME> {
     call_BOOL! {
         FileTimeToSystemTime(

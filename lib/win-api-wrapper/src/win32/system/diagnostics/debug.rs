@@ -90,6 +90,7 @@ impl FormatSource for System {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+///
 pub fn format_message<T>(
     source: T,
     id: u32,
@@ -154,7 +155,7 @@ where
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// # Possible errors
+/// #+ Possible errors
 ///  
 /// * `buffer` is not large enough to store the formatted message. ([`ERROR_INSUFFICIENT_BUFFER`][`windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER`])
 ///
@@ -165,6 +166,7 @@ where
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+///
 pub fn format_message_with_buffer<T>(
     source: T,
     id: u32,

@@ -47,6 +47,7 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 /// [TH32CS_SNAPMODULE]: windows_sys::Win32::System::Diagnostics::ToolHelp::TH32CS_SNAPMODULE
 /// [TH32CS_SNAPMODULE32]: windows_sys::Win32::System::Diagnostics::ToolHelp::TH32CS_SNAPMODULE32
 /// [TH32CS_SNAPALL]: windows_sys::Win32::System::Diagnostics::ToolHelp::TH32CS_SNAPALL
+///
 pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Result<isize> {
     call_num! { CreateToolhelp32Snapshot(flags, pid) != INVALID_HANDLE_VALUE }
 }
@@ -74,6 +75,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-process32firstw
+///
 pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
     call_BOOL! {
         Process32FirstW(handle, &mut entry) -> Result<Option> {
@@ -96,7 +98,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// # Possible errors
+/// ## Possible errors
 ///
 /// * `handle` is invalid.
 ///
@@ -106,6 +108,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-process32nextw
+///
 pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
     call_BOOL! {
         Process32NextW(handle, &mut entry) -> Result<Option> {
@@ -128,7 +131,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// # Possible errors
+/// ## Possible errors
 ///
 /// * `handle` is invalid.
 ///
@@ -138,6 +141,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32first
+///
 pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
     call_BOOL! {
         Thread32First(handle, &mut entry) -> Result<Option> {
@@ -160,7 +164,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// # Possible errors
+/// ## Possible errors
 ///
 /// * `handle` is invalid.
 ///
@@ -170,6 +174,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32next
+///
 pub fn next_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
     call_BOOL! {
         Thread32Next(handle, &mut entry) -> Result<Option> {

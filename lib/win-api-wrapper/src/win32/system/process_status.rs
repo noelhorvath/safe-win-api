@@ -66,6 +66,7 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses
+///
 pub fn get_pids_with_buffer(buffer: &mut [u32]) -> Result<usize> {
     let mut bytes_written = 0;
     call_BOOL! {
