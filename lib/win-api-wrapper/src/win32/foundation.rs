@@ -34,3 +34,15 @@ pub fn close_handle(handle: isize) -> Result<()> {
 pub fn get_last_error() -> u32 {
     unsafe { GetLastError() }
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! to_BOOL {
+    ($val:expr) => {
+        if $val {
+            1
+        } else {
+            0
+        }
+    };
+}
