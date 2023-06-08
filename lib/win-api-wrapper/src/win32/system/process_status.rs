@@ -4,12 +4,18 @@ use alloc::boxed::Box;
 use core::mem::{size_of, size_of_val};
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
 
-/// Initial buffer size for [`get_pids`].
-const DEFAULT_PID_BUFFER_SIZE: usize = 1024;
+/// The recommended value for `initial_buffer_size` in [`get_pids`].
+pub const RECOMMENDED_INITIAL_PID_BUFFER_LENGTH: usize = 1024;
 /// Maximum number of processes that [`EnumProcesses`] could return.
-const MAX_PID_BUFFER_SIZE: usize = (u32::MAX >> 1) as usize + 1;
+const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 
 /// Gets the process identifier for each process in the system.
+///
+/// # Remarks
+///
+/// * If `initial_buffer_len` is too small, the buffer is resized by `buffer.len() * 2` until it is large enough to hold the process ids.
+/// * The maximum number of process ids that could be returned is [`MAX_PID_BUFFER_LEN`].
+/// * [`MAX_PID_BUFFER_LEN`] is used instead of `initial_buffer_len` to allocate the initial buffer if the specidied length is larger than [`MAX_PID_BUFFER_LEN`].
 ///
 /// # Errors
 ///
@@ -18,10 +24,10 @@ const MAX_PID_BUFFER_SIZE: usize = (u32::MAX >> 1) as usize + 1;
 /// # Examples
 /// TODO
 ///
-pub fn get_pids() -> Result<Box<[u32]>> {
-    let mut buffer = vec![0_u32; DEFAULT_PID_BUFFER_SIZE];
+pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
+    let mut buffer = vec![0_u32; initial_buffer_len as usize];
     let mut bytes_written = 0;
-    while buffer.len() < MAX_PID_BUFFER_SIZE {
+    while buffer.len() < MAX_PID_BUFFER_LEN {
         bytes_written = 0;
         call_BOOL! {
             EnumProcesses(
@@ -34,7 +40,7 @@ pub fn get_pids() -> Result<Box<[u32]>> {
             break;
         }
 
-        buffer.resize(buffer.capacity() * 2, 0);
+        buffer.resize(buffer.len() * 2, 0);
     }
 
     let len = bytes_written as usize / size_of::<u32>();
