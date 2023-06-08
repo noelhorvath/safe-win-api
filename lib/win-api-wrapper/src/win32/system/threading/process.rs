@@ -612,7 +612,9 @@ pub fn get_times(handle: isize) -> Result<[FILETIME; 4]> {
             &mut times[0],
             &mut times[1],
             &mut times[2],
-            &mut times[3]) -> mut times = [FILETIME { dwLowDateTime: 0, dwHighDateTime: 0 }; 4]
+            &mut times[3]) -> mut times =
+                // Safety: `FILETIME` is not a reference nor a pointer.
+                [unsafe { zeroed::<FILETIME>() }; 4]
     }
 }
 
