@@ -4,7 +4,7 @@ use crate::{call_BOOL, call_num};
 use crate::{from_BOOL, to_BOOL};
 use alloc::boxed::Box;
 use core::ffi::c_void;
-use core::mem::{size_of, transmute};
+use core::mem::{size_of, transmute, zeroed};
 use core::ptr::{self, addr_of, addr_of_mut};
 use widestring::U16String;
 use windows_sys::Win32::Foundation::{ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE, STILL_ACTIVE};
@@ -51,6 +51,7 @@ use crate::win32::security::{self, TOKEN_ELEVATION, TOKEN_QUERY};
 const MAX_CHARS_IN_LONG_PATH: usize = u16::MAX as usize / size_of::<u16>();
 
 impl To<(u16, u16)> for u32 {
+    #[inline]
     fn to(&self) -> (u16, u16) {
         // Safety: `u32` and `(u16, u16)` has the same size
         unsafe { transmute(*self) }
@@ -686,9 +687,14 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 }
 
 /// A member of the [`PROCESS_INFORMATION_CLASS`] enumeration.
-pub trait ProcessInformation {
+pub trait ProcessInformation: Sized {
     /// Gets the [`PROCESS_INFORMATION_CLASS`], that is associated with the type.
     fn information_class() -> PROCESS_INFORMATION_CLASS;
+
+    fn default_information() -> Self {
+        // Safety: type is not a reference or prointer.
+        unsafe { zeroed() }
+    }
 }
 
 impl ProcessInformation for MEMORY_PRIORITY_INFORMATION {
@@ -739,14 +745,14 @@ impl ProcessInformation for PROCESS_LEAP_SECOND_INFO {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessinformation
 ///
-pub fn get_information<T: Default + Copy + ProcessInformation>(handle: isize) -> Result<T> {
+pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T> {
     call_BOOL! {
         GetProcessInformation(
             handle,
             T::information_class(),
             addr_of_mut!(information).cast::<c_void>(),
             size_of::<T>() as u32
-        ) -> mut information = T::default()
+        ) -> mut information = T::default_information()
     }
 }
 
@@ -768,10 +774,7 @@ pub fn get_information<T: Default + Copy + ProcessInformation>(handle: isize) ->
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
 ///
-pub fn set_information<T: Default + Copy + ProcessInformation>(
-    handle: isize,
-    information: T,
-) -> Result<()> {
+pub fn set_information<T: Copy + ProcessInformation>(handle: isize, information: T) -> Result<()> {
     call_BOOL! {
         SetProcessInformation(
             handle,
