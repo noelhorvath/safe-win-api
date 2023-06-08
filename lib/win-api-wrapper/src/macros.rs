@@ -7,6 +7,9 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), *) return Error $(;)? } => {
         $crate::handle_BOOL!($func($($arg), *) return Error )
     };
+    { $func:ident($($arg:expr), *) -> if Error == $error_val:tt return $(;)? else return $def_ret_val:expr $(;)? } => {
+        $crate::handle_BOOL!($func($($arg), *) if Error == $error_val return else return $def_ret_val)
+    };
     { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -15,6 +18,12 @@ macro_rules! call_BOOL {
         }
     };
     { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty as $ret_type:ty } => {
+        {
+            let mut $res = <$res_type>::default();
+            $crate::handle_BOOL!($func($($arg), *) -> $res as $ty)
+        }
+    };
+    { $func:ident($($arg:expr), *) -> mut $res:ident: $res_type:ty } => {
         {
             let mut $res = <$res_type>::default();
             $crate::handle_BOOL!($func($($arg), *) -> $res.to())
@@ -30,6 +39,12 @@ macro_rules! call_BOOL {
         {
             let ($(mut $res_var), *) = <$res_tuple_type>::default();
             $crate::handle_BOOL!($func($($arg), *) -> ($($res_var), *))
+        }
+    };
+    { $func:ident($($arg:expr), *) -> To { mut $res:ident: $res_type:ty $(;)? } } => {
+        {
+            let mut $res = <$res_type>::default();
+            $crate::handle_BOOL!($func($($arg), *) -> $res.to())
         }
     };
     { $func:ident($($arg:expr), *) -> From { mut $res:ident = $init_val:expr $(;)? } } => {
@@ -66,6 +81,20 @@ macro_rules! handle_BOOL {
             let res = unsafe { $func($($arg),*) };
             if res == 0 {
                 return Err($crate::win32::core::Win32Error::get_last())
+            }
+        }
+    };
+    ($func:ident($($arg:expr), *) if Error == $error_val:tt return else return $def_ret_val:expr) => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            if res == 0 {
+                let error = $crate::win32::core::Win32Error::get_last();
+                if error.code == $error_val {
+                    return Err(error);
+                }
+            } else {
+                return Ok($def_ret_val);
             }
         }
     };
@@ -114,11 +143,18 @@ macro_rules! call_num {
             $crate::handle_int!(Ok => res, res, $error_val)
         }
     };
-    { $func:ident($($arg:expr), *) != $error_val:literal as $ret_type:ty } => {
+    { $func:ident($($arg:expr), *) != $error_val:literal To } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_int!(Ok => res, res.to(), $error_val)
+        }
+    };
+    { $func:ident($($arg:expr), *) != $error_val:literal as $ret_type:ty } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_int!(Ok => res, res as $ret_type, $error_val)
         }
     };
     { $func:ident($($arg:expr), *) != $error_val:expr } => {
@@ -135,7 +171,7 @@ macro_rules! call_num {
             $crate::handle_int!(Err => res, $success_val)
         }
     };
-    { ($func:ident($($arg:expr), *) == $error_val:literal) => return Error; } => {
+    { ($func:ident($($arg:expr), *) == $error_val:literal) => return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
