@@ -12,7 +12,7 @@ pub use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, ERROR_INVALID_WIN
 ///
 /// # Possible errors
 ///
-/// - `handle` has been already invalidated.
+/// * `handle` has been already invalidated.
 ///
 /// # Examples
 /// TODO
