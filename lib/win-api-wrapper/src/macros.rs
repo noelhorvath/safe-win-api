@@ -26,9 +26,9 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!($func($($arg), *) -> $res)
         }
     };
-    { $func:ident($($arg:expr), *) -> ($(mut $res_var:expr), *): $res_tuple_type:ty } => {
+    { $func:ident($($arg:expr), *) -> mut ($($res_var:ident), *): $res_tuple_type:ty } => {
         {
-            let $(mut $res_var), * = <$res_tuple_type>();
+            let ($(mut $res_var), *) = <$res_tuple_type>::default();
             $crate::handle_BOOL!($func($($arg), *) -> ($($res_var), *))
         }
     };
