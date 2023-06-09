@@ -67,7 +67,7 @@ pub use windows_sys::Win32::System::Threading::{
 ///
 /// For more information see the official [documentation].
 ///
-/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-waitforinputidle
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openthread
 ///
 pub fn open(id: u32, access_rights: ThreadAccessRights, inherit_handle: bool) -> Result<isize> {
     call_num! { OpenThread(access_rights, to_BOOL!(inherit_handle), id) != 0 }
@@ -78,7 +78,7 @@ pub fn open(id: u32, access_rights: ThreadAccessRights, inherit_handle: bool) ->
 ///
 /// For more information see the official [documentation].
 ///
-/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-waitforinputidle
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitthread    
 ///
 pub fn exit_current(exit_code: u32) {
     unsafe { ExitThread(exit_code) }
