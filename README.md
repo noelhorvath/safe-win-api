@@ -1,4 +1,6 @@
-# safe-win-api
+safe-win-api
+============
+[![Clippy check](https://github.com/noelhorvath/safe-win-api/actions/workflows/clippy-check.yml/badge.svg)](https://github.com/noelhorvath/safe-win-api/actions/workflows/clippy-check.yml)
 
 ## About
 
