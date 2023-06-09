@@ -33,8 +33,8 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
             EnumProcesses(
                 buffer.as_mut_ptr(),
                 (buffer.len() * size_of::<u32>()) as u32,
-                &mut bytes_written)
-            return Error;
+                &mut bytes_written,
+            ) return Error;
         };
         if bytes_written as usize / size_of::<u32>() < buffer.len() {
             break;
@@ -73,8 +73,8 @@ pub fn get_pids_with_buffer(buffer: &mut [u32]) -> Result<usize> {
         EnumProcesses(
             buffer.as_mut_ptr(),
             buffer.len() as u32,
-            &mut bytes_written)
-        return Error;
+            &mut bytes_written,
+        ) return Error;
     };
     Ok(bytes_written as usize / size_of::<u32>())
 }

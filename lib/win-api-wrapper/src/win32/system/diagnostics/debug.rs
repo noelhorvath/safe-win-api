@@ -246,7 +246,7 @@ where
             lang_id,
             addr_of_mut!(buffer).cast(),
             buffer_len as u32,
-            if let Some(args) = args { args.as_ptr() } else { ptr::null() }
+            if let Some(args) = args { args.as_ptr() } else { ptr::null() },
         ) == 0) => return Error;
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
@@ -439,7 +439,7 @@ where
             lang_id,
             buffer.as_mut_ptr(),
             buffer.len() as u32,
-            if let Some(args) = args { args.as_ptr() } else { ptr::null() }
+            if let Some(args) = args { args.as_ptr() } else { ptr::null() },
         ) != 0
     }
 }

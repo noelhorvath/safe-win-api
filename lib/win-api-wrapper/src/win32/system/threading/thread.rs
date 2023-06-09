@@ -301,7 +301,7 @@ pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> 
             handle,
             T::information_class(),
             addr_of_mut!(information).cast::<c_void>(),
-            size_of::<T>() as u32
+            size_of::<T>() as u32,
         ) -> mut information = T::default_information()
     }
 }
@@ -414,7 +414,8 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Box<[u32]>> {
             handle,
             buffer.as_mut_ptr(),
             buffer.len() as u32,
-            &mut count) -> From { mut buffer = vec![0; count as usize]; }
+            &mut count,
+        ) -> From { mut buffer = vec![0; count as usize]; }
     }
 }
 
@@ -535,7 +536,7 @@ pub fn get_ideal_processor(handle: isize) -> Result<PROCESSOR_NUMBER> {
     call_BOOL! {
         GetThreadIdealProcessorEx(
             handle,
-            &mut ideal_proc
+            &mut ideal_proc,
         ) -> mut ideal_proc =
             // Safety: `PROCESS_NUMBER` is not a reference nor a pointer.
             unsafe { zeroed::<PROCESSOR_NUMBER>() }
@@ -569,7 +570,7 @@ pub fn set_ideal_processor(
         SetThreadIdealProcessorEx(
             handle,
             &ideal_processor,
-            &mut prev_ideal_proc
+            &mut prev_ideal_proc,
         ) -> mut prev_ideal_proc =
             // Safety: `PROCESS_NUMBER` is not a reference nor a pointer.
             unsafe { zeroed::<PROCESSOR_NUMBER>() }
@@ -694,7 +695,8 @@ pub fn set_information<T: Copy + ThreadInformation>(handle: isize, information: 
             handle,
             T::information_class(),
             addr_of!(information).cast::<c_void>(),
-            size_of::<T>() as u32)
+            size_of::<T>() as u32,
+        )
     }
 }
 

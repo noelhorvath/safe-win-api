@@ -56,6 +56,7 @@ where
             T::token_information_class(),
             addr_of_mut!(token_info).cast::<c_void>(),
             size_of_val(&token_info) as u32,
-            &mut 0) -> mut token_info = T::default_token_info()
+            &mut 0,
+        ) -> mut token_info = T::default_token_info()
     }
 }

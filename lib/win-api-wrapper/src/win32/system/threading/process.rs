@@ -219,7 +219,8 @@ pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result
             handle,
             if use_win32_path_format { PROCESS_NAME_WIN32 } else { PROCESS_NAME_NATIVE },
             buffer.as_mut_ptr(),
-            &mut buffer_size) return Error
+            &mut buffer_size,
+        ) return Error
     };
 
     // Safety: `buffer` is valid `u16` array with a length of `MAX_CHARS_IN_LONG_PATH`.
@@ -259,7 +260,8 @@ pub fn get_full_image_name_with_buffer(
             handle,
             if use_win32_path_format { PROCESS_NAME_WIN32 } else { PROCESS_NAME_NATIVE },
             buffer.as_mut_ptr(),
-            &mut buffer_size) return Error
+            &mut buffer_size,
+        ) return Error
     };
     Ok(buffer_size as usize)
 }
@@ -287,7 +289,8 @@ pub fn get_affinity_mask(handle: isize) -> Result<(usize, usize)> {
         GetProcessAffinityMask(
             handle,
             &mut process_mask,
-            &mut system_mask) -> mut (process_mask, system_mask): (usize, usize)
+            &mut system_mask,
+        ) -> mut (process_mask, system_mask): (usize, usize)
     }
 }
 
@@ -323,7 +326,8 @@ pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Box<[u32]>>> {
             handle,
             buffer.as_mut_ptr(),
             buffer.len() as u32,
-            &mut count) return Error
+            &mut count,
+        ) return Error
     };
     Ok(Some(buffer.into()))
 }
@@ -405,7 +409,8 @@ pub fn get_group_affinity(handle: isize) -> Result<Box<[u16]>> {
         GetProcessGroupAffinity(
             handle,
             &mut count,
-            ptr::null_mut()) ->
+            ptr::null_mut(),
+        ) ->
             if Error == ERROR_INSUFFICIENT_BUFFER return;
             else return [].into();
     };
@@ -443,7 +448,8 @@ pub fn get_group_affinity_with_buffer(handle: isize, buffer: &mut [u16]) -> Resu
         GetProcessGroupAffinity(
             handle,
             &mut count,
-            buffer.as_mut_ptr()) -> mut count = buffer.len() as u16
+            buffer.as_mut_ptr(),
+        ) -> mut count = buffer.len() as u16
     }
 }
 
@@ -613,7 +619,8 @@ pub fn get_times(handle: isize) -> Result<[FILETIME; 4]> {
             &mut times[0],
             &mut times[1],
             &mut times[2],
-            &mut times[3]) -> mut times =
+            &mut times[3],
+        ) -> mut times =
                 // Safety: `FILETIME` is not a reference nor a pointer.
                 [unsafe { zeroed::<FILETIME>() }; 4]
     }
@@ -663,7 +670,8 @@ pub fn get_working_set_size(handle: isize) -> Result<(usize, usize)> {
         GetProcessWorkingSetSize(
             handle,
             &mut min_size,
-            &mut max_size) -> mut (min_size, max_size): (usize, usize)
+            &mut max_size,
+        ) -> mut (min_size, max_size): (usize, usize)
     }
 }
 
@@ -754,7 +762,7 @@ pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T>
             handle,
             T::information_class(),
             addr_of_mut!(information).cast::<c_void>(),
-            size_of::<T>() as u32
+            size_of::<T>() as u32,
         ) -> mut information = T::default_information()
     }
 }
@@ -783,7 +791,8 @@ pub fn set_information<T: Copy + ProcessInformation>(handle: isize, information:
             handle,
             T::information_class(),
             addr_of!(information).cast::<c_void>(),
-            size_of::<T>() as u32)
+            size_of::<T>() as u32,
+        )
     }
 }
 
