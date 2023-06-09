@@ -7,7 +7,7 @@ use windows_sys::Win32::System::Memory::{LocalFree, LocalHandle};
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// For more information see the official [documentation].
 ///
@@ -21,7 +21,7 @@ pub fn get_local_handle(mem_ptr: *const c_void) -> Result<isize> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// For more information see the official [documentation].
 ///

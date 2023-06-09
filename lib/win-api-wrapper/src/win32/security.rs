@@ -31,7 +31,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///

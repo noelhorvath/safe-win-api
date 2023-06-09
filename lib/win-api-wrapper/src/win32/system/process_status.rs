@@ -19,7 +19,7 @@ const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// # Examples
 /// TODO
@@ -58,7 +58,7 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// # Examples
 /// TODO
