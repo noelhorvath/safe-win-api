@@ -65,3 +65,24 @@ pub(crate) unsafe fn pcwstr_to_u16_string(pwstr: PCWSTR, len: usize, trim_end: b
 
     unsafe { U16String::from_ptr(message_slice.as_ptr(), message_slice.len()) }
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! check_null_terminator {
+    ($string_slice:expr, $error_code:expr) => {
+        if *$string_slice.as_slice().last().unwrap_or(&1) != 0 {
+            return Err($crate::win32::core::Win32Error::from_code($error_code));
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! check_param {
+    ($str:ident as U16Str) => {
+        $crate::check_null_terminator!(
+            $str,
+            windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER
+        )
+    };
+}
