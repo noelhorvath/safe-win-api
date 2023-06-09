@@ -1,3 +1,4 @@
+use core::mem::size_of;
 use widestring::U16String;
 use windows_sys::core::PCWSTR;
 
@@ -19,10 +20,32 @@ pub(crate) fn trim_wide_end(mut slice: &[u16]) -> &[u16] {
     slice
 }
 
+/// Gets the length of a [`PCWSTR`][`windows_sys::core::PCWSTR`].
+/// The ending null character is not included in the result.
+///
+/// # Safety
+///
+/// If any of the following conditions are violated, the result is Undefined Behavior:
+///
+/// * `pwstr` must point to an element of a wide string that is null-terminated.
+///
+pub unsafe fn get_pcwstr_len(pwstr: PCWSTR) -> usize {
+    let mut len = 0;
+    let type_size = size_of::<u16>();
+    unsafe {
+        while *pwstr.offset((len * type_size) as isize) != 0 {
+            len += 1;
+        }
+    };
+    len
+}
+
 /// Copies the elements of a `len` long [`PCWSTR`][`windows_sys::core::PCWSTR`] to a newly allocated [`U16String`].
 /// If `trim_end` is `true` the end of the result string will be trimmed.
 ///
-/// # Safety:
+/// # Safety
+///
+/// If any of the following conditions are violated, the result is Undefined Behavior:
 ///
 /// * `pwstr` must point to a `u16` value.
 /// * `pwstr` must be valid for `len` number of consecutive values of type `u16`.
