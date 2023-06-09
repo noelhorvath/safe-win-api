@@ -1,6 +1,6 @@
 use super::{
     foundation::get_last_error,
-    system::diagnostics::debug::{format_message, FormatMessagetOptions, System},
+    system::diagnostics::debug::{format_message, FormatMessagetOptions},
 };
 use widestring::U16String;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
