@@ -25,7 +25,7 @@ impl To<Duration> for FILETIME {
 ///
 /// ## Possible errors
 ///
-/// * `file_time` is more than equal to `0x8000000000000000`
+/// * `file_time` is greater than or equal to `0x8000000000000000`
 ///
 /// # Examples
 /// TODO
