@@ -154,6 +154,7 @@ pub fn get_current_id() -> u32 {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
+///
 pub fn open(pid: u32, access: ProcessAccessRights, inherit_handle: bool) -> Result<isize> {
     call_num! { OpenProcess(access, to_BOOL!(inherit_handle), pid) != 0 }
 }
