@@ -21,8 +21,8 @@ impl Win32Error {
     pub const FORMAT_MESSAGE_ERROR_MESSAGE: &'static str = "Failed to retrieve the error message!";
 
     /// Creates a new [`Win32Error`] from the specified error code.
-    pub fn new(code: u32) -> Self {
-        let message = format_message(System, code, 0, None, FormatMessagetOptions::All)
+    pub fn from_code(code: u32) -> Self {
+        let message = format_message(code, 0, None, FormatMessagetOptions::All)
             .unwrap_or(U16String::from_str(Self::FORMAT_MESSAGE_ERROR_MESSAGE))
             .to_string_lossy()
             .into_boxed_str();
@@ -56,7 +56,7 @@ impl Win32Error {
     #[inline]
     /// Gets the calling thread's last [`Win32Error`].
     pub(crate) fn get_last() -> Self {
-        Self::new(get_last_error())
+        Self::from_code(get_last_error())
     }
 }
 
