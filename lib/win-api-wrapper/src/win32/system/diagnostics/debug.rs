@@ -3,7 +3,7 @@ use crate::win32::core::Result;
 use crate::win32::system::memory::{get_local_handle, local_free};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
-use widestring::U16String;
+use widestring::{U16Str, U16String};
 use windows_sys::Win32::System::Diagnostics::Debug::{
     FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_ARGUMENT_ARRAY,
     FORMAT_MESSAGE_FROM_HMODULE, FORMAT_MESSAGE_FROM_STRING, FORMAT_MESSAGE_FROM_SYSTEM,
@@ -14,12 +14,18 @@ use windows_sys::Win32::System::Diagnostics::Debug::{
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
-use crate::call_num;
+use crate::{call_num, check_param};
 
 /// A marker trait for types that can be used as a source in [`format_message_with_source`].
 pub trait FormatSource {
     /// Gets the associated [`FORMAT_MESSAGE_OPTIONS`] flag for the type.
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS;
+
+    /// Converts the reference to `self` to a `*const` [`c_void`] pointer.
+    /// This is a free `Borrowed` -> `Borrowed` conversion.
+    fn as_c_void_ptr(&self) -> *const c_void {
+        addr_of!(*self).cast()
+    }
 }
 
 #[repr(u32)]
@@ -48,9 +54,13 @@ impl To<u32> for FormatMessagetOptions {
 /// The `System` source that can be used with [`format_message`] and [`format_message_with_buffer`] as a `source` argument.
 pub struct System;
 
-impl FormatSource for U16String {
+impl FormatSource for &U16Str {
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS {
         FORMAT_MESSAGE_FROM_STRING
+    }
+
+    fn as_c_void_ptr(&self) -> *const c_void {
+        self.as_ptr().cast()
     }
 }
 
@@ -64,12 +74,15 @@ impl FormatSource for System {
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS {
         FORMAT_MESSAGE_FROM_SYSTEM
     }
+
+    fn as_c_void_ptr(&self) -> *const c_void {
+        ptr::null()
+    }
 }
 
-/// Gets the non-null-terminated formatted message string from the `source` location.
+/// Gets the null-terminated formatted message string from the system message table.
 ///
 /// # Arguments
-/// * `source`: The location of the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
 /// * `args`: An array of values that are used as insert values in the formatted message.
@@ -83,6 +96,10 @@ impl FormatSource for System {
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
+/// ## Possible errors
+///
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+///
 /// # Examples
 /// TODO
 ///
@@ -90,57 +107,161 @@ impl FormatSource for System {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
-pub fn format_message<T>(
+pub fn format_message(
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+) -> Result<U16String> {
+    internal_format_message(System, id, lang_id, args, options, false)
+}
+
+/// Gets the null-terminated formatted message string from the specified module.
+///
+/// # Arguments
+/// * `source`: The handle to the source module that contains the message definition.
+/// * `id`: The message identifier for the requested message.
+/// * `lang_id`: The language identifier for the requested message.
+/// * `args`: An array of values that are used as insert values in the formatted message.
+/// * `options`: The formatting options.
+/// * `can_search_system`: Determines whether the function should search the system message table if the message is not found in the module specified.
+///
+/// # Remarks
+///
+/// * If `source` is a null handle (0), then the current process's application image file will be searched.
+///
+/// # Security
+///
+/// See the [security-remarks] section in the official [documentation].
+///
+/// # Errors
+///
+/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+///
+/// # Possible errors
+///
+/// * `source` is an invalid module handle.
+/// * `source` has no message table resource. ([ERROR_RESOURCE_TYPE_NOT_FOUND])
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+///
+/// # Examples
+/// TODO
+///
+/// For more information see the official [documentation] of [`FormatMessageW`].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
+/// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_RESOURCE_TYPE_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_TYPE_NOT_FOUND
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
+///
+pub fn format_message_from_module(
+    source: isize,
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+    can_search_system: bool,
+) -> Result<U16String> {
+    internal_format_message(source, id, lang_id, args, options, can_search_system)
+}
+
+/// Gets the null-terminated formatted message string from the specified string.
+///
+/// # Arguments
+/// * `source`: The source string that contains the message definition.
+/// * `id`: The message identifier for the requested message.
+/// * `lang_id`: The language identifier for the requested message.
+/// * `args`: An array of values that are used as insert values in the formatted message.
+/// * `options`: The formatting options.
+///
+/// # Security
+///
+/// See the [security-remarks] section in the official [documentation].
+///
+/// # Errors
+///
+/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+///
+/// ## Possible errors
+///
+/// * `source` is a non-null-terminated reference to a [`U16Str`]. ([ERROR_INVALID_PARAMETER])
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+///
+/// # Examples
+/// TODO
+///
+/// For more information see the official [documentation] of [`FormatMessageW`].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
+/// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_INVALID_PARAMETER]: windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
+///
+pub fn format_message_from_str(
+    source: &U16Str,
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+) -> Result<U16String> {
+    check_param!(source as U16Str);
+    internal_format_message(source, id, lang_id, args, options, false)
+}
+
+#[inline]
+#[doc(hidden)]
+fn internal_format_message<T>(
     source: T,
     id: u32,
     lang_id: u32,
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
+    can_search_system: bool, // ignored if T is not `isize` (module handle)
 ) -> Result<U16String>
 where
     T: FormatSource,
 {
     let mut buffer = ptr::null_mut::<u16>();
-    let buffer_size = 0;
-    let source_ptr = if T::format_message_options_flag() == FORMAT_MESSAGE_FROM_SYSTEM {
-        ptr::null()
-    } else {
-        addr_of!(source).cast()
-    };
+    let mut buffer_len = 0;
     let args_flag = if args.is_none() {
         0
     } else {
         FORMAT_MESSAGE_ARGUMENT_ARRAY
     };
+    let system_flag =
+        if can_search_system && T::format_message_options_flag() == FORMAT_MESSAGE_FROM_HMODULE {
+            FORMAT_MESSAGE_FROM_SYSTEM
+        } else {
+            0
+        };
     let option_flags = FORMAT_MESSAGE_ALLOCATE_BUFFER
         | T::format_message_options_flag()
         | args_flag
-        | options.to();
-    let buffer_len = call_num! {
+        | options.to()
+        | system_flag;
+    buffer_len = call_num! {
         (FormatMessageW(
             option_flags,
-            source_ptr ,
+            T::as_c_void_ptr(&source),
             id,
             lang_id,
             addr_of_mut!(buffer).cast(),
-            buffer_size,
+            buffer_len as u32,
             if let Some(args) = args { args.as_ptr() } else { ptr::null() }
         ) == 0) => return Error;
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
-    let can_trim_end = (options.to() & FormatMessagetOptions::RegularLineBreaks.to())
-        == FormatMessagetOptions::RegularLineBreaks.to();
-    let message = unsafe { pcwstr_to_u16_string(buffer, buffer_len as usize, can_trim_end) };
+    let message = unsafe { pcwstr_to_u16_string(buffer, (buffer_len + 1) as usize, false) };
     let handle = get_local_handle(buffer.cast::<c_void>())?;
     local_free(handle)?;
     Ok(message)
 }
 
-/// Gets the non-null-terminated formatted message string retrieved from the `source` location and copies into `buffer`.
+/// Gets the null-terminated formatted message string from the system message table and copies it into `buffer`.
 ///
 /// # Arguments
-/// * `source`: The location of the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
 /// * `args`: An array of values that are used as insert values in the formatted message.
@@ -155,9 +276,11 @@ where
 ///
 /// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
 ///
-/// #+ Possible errors
+/// ## Possible errors
 ///  
-/// * `buffer` is not large enough to store the formatted message. ([`ERROR_INSUFFICIENT_BUFFER`][`windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER`])
+/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
+/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
 ///
 /// # Examples
 /// TODO
@@ -166,33 +289,156 @@ where
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
+/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
-pub fn format_message_with_buffer<T>(
+pub fn format_message_with_buffer(
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+    buffer: &mut [u16],
+) -> Result<u32> {
+    internal_format_message_with_buffer(System, id, lang_id, args, options, buffer, false)
+}
+
+/// Gets the formatted message string from the specified module and copies it into `buffer`.
+///
+/// # Arguments
+/// * `source`: The handle to the source module that contains the message definition.
+/// * `id`: The message identifier for the requested message.
+/// * `lang_id`: The language identifier for the requested message.
+/// * `args`: An array of values that are used as insert values in the formatted message.
+/// * `options`: The formatting options.
+/// * `buffer`: The buffer where the message gets copied to.
+/// * `can_search_system`: Determines whether the function should search the system message table if the message is not found in the module specified.
+///
+/// # Security
+///
+/// See the [security-remarks] section in the official [documentation].
+///
+/// # Errors
+///
+/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+///
+/// ## Possible errors
+///
+/// * `source` is an invalid module handle.
+/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
+/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+///
+/// # Examples
+/// TODO
+///
+/// For more information see the official [documentation] of [`FormatMessageW`].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
+/// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
+/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
+///
+pub fn format_message_from_module_with_buffer(
+    source: isize,
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+    buffer: &mut [u16],
+    can_search_system: bool,
+) -> Result<u32> {
+    internal_format_message_with_buffer(
+        source,
+        id,
+        lang_id,
+        args,
+        options,
+        buffer,
+        can_search_system,
+    )
+}
+
+/// Gets the formatted message string from the specified string and copies it into `buffer`.
+///
+/// # Arguments
+/// * `source`: The source string that contains the message definition.
+/// * `id`: The message identifier for the requested message.
+/// * `lang_id`: The language identifier for the requested message.
+/// * `args`: An array of values that are used as insert values in the formatted message.
+/// * `options`: The formatting options.
+/// * `buffer`: The buffer where the message gets copied to.
+///
+/// # Security
+///
+/// See the [security-remarks] section in the official [documentation].
+///
+/// # Errors
+///
+/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+///
+/// ## Possible errors
+///
+/// * `source` is a non-null-terminated reference to a [`U16Str`]. ([ERROR_INVALID_PARAMETER])
+/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
+/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
+/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+///
+/// # Examples
+/// TODO
+///
+/// For more information see the official [documentation] of [`FormatMessageW`].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
+/// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
+/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
+/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
+/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
+/// [ERROR_INVALID_PARAMETER]: windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER
+///
+pub fn format_message_from_str_with_buffer(
+    source: &U16Str,
+    id: u32,
+    lang_id: u32,
+    args: Option<&[*const i8]>,
+    options: FormatMessagetOptions,
+    buffer: &mut [u16],
+) -> Result<u32> {
+    check_param!(source as U16Str);
+    internal_format_message_with_buffer(source, id, lang_id, args, options, buffer, false)
+}
+
+#[inline]
+#[doc(hidden)]
+fn internal_format_message_with_buffer<T>(
     source: T,
     id: u32,
     lang_id: u32,
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
     buffer: &mut [u16],
+    can_search_system: bool, // ignored if T is not `isize` (module handle)
 ) -> Result<u32>
 where
     T: FormatSource,
 {
-    let source_ptr = if T::format_message_options_flag() == FORMAT_MESSAGE_FROM_SYSTEM {
-        ptr::null()
-    } else {
-        addr_of!(source).cast()
-    };
     let args_flag = if args.is_none() {
         0
     } else {
         FORMAT_MESSAGE_ARGUMENT_ARRAY
     };
-    let option_flags = T::format_message_options_flag() | args_flag | options.to();
+    let system_flag =
+        if can_search_system && T::format_message_options_flag() == FORMAT_MESSAGE_FROM_HMODULE {
+            FORMAT_MESSAGE_FROM_SYSTEM
+        } else {
+            0
+        };
+    let option_flags = T::format_message_options_flag() | args_flag | options.to() | system_flag;
     call_num! {
         FormatMessageW(
             option_flags,
-            source_ptr,
+            T::as_c_void_ptr(&source),
             id,
             lang_id,
             buffer.as_mut_ptr(),
