@@ -22,8 +22,8 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 ///
 /// # Remarks
 ///
-/// - `pid` parameter can be zero to indicate the current process.
-/// - `pid` parameter is used when the [TH32CS_SNAPHEAPLIST], [TH32CS_SNAPMODULE], [TH32CS_SNAPMODULE32], or [TH32CS_SNAPALL] value is specified.
+/// * `pid` parameter can be zero to indicate the current process.
+/// * `pid` parameter is used when the [TH32CS_SNAPHEAPLIST], [TH32CS_SNAPMODULE], [TH32CS_SNAPMODULE32], or [TH32CS_SNAPALL] value is specified.
 ///   Otherwise, it is ignored and all processes are included in the snapshot.
 ///
 /// # Errors
@@ -32,8 +32,8 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 ///
 /// ## Possible errors
 ///
-/// - `pid` is the idle process or one of the CSRSS processes. ([ERROR_ACCESS_DENIED])
-/// - `pid` is a 64-bit process and the caller is a 32-bit process. ([ERROR_PARTIAL_COPY])
+/// * `pid` is the idle process or one of the CSRSS processes. ([ERROR_ACCESS_DENIED])
+/// * `pid` is a 64-bit process and the caller is a 32-bit process. ([ERROR_PARTIAL_COPY])
 ///
 /// # Examples
 /// TODO
