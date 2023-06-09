@@ -384,29 +384,6 @@ pub fn get_selected_cpu_set_count(handle: isize) -> Result<u32> {
     call_BOOL! { GetThreadSelectedCpuSets(handle, ptr::null_mut(), 0, &mut count) -> mut count: u32 }
 }
 
-/// Clears the explicit CPU Set assignment of the specified thread, if any assignment was set using [`set_selected_cpu_sets`].
-///
-/// # Errors
-///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
-///
-/// ## Possible errors
-///
-/// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
-///
-/// # Examples
-///
-/// TODO
-///
-/// For more information see the official [documentation].
-///
-/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadselectedcpusets
-///
-pub fn clear_selected_cpu_sets(handle: isize) -> Result<()> {
-    call_BOOL! { GetThreadSelectedCpuSets(handle, ptr::null_mut(), 0, &mut 0) }
-}
-
 /// Gets the explicit CPU Set assignment of the specified thread, if any assignment was set using [`set_selected_cpu_sets`].
 ///
 /// # Remarks
@@ -600,6 +577,29 @@ pub fn set_ideal_processor(
             // Safety: `PROCESS_NUMBER` is not a reference nor a pointer.
             unsafe { zeroed::<PROCESSOR_NUMBER>() }
     }
+}
+
+/// Clears the explicit CPU Set assignment of the specified thread, if any assignment was set using [`set_selected_cpu_sets`].
+///
+/// # Errors
+///
+/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+///
+/// ## Possible errors
+///
+/// * `handle` is invalid.
+/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadselectedcpusets
+///
+pub fn clear_selected_cpu_sets(handle: isize) -> Result<()> {
+    call_BOOL! { SetThreadSelectedCpuSets(handle, ptr::null_mut(), 0) }
 }
 
 /// Sets the selected CPU Sets assignment for the specified thread. This assignment overrides the process default assignment, if one is set.
