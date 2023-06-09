@@ -152,49 +152,49 @@ macro_rules! call_num {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_int!(Ok => res, res, $error_val)
+            $crate::handle_num!(Ok => res, res, $error_val)
         }
     };
     { $func:ident($($arg:expr), *) != $error_val:literal To } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_int!(Ok => res, res.to(), $error_val)
+            $crate::handle_num!(Ok => res, res.to(), $error_val)
         }
     };
     { $func:ident($($arg:expr), *) != $error_val:literal as $ret_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_int!(Ok => res, res as $ret_type, $error_val)
+            $crate::handle_num!(Ok => res, res as $ret_type, $error_val)
         }
     };
     { $func:ident($($arg:expr), *) != $error_val:expr } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_int!(Ok => res, res, $error_val)
+            $crate::handle_num!(Ok => res, res, $error_val)
         }
     };
     { $func:ident($($arg:expr), *) == $success_val:literal } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_int!(Err => res, $success_val)
+            $crate::handle_num!(Err => res, $success_val)
         }
     };
     { ($func:ident($($arg:expr), *) == $error_val:literal) => return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
-            $crate::handle_int!(return Error res_val, $error_val)
+            $crate::handle_num!(return Error res_val, $error_val)
         }
     };
 }
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! handle_int {
+macro_rules! handle_num {
     (Err => $res_val:ident, $success_val:literal) => {
         if $res_val == $success_val {
             Ok(())
