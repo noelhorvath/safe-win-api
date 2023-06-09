@@ -94,11 +94,12 @@ impl FormatSource for System {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -107,7 +108,6 @@ impl FormatSource for System {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
 pub fn format_message(
     id: u32,
@@ -138,13 +138,15 @@ pub fn format_message(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// # Possible errors
 ///
 /// * `source` is an invalid module handle.
-/// * `source` has no message table resource. ([ERROR_RESOURCE_TYPE_NOT_FOUND])
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_RESOURCE_TYPE_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_TYPE_NOT_FOUND]
+///     * `source` has no message table resource.
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -153,8 +155,6 @@ pub fn format_message(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_RESOURCE_TYPE_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_TYPE_NOT_FOUND
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
 pub fn format_message_from_module(
     source: isize,
@@ -182,12 +182,14 @@ pub fn format_message_from_module(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///
-/// * `source` is a non-null-terminated reference to a [`U16Str`]. ([ERROR_INVALID_PARAMETER])
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
+///     * `source` is a non-null-terminated reference to a [`U16Str`].
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -196,8 +198,6 @@ pub fn format_message_from_module(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_INVALID_PARAMETER]: windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
 pub fn format_message_from_str(
     source: &U16Str,
@@ -274,13 +274,16 @@ where
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///  
-/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
-/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * `buffer` is not large enough to store the formatted message.
+/// * [`ERROR_MORE_DATA`][windows_sys::Win32::Foundation::ERROR_MORE_DATA]
+///     * The length of the formatted message exceeds `128K` bytes.
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -289,9 +292,6 @@ where
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
-/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
 pub fn format_message_with_buffer(
     id: u32,
@@ -320,14 +320,19 @@ pub fn format_message_with_buffer(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///
 /// * `source` is an invalid module handle.
-/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
-/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_RESOURCE_TYPE_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_TYPE_NOT_FOUND]
+///     * `source` has no message table resource.
+/// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * `buffer` is not large enough to store the formatted message.
+/// * [`ERROR_MORE_DATA`][windows_sys::Win32::Foundation::ERROR_MORE_DATA]
+///     * The length of the formatted message exceeds `128K` bytes.
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -336,9 +341,6 @@ pub fn format_message_with_buffer(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
-/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
 ///
 pub fn format_message_from_module_with_buffer(
     source: isize,
@@ -376,14 +378,18 @@ pub fn format_message_from_module_with_buffer(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][`crate::win32::core::Win32Error`] if the function fails.
+/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
 ///
 /// ## Possible errors
 ///
-/// * `source` is a non-null-terminated reference to a [`U16Str`]. ([ERROR_INVALID_PARAMETER])
-/// * `buffer` is not large enough to store the formatted message. ([ERROR_INSUFFICIENT_BUFFER])
-/// * The length of the formatted message exceeds `128K` bytes. ([ERROR_MORE_DATA])
-/// * The function failed to find a message for the `LANGID` specified by `lang_id`. ([ERROR_RESOURCE_LANG_NOT_FOUND])
+/// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
+///     * `source` is a non-null-terminated reference to a [`U16Str`].
+/// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * `buffer` is not large enough to store the formatted message.
+/// * [`ERROR_MORE_DATA`][windows_sys::Win32::Foundation::ERROR_MORE_DATA]
+///     * The length of the formatted message exceeds `128K` bytes.
+/// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
+///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
 /// # Examples
 /// TODO
@@ -392,10 +398,6 @@ pub fn format_message_from_module_with_buffer(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
-/// [ERROR_INSUFFICIENT_BUFFER]: windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER
-/// [ERROR_MORE_DATA]: windows_sys::Win32::Foundation::ERROR_MORE_DATA
-/// [ERROR_RESOURCE_LANG_NOT_FOUND]: windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND
-/// [ERROR_INVALID_PARAMETER]: windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER
 ///
 pub fn format_message_from_str_with_buffer(
     source: &U16Str,
