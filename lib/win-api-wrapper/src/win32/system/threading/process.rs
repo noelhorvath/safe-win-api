@@ -1,4 +1,4 @@
-use crate::common::{pcwstr_to_u16_string, To};
+use crate::common::To;
 use crate::win32::core::Result;
 use crate::{call_BOOL, call_num};
 use crate::{from_BOOL, to_BOOL};
@@ -6,7 +6,7 @@ use alloc::boxed::Box;
 use core::ffi::c_void;
 use core::mem::{size_of, transmute, zeroed};
 use core::ptr::{self, addr_of, addr_of_mut};
-use widestring::U16String;
+use widestring::U16CString;
 use windows_sys::Win32::Foundation::{ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE, STILL_ACTIVE};
 use windows_sys::Win32::System::Threading::{
     ExitProcess, GetCurrentProcess, GetCurrentProcessId, GetExitCodeProcess, GetPriorityClass,
@@ -211,7 +211,7 @@ pub fn is_elevated(handle: isize) -> bool {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamew
 ///
-pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result<U16String> {
+pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result<U16CString> {
     let mut buffer_size = MAX_CHARS_IN_LONG_PATH as u32;
     let mut buffer = [0; MAX_CHARS_IN_LONG_PATH];
     call_BOOL! {
@@ -223,7 +223,7 @@ pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result
     };
 
     // Safety: `buffer` is valid `u16` array with a length of `MAX_CHARS_IN_LONG_PATH`.
-    Ok(unsafe { pcwstr_to_u16_string(buffer.as_ptr(), buffer.len(), true) })
+    Ok(unsafe { U16CString::from_ptr_str(buffer.as_ptr()) })
 }
 
 /// Gets the full name of the executable image for the specified process.

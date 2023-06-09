@@ -2,7 +2,7 @@ use super::{
     foundation::get_last_error,
     system::diagnostics::debug::{format_message, FormatMessagetOptions},
 };
-use widestring::U16String;
+use widestring::U16CString;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 
 /// The result of an error-prone Win32 API call.
@@ -23,7 +23,10 @@ impl Win32Error {
     /// Creates a new [`Win32Error`] from the specified error code.
     pub fn from_code(code: u32) -> Self {
         let message = format_message(code, 0, None, FormatMessagetOptions::All)
-            .unwrap_or(U16String::from_str(Self::FORMAT_MESSAGE_ERROR_MESSAGE))
+            .unwrap_or(unsafe {
+                // Safety: `FORMAT_MESSAGE_ERROR_MESSAGE` is a valid static str and doesn't contain null values.
+                U16CString::from_str_unchecked(Self::FORMAT_MESSAGE_ERROR_MESSAGE)
+            })
             .to_string_lossy()
             .into_boxed_str();
         Self { code, message }

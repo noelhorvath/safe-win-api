@@ -1,9 +1,9 @@
-use crate::common::{pcwstr_to_u16_string, To};
+use crate::common::To;
 use crate::win32::core::Result;
 use crate::win32::system::memory::{get_local_handle, local_free};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
-use widestring::{U16Str, U16String};
+use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::System::Diagnostics::Debug::{
     FormatMessageW, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_ARGUMENT_ARRAY,
     FORMAT_MESSAGE_FROM_HMODULE, FORMAT_MESSAGE_FROM_STRING, FORMAT_MESSAGE_FROM_SYSTEM,
@@ -14,7 +14,7 @@ use windows_sys::Win32::System::Diagnostics::Debug::{
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
-use crate::{call_num, check_param};
+use crate::call_num;
 
 /// A marker trait for types that can be used as a source in [`format_message_with_source`].
 pub trait FormatSource {
@@ -54,7 +54,7 @@ impl To<u32> for FormatMessagetOptions {
 /// The `System` source that can be used with [`format_message`] and [`format_message_with_buffer`] as a `source` argument.
 pub struct System;
 
-impl FormatSource for &U16Str {
+impl FormatSource for &U16CStr {
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS {
         FORMAT_MESSAGE_FROM_STRING
     }
@@ -114,7 +114,7 @@ pub fn format_message(
     lang_id: u32,
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
-) -> Result<U16String> {
+) -> Result<U16CString> {
     internal_format_message(System, id, lang_id, args, options, false)
 }
 
@@ -163,7 +163,7 @@ pub fn format_message_from_module(
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
     can_search_system: bool,
-) -> Result<U16String> {
+) -> Result<U16CString> {
     internal_format_message(source, id, lang_id, args, options, can_search_system)
 }
 
@@ -186,8 +186,6 @@ pub fn format_message_from_module(
 ///
 /// ## Possible errors
 ///
-/// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
-///     * `source` is a non-null-terminated reference to a [`U16Str`].
 /// * [`ERROR_RESOURCE_LANG_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
 ///     * The function failed to find a message for the `LANGID` specified by `lang_id`.
 ///
@@ -200,13 +198,12 @@ pub fn format_message_from_module(
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
 ///
 pub fn format_message_from_str(
-    source: &U16Str,
+    source: &U16CStr,
     id: u32,
     lang_id: u32,
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
-) -> Result<U16String> {
-    check_param!(source as U16Str);
+) -> Result<U16CString> {
     internal_format_message(source, id, lang_id, args, options, false)
 }
 
@@ -219,12 +216,12 @@ fn internal_format_message<T>(
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
     can_search_system: bool, // ignored if T is not `isize` (module handle)
-) -> Result<U16String>
+) -> Result<U16CString>
 where
     T: FormatSource,
 {
     let mut buffer = ptr::null_mut::<u16>();
-    let mut buffer_len = 0;
+    let buffer_len = 0;
     let args_flag = if args.is_none() {
         0
     } else {
@@ -241,7 +238,7 @@ where
         | args_flag
         | options.to()
         | system_flag;
-    buffer_len = call_num! {
+    call_num! {
         (FormatMessageW(
             option_flags,
             T::as_c_void_ptr(&source),
@@ -253,7 +250,7 @@ where
         ) == 0) => return Error;
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
-    let message = unsafe { pcwstr_to_u16_string(buffer, (buffer_len + 1) as usize, false) };
+    let message = unsafe { U16CString::from_ptr_str(buffer) };
     let handle = get_local_handle(buffer.cast::<c_void>())?;
     local_free(handle)?;
     Ok(message)
@@ -382,8 +379,6 @@ pub fn format_message_from_module_with_buffer(
 ///
 /// ## Possible errors
 ///
-/// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
-///     * `source` is a non-null-terminated reference to a [`U16Str`].
 /// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
 ///     * `buffer` is not large enough to store the formatted message.
 /// * [`ERROR_MORE_DATA`][windows_sys::Win32::Foundation::ERROR_MORE_DATA]
@@ -400,14 +395,13 @@ pub fn format_message_from_module_with_buffer(
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
 ///
 pub fn format_message_from_str_with_buffer(
-    source: &U16Str,
+    source: &U16CStr,
     id: u32,
     lang_id: u32,
     args: Option<&[*const i8]>,
     options: FormatMessagetOptions,
     buffer: &mut [u16],
 ) -> Result<u32> {
-    check_param!(source as U16Str);
     internal_format_message_with_buffer(source, id, lang_id, args, options, buffer, false)
 }
 

@@ -1,14 +1,13 @@
 use super::super::kernel::PROCESSOR_NUMBER;
-use crate::common::{get_pcwstr_len, pcwstr_to_u16_string};
 use crate::win32::core::Result;
 use crate::win32::system::memory::{get_local_handle, local_free};
-use crate::{call_BOOL, call_num, check_param, to_BOOL};
+use crate::{call_BOOL, call_num, to_BOOL};
 use alloc::boxed::Box;
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
 use core::ptr;
 use core::ptr::{addr_of, addr_of_mut};
-use widestring::{U16Str, U16String};
+use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::Foundation::STILL_ACTIVE;
 use windows_sys::Win32::System::Threading::{
     ExitThread, GetCurrentThread, GetCurrentThreadId, GetExitCodeThread, GetProcessIdOfThread,
@@ -207,13 +206,11 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreaddescription
 ///
-pub fn get_description(handle: isize) -> Result<U16String> {
+pub fn get_description(handle: isize) -> Result<U16CString> {
     let mut description_ptr = ptr::null_mut::<u16>();
     call_num! { (GetThreadDescription(handle, addr_of_mut!(description_ptr).cast()) == 0) => return Error };
-    // Safety: `description_ptr` points to an element of a wide string that is null-terminated.
-    let len = unsafe { get_pcwstr_len(description_ptr) };
-    // Safety: `description_ptr` points to the first element of a wide string that is `len` + 1 long.
-    let description = unsafe { pcwstr_to_u16_string(description_ptr, len, false) };
+    // Safety: `description_ptr` is a valid nul-terminated string pointer.
+    let description = unsafe { U16CString::from_ptr_str(description_ptr) };
     let handle = get_local_handle(description_ptr.cast())?;
     local_free(handle)?;
     Ok(description)
@@ -502,8 +499,6 @@ pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
 ///
 /// * `handle` is invalid.
 /// * `handle` doesn't have [`THREAD_SET_LIMITED_INFORMATION`] access right.
-/// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
-///     * `description` is a non-null-terminated reference to a [`U16Str`].
 ///
 /// # Examples
 ///
@@ -513,8 +508,7 @@ pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 ///
-pub fn set_description(handle: isize, description: &U16Str) -> Result<()> {
-    check_param!(description as U16Str);
+pub fn set_description(handle: isize, description: &U16CStr) -> Result<()> {
     call_BOOL! { SetThreadDescription(handle, description.as_ptr()) }
 }
 
