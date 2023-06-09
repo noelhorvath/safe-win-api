@@ -208,7 +208,11 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 ///
 pub fn get_description(handle: isize) -> Result<U16CString> {
     let mut description_ptr = ptr::null_mut::<u16>();
-    call_num! { (GetThreadDescription(handle, addr_of_mut!(description_ptr).cast()) == 0) => return Error };
+    call_num! {
+        (GetThreadDescription(
+            handle,
+            addr_of_mut!(description_ptr).cast()) == 0) return Error
+    };
     // Safety: `description_ptr` is a valid nul-terminated string pointer.
     let description = unsafe { U16CString::from_ptr_str(description_ptr) };
     let handle = get_local_handle(description_ptr.cast())?;

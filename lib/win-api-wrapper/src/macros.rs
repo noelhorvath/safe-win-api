@@ -183,19 +183,26 @@ macro_rules! call_num {
             $crate::handle_num!(Err => res, $success_val)
         }
     };
-    { ($func:ident($($arg:expr), * $(,)?) == $success_val:literal) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
+    { ($func:ident($($arg:expr), * $(,)?) == $error_val:expr) return Error $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_val = unsafe { $func($($arg),*) };
+            $crate::handle_num!(return Err => res_val, $error_val)
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let $ret_val = <$ret_type>::default();
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_num!(Ok => res, $ret_val, $success_val)
+            $crate::handle_num!(Err => res, $ret_val, windows_sys::Win32::Foundation::ERROR_SUCCESS)
         }
     };
-    { ($func:ident($($arg:expr), * $(,)?) == $error_val:literal) => return Error $(;)? } => {
+    { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
-            $crate::handle_num!(return Error res_val, $error_val)
+            $crate::handle_num!(return Err $res_val:ident)
         }
     };
 }
@@ -217,11 +224,16 @@ macro_rules! handle_num {
             Err($crate::win32::core::Win32Error::get_last())
         }
     };
-    (return Error $res_val:ident, $error_val:expr) => {
+    (return Err => $res_val:ident, $error_val:expr) => {
         if $res_val == $error_val {
             return Err($crate::win32::core::Win32Error::get_last());
         } else {
             $res_val
+        }
+    };
+    (return Err $res_val:ident) => {
+        if $res_val != windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            return Err($crate::win32::core::Win32Error::from_code($res_val));
         }
     };
 }
