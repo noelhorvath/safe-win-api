@@ -180,7 +180,7 @@ macro_rules! call_num {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_num!(Err => res, $success_val)
+            $crate::handle_num!(Err => res, (), $success_val)
         }
     };
     { ($func:ident($($arg:expr), * $(,)?) == $error_val:expr) return Error $(;)? } => {
@@ -190,29 +190,14 @@ macro_rules! call_num {
             $crate::handle_num!(return Err => res_val, $error_val)
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
-        {
-            #[allow(clippy::undocumented_unsafe_blocks)]
-            let $ret_val = <$ret_type>::default();
-            let res = unsafe { $func($($arg),*) };
-            $crate::handle_num!(Err => res, $ret_val, windows_sys::Win32::Foundation::ERROR_SUCCESS)
-        }
-    };
-    { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
-        {
-            #[allow(clippy::undocumented_unsafe_blocks)]
-            let res_val = unsafe { $func($($arg),*) };
-            $crate::handle_num!(return Err $res_val:ident)
-        }
-    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_num {
-    (Err => $res_val:ident, $success_val:literal) => {
+    (Err => $res_val:ident, $ret_expr:expr, $success_val:literal) => {
         if $res_val == $success_val {
-            Ok(())
+            Ok($ret_expr)
         } else {
             Err($crate::win32::core::Win32Error::get_last())
         }
@@ -231,9 +216,60 @@ macro_rules! handle_num {
             $res_val
         }
     };
-    (return Err $res_val:ident) => {
-        if $res_val != windows_sys::Win32::Foundation::ERROR_SUCCESS {
-            return Err($crate::win32::core::Win32Error::from_code($res_val));
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_WIN32_ERROR {
+    { $func:ident($($arg:expr), * $(,)?) } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_error_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res_error_code, ())
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let mut $ret_val = <$ret_type>::default();
+            let res_error_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res_error_code, $ret_val)
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_error_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(return Err res_error_code)
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) return Error as Option $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_error_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(return Err res_error_code as Option)
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! handle_WIN32_ERROR {
+    ($res_error_code:ident, $ret_expr:expr) => {
+        if $res_error_code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            Err($crate::win32::core::Win32Error::from_code($res_error_code))
+        } else {
+            Ok($ret_expr)
+        }
+    };
+    (return Err $res_error_code:ident) => {
+        if $res_error_code != windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            return Err($crate::win32::core::Win32Error::from_code($res_error_code));
+        }
+    };
+    (return Err $res_error_code:ident as Option) => {
+        if $res_error_code != windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            return None;
         }
     };
 }
