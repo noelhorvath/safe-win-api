@@ -91,10 +91,10 @@ macro_rules! handle_BOOL {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            if res == 0 {
-                Err($crate::win32::core::Win32Error::get_last())
-            } else {
+            if $crate::from_BOOL!(res) {
                 Ok($ret_expr)
+            } else {
+                Err($crate::win32::core::Win32Error::get_last())
             }
         }
     };
@@ -102,7 +102,7 @@ macro_rules! handle_BOOL {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            if res == 0 {
+            if $crate::from_BOOL!(!res) {
                 return Err($crate::win32::core::Win32Error::get_last())
             }
         }
@@ -111,13 +111,13 @@ macro_rules! handle_BOOL {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            if res == 0 {
+            if $crate::from_BOOL!(res) {
+                return Ok($def_ret_val);
+            } else {
                 let error = $crate::win32::core::Win32Error::get_last();
                 if error.code == $error_val {
                     return Err(error);
                 }
-            } else {
-                return Ok($def_ret_val);
             }
         }
     };
@@ -125,10 +125,10 @@ macro_rules! handle_BOOL {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            if res == 0 {
-                None
-            } else {
+            if $crate::from_BOOL!(res) {
                 Some($ret_expr)
+            } else {
+                None
             }
         }
     };
@@ -136,10 +136,15 @@ macro_rules! handle_BOOL {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            match res as u32 {
-                0 => Ok(Some($ret_expr)),
-                $win_error => Ok(None),
-                _ => Err($crate::win32::core::Win32Error::get_last())
+            if $crate::from_BOOL!(res) {
+                Ok(Some($ret_expr))
+            } else {
+                let error = $crate::win32::core::Win32Error::get_last();
+                if error.code == $win_error {
+                    Ok(None)
+                } else {
+                    Err(error)
+                }
             }
         }
     };
