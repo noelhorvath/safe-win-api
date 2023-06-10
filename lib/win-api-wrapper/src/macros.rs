@@ -178,7 +178,7 @@ macro_rules! call_num {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_num!(res, $op, $check_val, Some(res), $error_val, None)
+            $crate::handle_num!(res, $op, $check_val, Some(res), None)
         }
     };
     { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => as $ret_type:ty } => {
