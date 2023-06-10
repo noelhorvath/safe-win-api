@@ -1,6 +1,6 @@
-use crate::call_WIN32_ERROR;
 use crate::common::ToDebugString;
 use crate::win32::core::Result;
+use crate::{call_WIN32_ERROR, default_sized};
 use core::ptr;
 use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::Foundation::FILETIME;
@@ -40,10 +40,7 @@ impl ::core::default::Default for RegistryKeyEnumInfo {
         Self {
             name: U16CString::new(),
             class: U16CString::new(),
-            last_write_time: FILETIME {
-                dwHighDateTime: 0,
-                dwLowDateTime: 0,
-            },
+            last_write_time: default_sized!(FILETIME),
         }
     }
 }
@@ -250,10 +247,7 @@ impl ::core::default::Default for RegistryKeyInfo {
             max_value_name_len: 0,
             max_value_len: 0,
             security_descriptor: 0,
-            last_write_time: FILETIME {
-                dwHighDateTime: 0,
-                dwLowDateTime: 0,
-            },
+            last_write_time: default_sized!(FILETIME),
         }
     }
 }

@@ -239,7 +239,7 @@ where
         | options.to()
         | system_flag;
     call_num! {
-        (FormatMessageW(
+        FormatMessageW(
             option_flags,
             T::as_c_void_ptr(&source),
             id,
@@ -247,7 +247,7 @@ where
             addr_of_mut!(buffer).cast(),
             buffer_len as u32,
             if let Some(args) = args { args.as_ptr() } else { ptr::null() },
-        ) == 0) return Error;
+        ) == 0 => return Error;
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
     let message = unsafe { U16CString::from_ptr_str(buffer) };
