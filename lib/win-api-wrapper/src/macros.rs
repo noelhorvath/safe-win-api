@@ -1,5 +1,21 @@
 #[doc(hidden)]
 #[macro_export]
+macro_rules! last_error {
+    () => {
+        $crate::win32::core::Win32Error::get_last()
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! error_from {
+    ($code:expr) => {
+        $crate::win32::core::Win32Error::from_code($code)
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! call_BOOL {
     { $func:ident($($arg:expr), * $(,)?) } => {
         $crate::handle_BOOL!($func($($arg), *) -> ())
@@ -82,11 +98,32 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!($func($($arg), *) Result<Option> { $res, $win_error => None })
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) -> bool } => {
+        {
+            $crate::handle_BOOL!($func($($arg), *) -> bool)
+        }
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_BOOL {
+    ($func:ident($($arg:expr), *) -> bool) => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_bool = $crate::from_BOOL!(unsafe { $func($($arg),*) });
+            if res_bool {
+                Ok(res_bool)
+            } else {
+                let error = $crate::last_error!();
+                if error.code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+                    Ok(res_bool)
+                } else {
+                    Err(error)
+                }
+            }
+        }
+    };
     ($func:ident($($arg:expr), *) -> $ret_expr:expr) => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -160,6 +197,20 @@ macro_rules! call_num {
             $crate::handle_num!(res, !=, $check_val, Ok(res), Err($crate::last_error!()))
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) != $check_val:expr => SetError } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_num!(
+                res,
+                !=,
+                $check_val,
+                Ok(res),
+                Err($crate::last_error!()),
+                $crate::win32::foundation::set_last_error(windows_sys::Win32::Foundation::ERROR_SUCCESS)
+            )
+        }
+    };
     { $func:ident($($arg:expr), * $(,)?) == $check_val:expr } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -181,11 +232,18 @@ macro_rules! call_num {
             $crate::handle_num!(res, $op, $check_val, Some(res), None)
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => Result<Option>} => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_num!(Result<Option> => res, $op, $check_val, res, $crate::last_error!())
+        }
+    };
     { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => as $ret_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_num!(res, $op, $error_val, Ok(res as $ret_type), Err($crate::last_error!()))
+            $crate::handle_num!(res, $op, $check_val, Ok(res as $ret_type), Err($crate::last_error!()))
         }
     };
     { $func:ident($($arg:expr), * $(,)?) == $error_val:expr => return Error $(;)? } => {
@@ -199,22 +257,6 @@ macro_rules! call_num {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! last_error {
-    () => {
-        $crate::win32::core::Win32Error::get_last()
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! error_from {
-    ($code:expr) => {
-        $crate::win32::core::Win32Error::from_code($code)
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
 macro_rules! handle_num {
     ($res_val:ident, $op:tt, $check_val:expr, $ret_expr:expr, $ret_error:expr) => {
         if $res_val $op $check_val {
@@ -223,11 +265,31 @@ macro_rules! handle_num {
             $ret_error
         }
     };
-    ($res_val:ident, $op:tt, $check_val:expr, $ret_expr:expr, $ret_error_statement:stmt) => {
+    ($res_val:ident, $op:tt, $check_val:expr, $ret_expr:expr, $ret_error:expr, $($pre_error:stmt); *) => {
         if $res_val $op $check_val {
-            ret_error_statement;
+            $ret_expr
+        } else {
+            $($pre_error)*
+            $ret_error
+        }
+    };
+    ($res_val:ident, $op:tt, $check_val:expr, $ret_error_statement:stmt) => {
+        if $res_val $op $check_val {
+            ret_error_statement
         } else {
             $res_val
+        }
+    };
+    (Result<Option> => $res_val:ident, $op:tt, $check_val:expr, $ret_expr:expr, $get_error:expr) => {
+        if $res_val $op $check_val {
+            Ok(Some($ret_expr))
+        } else {
+            let error = $get_error;
+            if error.code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+                Ok(None)
+            } else {
+                Err(error)
+            }
         }
     };
 }
