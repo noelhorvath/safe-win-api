@@ -1,21 +1,5 @@
 #[doc(hidden)]
 #[macro_export]
-macro_rules! last_error {
-    () => {
-        $crate::win32::core::Win32Error::get_last()
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! error_from {
-    ($code:expr) => {
-        $crate::win32::core::Win32Error::from_code($code)
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
 macro_rules! call_BOOL {
     { $func:ident($($arg:expr), * $(,)?) } => {
         $crate::handle_BOOL!($func($($arg), *) -> ())
@@ -23,8 +7,8 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
         $crate::handle_BOOL!($func($($arg), *) return Error )
     };
-    { $func:ident($($arg:expr), * $(,)?) -> if Error == $error_val:tt return $(;)? else return $def_ret_val:expr $(;)? } => {
-        $crate::handle_BOOL!($func($($arg), *) if Error == $error_val return else return $def_ret_val)
+    { $func:ident($($arg:expr), * $(,)?) -> if $error_val:tt return $(;)? else return $def_ret_val:expr $(;)? } => {
+        $crate::handle_BOOL!($func($($arg), *) if $error_val return else return $def_ret_val)
     };
     { $func:ident($($arg:expr), * $(,)?) -> mut !$res:ident } => {
         {
@@ -90,12 +74,12 @@ macro_rules! call_BOOL {
     { $func:ident($($arg:expr), * $(,)?) -> Result<Option>
         {
             mut $res:ident = $init_val:expr;
-            $win_error:tt => None $(;)?
+            $win_err:tt => None $(;)?
         }
     } => {
         {
             let mut $res = $init_val;
-            $crate::handle_BOOL!($func($($arg), *) Result<Option> { $res, $win_error => None })
+            $crate::handle_BOOL!($func($($arg), *) Result<Option> { $res, $win_err => None })
         }
     };
     { $func:ident($($arg:expr), * $(,)?) -> bool } => {
@@ -116,7 +100,7 @@ macro_rules! handle_BOOL {
                 Ok(res_bool)
             } else {
                 let error = $crate::last_error!();
-                if error.code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+                if error.is_success() {
                     Ok(res_bool)
                 } else {
                     Err(error)
@@ -144,7 +128,7 @@ macro_rules! handle_BOOL {
             }
         }
     };
-    ($func:ident($($arg:expr), *) if Error == $error_val:tt return else return $def_ret_val:expr) => {
+    ($func:ident($($arg:expr), *) if $error_val:tt return else return $def_ret_val:expr) => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
@@ -152,7 +136,7 @@ macro_rules! handle_BOOL {
                 return Ok($def_ret_val);
             } else {
                 let error = $crate::last_error!();
-                if error.code == $error_val {
+                if error.code.0 == $error_val as i32 {
                     return Err(error);
                 }
             }
@@ -177,7 +161,7 @@ macro_rules! handle_BOOL {
                 Ok(Some($ret_expr))
             } else {
                 let error = $crate::last_error!();
-                if error.code == $win_error {
+                if error.code.0 == $win_error as i32 {
                     Ok(None)
                 } else {
                     Err(error)
@@ -285,7 +269,7 @@ macro_rules! handle_num {
             Ok(Some($ret_expr))
         } else {
             let error = $get_error;
-            if error.code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            if error.is_success() {
                 Ok(None)
             } else {
                 Err(error)
