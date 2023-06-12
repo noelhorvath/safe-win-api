@@ -1,5 +1,5 @@
 use crate::call_num;
-use crate::win32::core::Result;
+use crate::core::Result;
 use core::ffi::c_void;
 use windows_sys::Win32::System::Memory::{LocalFree, LocalHandle};
 
@@ -7,7 +7,7 @@ use windows_sys::Win32::System::Memory::{LocalFree, LocalHandle};
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// For more information see the official [documentation].
 ///
@@ -21,7 +21,7 @@ pub fn get_local_handle(mem_ptr: *const c_void) -> Result<isize> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// For more information see the official [documentation].
 ///

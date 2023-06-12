@@ -1,6 +1,6 @@
 use crate::call_BOOL;
 use crate::common::To;
-use crate::win32::core::Result;
+use crate::core::Result;
 use core::mem::transmute;
 use core::ptr::addr_of;
 use core::ptr::addr_of_mut;
@@ -21,7 +21,7 @@ impl To<Duration> for FILETIME {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

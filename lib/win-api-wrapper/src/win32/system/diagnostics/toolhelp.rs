@@ -1,5 +1,5 @@
+use crate::core::Result;
 use crate::default_sized;
-use crate::win32::core::Result;
 use crate::{call_BOOL, call_num};
 use core::mem::size_of;
 use windows_sys::Win32::Foundation::ERROR_NO_MORE_FILES;
@@ -32,7 +32,7 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -63,7 +63,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Possible errors
 ///
@@ -96,7 +96,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -129,7 +129,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -162,7 +162,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

@@ -1,5 +1,5 @@
 use crate::common::ToDebugString;
-use crate::win32::core::Result;
+use crate::core::Result;
 use crate::{call_WIN32_ERROR, default_sized};
 use core::ptr;
 use widestring::{U16CStr, U16CString};
@@ -25,8 +25,8 @@ pub struct RegistryKeyEnumInfo {
     pub last_write_time: FILETIME,
 }
 
-impl ::core::fmt::Debug for RegistryKeyEnumInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for RegistryKeyEnumInfo {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("RegistryKeyEnumInfo")
             .field("name", &self.name)
             .field("class", &self.name)
@@ -97,7 +97,7 @@ pub fn close_key(handle: isize) -> Result<()> {
 ///  
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Possible error
 ///
@@ -220,8 +220,8 @@ pub struct RegistryKeyInfo {
     pub last_write_time: FILETIME,
 }
 
-impl ::core::fmt::Debug for RegistryKeyInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for RegistryKeyInfo {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("RegistryKeyEnumInfo")
             .field("class", &self.class)
             .field("sub_keys", &self.sub_keys)

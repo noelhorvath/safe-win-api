@@ -1,6 +1,6 @@
-use crate::win32::core::Result;
+use crate::core::Result;
 use crate::{call_BOOL, common::ToDebugString};
-use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, FILETIME};
+use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, SetLastError, FILETIME};
 
 pub use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, ERROR_INVALID_WINDOW_HANDLE};
 
@@ -17,7 +17,7 @@ impl ToDebugString for FILETIME {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -36,12 +36,22 @@ pub fn close_handle(handle: isize) -> Result<()> {
 
 #[inline]
 #[allow(clippy::undocumented_unsafe_blocks)]
-/// Gets the calling thread's last Win32 error code.
+/// Gets the calling thread's last error code.
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
 ///
 pub fn get_last_error() -> u32 {
     unsafe { GetLastError() }
+}
+
+#[inline]
+#[allow(clippy::undocumented_unsafe_blocks)]
+/// Sets the calling thread's last error code.
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setlasterror
+///
+pub fn set_last_error(error_code: u32) {
+    unsafe { SetLastError(error_code) }
 }
 
 #[doc(hidden)]

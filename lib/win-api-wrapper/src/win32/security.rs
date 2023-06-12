@@ -1,5 +1,5 @@
 use crate::call_BOOL;
-use crate::win32::core::Result;
+use crate::core::Result;
 use core::ffi::c_void;
 use core::mem::size_of_val;
 use core::ptr::addr_of_mut;
@@ -31,7 +31,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

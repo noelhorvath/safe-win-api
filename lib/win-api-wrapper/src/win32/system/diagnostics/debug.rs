@@ -1,5 +1,5 @@
 use crate::common::To;
-use crate::win32::core::Result;
+use crate::core::Result;
 use crate::win32::system::memory::{get_local_handle, local_free};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
@@ -94,7 +94,7 @@ impl FormatSource for System {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -138,7 +138,7 @@ pub fn format_message(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Possible errors
 ///
@@ -182,7 +182,7 @@ pub fn format_message_from_module(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// Returns an error of type [`Error`][crate::error::Error] if the function fails.
 ///
 /// ## Possible errors
 ///
@@ -271,7 +271,7 @@ where
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///  
@@ -317,7 +317,7 @@ pub fn format_message_with_buffer(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -375,7 +375,7 @@ pub fn format_message_from_module_with_buffer(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

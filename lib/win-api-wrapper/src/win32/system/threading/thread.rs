@@ -1,5 +1,5 @@
 use super::super::kernel::PROCESSOR_NUMBER;
-use crate::win32::core::Result;
+use crate::core::Result;
 use crate::win32::system::memory::{get_local_handle, local_free};
 use crate::{call_BOOL, call_num, to_BOOL};
 use alloc::boxed::Box;
@@ -53,7 +53,7 @@ pub use windows_sys::Win32::System::Threading::{
 ///  
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Possible error
 ///
@@ -115,7 +115,7 @@ pub fn get_current_id() -> u32 {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -135,11 +135,11 @@ pub fn is_running(handle: isize) -> Result<bool> {
     Ok(exit_code == STILL_ACTIVE as u32)
 }
 
-/// Gets the exit code of the specified thread if it has exitied. If the thread is still running the result is [`None`].
+/// Gets the exit code of the specified thread if it has exitied. If the thread is still running the Result is [`None`].
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -167,7 +167,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -190,7 +190,7 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -225,7 +225,7 @@ pub fn get_description(handle: isize) -> Result<U16CString> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -285,7 +285,7 @@ impl ThreadInformation for MEMORY_PRIORITY_INFORMATION {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -318,7 +318,7 @@ pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> 
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -341,7 +341,7 @@ pub fn get_priority(handle: isize) -> Result<i32> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -366,7 +366,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -388,11 +388,11 @@ pub fn get_selected_cpu_set_count(handle: isize) -> Result<u32> {
 /// Gets the explicit CPU Set assignment of the specified thread, if any assignment was set using [`set_selected_cpu_sets`].
 ///
 /// # Remarks
-/// * If no explicit assignment is set, the result is any empty boxed array slice.
+/// * If no explicit assignment is set, the Result is any empty boxed array slice.
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -428,7 +428,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Box<[u32]>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -451,7 +451,7 @@ pub fn resume(handle: isize) -> Result<u32> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -474,7 +474,7 @@ pub fn suspend(handle: isize) -> Result<u32> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -499,7 +499,7 @@ pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -522,7 +522,7 @@ pub fn set_description(handle: isize, description: &U16CStr) -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -552,7 +552,7 @@ pub fn get_ideal_processor(handle: isize) -> Result<PROCESSOR_NUMBER> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -586,7 +586,7 @@ pub fn set_ideal_processor(
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -609,7 +609,7 @@ pub fn clear_selected_cpu_sets(handle: isize) -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -633,7 +633,7 @@ pub fn set_selected_cpu_sets(handle: isize, cpu_sets: &[u32]) -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -656,7 +656,7 @@ pub fn set_priority(handle: isize, priority: i32) -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -679,7 +679,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -710,7 +710,7 @@ pub fn set_information<T: Copy + ThreadInformation>(handle: isize, information: 
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///
@@ -732,7 +732,7 @@ pub fn switch_to_another() -> Result<()> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

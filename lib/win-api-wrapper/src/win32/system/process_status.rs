@@ -1,5 +1,5 @@
 use crate::call_BOOL;
-use crate::win32::core::Result;
+use crate::core::Result;
 use alloc::boxed::Box;
 use core::mem::size_of;
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
@@ -19,7 +19,7 @@ const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Examples
 /// TODO
@@ -58,7 +58,7 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
 ///
 /// # Errors
 ///
-/// Returns a [`Win32Error`][crate::win32::core::Win32Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Examples
 /// TODO
