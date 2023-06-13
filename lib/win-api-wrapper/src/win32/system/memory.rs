@@ -27,6 +27,16 @@ pub fn get_local_handle(mem_ptr: *const c_void) -> Result<isize> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-localfree
 ///
-pub fn local_free(local_handle: isize) -> Result<()> {
-    call_num! { LocalFree(local_handle) == 0 }
+pub fn free_local(local_mem_handle: isize) -> Result<()> {
+    call_num! { LocalFree(local_mem_handle) == 0 }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! free {
+    (Local: $mem_ptr:expr) => {
+        $crate::win32::system::memory::free_local(
+            $crate::win32::system::memory::get_local_handle($mem_ptr.cast())?,
+        )?;
+    };
 }

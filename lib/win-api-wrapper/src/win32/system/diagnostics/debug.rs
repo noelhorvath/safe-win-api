@@ -1,6 +1,5 @@
 use crate::common::To;
 use crate::core::Result;
-use crate::win32::system::memory::{get_local_handle, local_free};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
 use widestring::{U16CStr, U16CString};
@@ -14,7 +13,7 @@ use windows_sys::Win32::System::Diagnostics::Debug::{
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
-use crate::call_num;
+use crate::{call_num, free};
 
 /// A marker trait for types that can be used as a source in [`format_message_with_source`].
 pub trait FormatSource {
@@ -251,8 +250,7 @@ where
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
     let message = unsafe { U16CString::from_ptr_str(buffer) };
-    let handle = get_local_handle(buffer.cast::<c_void>())?;
-    local_free(handle)?;
+    free!(Local: buffer);
     Ok(message)
 }
 

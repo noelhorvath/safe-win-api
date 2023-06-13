@@ -1,7 +1,6 @@
 use super::super::kernel::PROCESSOR_NUMBER;
 use crate::core::Result;
-use crate::win32::system::memory::{get_local_handle, local_free};
-use crate::{call_BOOL, call_num, to_BOOL};
+use crate::{call_BOOL, call_num, free, to_BOOL};
 use alloc::boxed::Box;
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
@@ -216,8 +215,7 @@ pub fn get_description(handle: isize) -> Result<U16CString> {
     };
     // Safety: `description_ptr` is a valid nul-terminated string pointer.
     let description = unsafe { U16CString::from_ptr_str(description_ptr) };
-    let handle = get_local_handle(description_ptr.cast())?;
-    local_free(handle)?;
+    free!(Local: description_ptr);
     Ok(description)
 }
 
