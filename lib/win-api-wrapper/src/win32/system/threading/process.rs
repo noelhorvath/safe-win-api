@@ -578,7 +578,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getpriorityclass
 ///
 pub fn get_priority_class(handle: isize) -> Result<PROCESS_CREATION_FLAGS> {
-    call_num! { GetPriorityClass(handle) != 0 -> PROCESS_CREATION_FLAGS }
+    call_num! { GetPriorityClass(handle) != 0 => PROCESS_CREATION_FLAGS }
 }
 
 /// Gets the timing information for the specified process.
@@ -640,7 +640,7 @@ pub fn get_times(handle: isize) -> Result<[FILETIME; 4]> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessversion
 ///
 pub fn get_version(pid: u32) -> Result<(u16, u16)> {
-    call_num! { GetProcessVersion(pid) != 0 -> To }
+    call_num! { GetProcessVersion(pid) != 0 => To }
 }
 
 /// Gets the minimum and maximum working set sizes of the specified process in a tuple.

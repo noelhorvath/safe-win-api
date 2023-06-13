@@ -56,14 +56,14 @@ pub fn find(
                 child_handle,
                 class_name.map_or(ptr::null(), |name| name.as_ptr()),
                 title.map_or(ptr::null(), |title| title.as_ptr()),
-            ) != 0 -> Option
+            ) != 0 => Option
         }
     }
 }
 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
 pub fn get_foreground() -> Option<isize> {
-    call_num! { GetForegroundWindow() != 0 -> Option }
+    call_num! { GetForegroundWindow() != 0 => Option }
 }
 
 pub fn set_foreground(handle: isize) -> Result<()> {
@@ -72,30 +72,30 @@ pub fn set_foreground(handle: isize) -> Result<()> {
 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-windowfrompoint
 pub fn from_point(point: POINT) -> Option<isize> {
-    call_num! { WindowFromPoint(point) != 0 -> Option }
+    call_num! { WindowFromPoint(point) != 0 => Option }
 }
 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-windowfromphysicalpoint
 pub fn from_physical_point(point: POINT) -> Option<isize> {
-    call_num! { WindowFromPhysicalPoint(point) != 0 -> Option }
+    call_num! { WindowFromPhysicalPoint(point) != 0 => Option }
 }
 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdesktopwindow
 pub fn get_desktop_window() -> Option<isize> {
-    call_num! { GetDesktopWindow() != 0 -> Option }
+    call_num! { GetDesktopWindow() != 0 => Option }
 }
 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getparent
 pub fn get_paranet(handle: isize) -> Result<Option<isize>> {
-    call_num! { GetParent(handle) != 0 -> Result<Option> }
+    call_num! { GetParent(handle) != 0 => Result<Option> }
 }
 
 pub fn get_shell_window() -> Option<isize> {
-    call_num! { GetShellWindow() != 0 -> Option }
+    call_num! { GetShellWindow() != 0 => Option }
 }
 
 pub fn get_ancestor(handle: isize, flags: GET_ANCESTOR_FLAGS) -> Option<isize> {
-    call_num! { GetAncestor(handle, flags) != 0 -> Option }
+    call_num! { GetAncestor(handle, flags) != 0 => Option }
 }
 
 pub fn get_process_and_thread_ids(handle: isize) -> Result<(u32, u32)> {
@@ -104,24 +104,24 @@ pub fn get_process_and_thread_ids(handle: isize) -> Result<(u32, u32)> {
         GetWindowThreadProcessId(
             handle,
             &mut pid,
-        ) == 0 -> return if Error
+        ) == 0 => return if Error
     };
     Ok((pid, thread_id))
 }
 
 pub fn get_text_len(handle: isize) -> Result<i32> {
-    call_num! { GetWindowTextLengthW(handle) != 0 -> SetError }
+    call_num! { GetWindowTextLengthW(handle) != 0 => SetError }
 }
 
 pub fn get_text(handle: isize) -> Result<U16CString> {
-    let mut len = call_num! { GetWindowTextLengthW(handle) != 0 -> SetError }?;
+    let mut len = call_num! { GetWindowTextLengthW(handle) != 0 => SetError }?;
     let mut buffer = vec![0; len as usize];
     len = call_num! {
         GetWindowTextW(
             handle,
             buffer.as_mut_ptr(),
             buffer.len() as i32
-        ) == 0 -> return if Error;
+        ) == 0 => return if Error;
     };
     // Safety: `buffer` is valid pointer to a null-terminated string that has no interior null values
     Ok(unsafe { U16CString::from_ptr_unchecked(buffer.as_ptr(), len as usize) })
@@ -133,16 +133,16 @@ pub fn get_text_with_buffer(handle: isize, buffer: &mut [u16]) -> Result<u32> {
             handle,
             buffer.as_mut_ptr(),
             buffer.len() as i32,
-        ) != 0 -> u32
+        ) != 0 => u32
     }
 }
 
 pub fn get_top_child(handle: isize) -> Result<Option<isize>> {
-    call_num! { GetTopWindow(handle) != 0 -> Result<Option> }
+    call_num! { GetTopWindow(handle) != 0 => Result<Option> }
 }
 
 pub fn get_window(handle: isize, flags: GET_WINDOW_CMD) -> Result<Option<isize>> {
-    call_num! { GetWindow(handle, flags) != 0 -> Result<Option> }
+    call_num! { GetWindow(handle, flags) != 0 => Result<Option> }
 }
 
 pub fn allow_set_foreground(pid: u32) -> Result<()> {
@@ -196,12 +196,12 @@ pub fn to_top(handle: isize) -> Result<()> {
 
 pub fn child_from_point(handle: isize, point: POINT, flags: CWP_FLAGS) -> Result<Option<isize>> {
     call_num! {
-        ChildWindowFromPointEx(handle, point, flags) != 0 -> Result<Option>
+        ChildWindowFromPointEx(handle, point, flags) != 0 => Result<Option>
     }
 }
 
 pub fn real_chold_from_point(handle: isize, point: POINT) -> Result<Option<isize>> {
-    call_num! { RealChildWindowFromPoint(handle, point) != 0 -> Result<Option> }
+    call_num! { RealChildWindowFromPoint(handle, point) != 0 => Result<Option> }
 }
 
 pub fn minimize(handle: isize) -> Result<()> {

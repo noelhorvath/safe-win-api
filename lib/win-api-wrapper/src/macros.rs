@@ -85,7 +85,7 @@ macro_rules! call_BOOL {
     };
     { $func:ident($($arg:expr), * $(,)?) -> Option { mut $ret_val:ident = $init_val:expr $(;)? } } => {
         {
-            let mut $res = $init_val;
+            let mut $ret_val = $init_val;
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_BOOL!(res, Some($ret_val), None)
@@ -179,7 +179,7 @@ macro_rules! call_num {
             $crate::handle_num!(res, !=, $check_val, Ok(res), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) != $check_val:literal -> SetError } => {
+    { $func:ident($($arg:expr), * $(,)?) != $check_val:literal => SetError } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
@@ -193,49 +193,65 @@ macro_rules! call_num {
             )
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) == $check_val:literal } => {
+    { $func:ident($($arg:expr), * $(,)?) == $check_val:expr } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, ==, $check_val, Ok(()), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> To } => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => To } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Ok(res.to()), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> Option} => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => Option} => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Some(res), None)
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> Result<Option>} => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => Result<Option>} => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(Result<Option> => res, $op, $check_val, res, $crate::last_error!())
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> $ret_type:ty } => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => $ret_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Ok(res as $ret_type), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) == $error_val:literal -> return Error $(;)? } => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => mut $ret_val:ident: $ret_type:ty $(;)? } => {
+        {
+            let mut $ret_val = <$ret_type>::default();
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_num!(res, $op, $check_val, Ok($ret_val), Err($crate::last_error!()))
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => mut $ret_val:ident = $init_val:expr $(;)? } => {
+        {
+            let mut $ret_val = $init_val;
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_num!(res, $op, $check_val, Ok($ret_val), Err($crate::last_error!()))
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) == $error_val:expr => return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
             $crate::handle_num!(return res_val, ==, $error_val, Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) == $error_val:literal -> return if Error $(;)? } => {
+    { $func:ident($($arg:expr), * $(,)?) == $error_val:expr => return if Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
