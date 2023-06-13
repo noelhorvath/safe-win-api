@@ -64,7 +64,7 @@ macro_rules! call_BOOL {
             let ($(mut $ret_val), *) = <$ret_tuple_type>::default();
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            $crate::handle_BOOL!(res, Ok(($($ret_val), *)), Err($crate::last_error!()))
+            $crate::handle_BOOL!(res, Ok((($($ret_val), *))), Err($crate::last_error!()))
         }
     };
     { $func:ident($($arg:expr), * $(,)?) -> To { mut $ret_val:ident: $ret_type:ty $(;)? } } => {
@@ -179,7 +179,7 @@ macro_rules! call_num {
             $crate::handle_num!(res, !=, $check_val, Ok(res), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) != $check_val:expr => SetError } => {
+    { $func:ident($($arg:expr), * $(,)?) != $check_val:literal -> SetError } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
@@ -193,46 +193,53 @@ macro_rules! call_num {
             )
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) == $check_val:expr } => {
+    { $func:ident($($arg:expr), * $(,)?) == $check_val:literal } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, ==, $check_val, Ok(()), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => To } => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> To } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Ok(res.to()), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => Option} => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> Option} => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Some(res), None)
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => Result<Option>} => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> Result<Option>} => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(Result<Option> => res, $op, $check_val, res, $crate::last_error!())
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => as $ret_type:ty } => {
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:literal -> $ret_type:ty } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
             $crate::handle_num!(res, $op, $check_val, Ok(res as $ret_type), Err($crate::last_error!()))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) == $error_val:expr => return Error $(;)? } => {
+    { $func:ident($($arg:expr), * $(,)?) == $error_val:literal -> return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res_val = unsafe { $func($($arg),*) };
-            $crate::handle_num!(res_val, ==, $error_val, res_val, return Err($crate::last_error!()))
+            $crate::handle_num!(return res_val, ==, $error_val, Err($crate::last_error!()))
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) == $error_val:literal -> return if Error $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_val = unsafe { $func($($arg),*) };
+            $crate::handle_num!(return if => res_val, ==, $error_val, Err($crate::last_error!()))
         }
     };
 }
@@ -255,11 +262,16 @@ macro_rules! handle_num {
             $ret_error
         }
     };
-    ($res_val:ident, $op:tt, $check_val:expr, $ret_error_statement:stmt) => {
+    (return if => $res_val:ident, $op:tt, $check_val:expr, $error_val:expr) => {
         if $res_val $op $check_val {
-            ret_error_statement
+            return $error_val
         } else {
             $res_val
+        }
+    };
+    (return $res_val:ident, $op:tt, $check_val:expr, $error_val:expr) => {
+        if $res_val $op $check_val {
+            return $error_val
         }
     };
     (Result<Option> => $res_val:ident, $op:tt, $check_val:expr, $ret_expr:expr, $get_error:expr) => {

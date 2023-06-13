@@ -212,7 +212,7 @@ pub fn get_description(handle: isize) -> Result<U16CString> {
         GetThreadDescription(
             handle,
             addr_of_mut!(description_ptr).cast()) == 0
-                => return Error
+                -> return Error
     };
     // Safety: `description_ptr` is a valid nul-terminated string pointer.
     let description = unsafe { U16CString::from_ptr_str(description_ptr) };
