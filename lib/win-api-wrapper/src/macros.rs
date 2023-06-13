@@ -284,30 +284,30 @@ macro_rules! call_WIN32_ERROR {
     { $func:ident($($arg:expr), * $(,)?) } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
-            let res_error_code = unsafe { $func($($arg),*) };
-            $crate::handle_WIN32_ERROR!(res_error_code, ())
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res_code, ())
         }
     };
     { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let mut $ret_val = <$ret_type>::default();
-            let res_error_code = unsafe { $func($($arg),*) };
-            $crate::handle_WIN32_ERROR!(res_error_code, $ret_val)
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res_code, $ret_val)
         }
     };
     { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
-            let res_error_code = unsafe { $func($($arg),*) };
-            $crate::handle_WIN32_ERROR!(return => Err($crate::error_from!(res_error_code)), res_error_code)
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(return => Err($crate::error_from!(res_code)), res_code)
         }
     };
     { $func:ident($($arg:expr), * $(,)?) return Error as Option $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
-            let res_error_code = unsafe { $func($($arg),*) };
-            $crate::handle_WIN32_ERROR!(return => None, res_error_code)
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(return => None, res_code)
         }
     };
 }
@@ -315,16 +315,68 @@ macro_rules! call_WIN32_ERROR {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_WIN32_ERROR {
-    ($res_error_code:ident, $ret_expr:expr) => {
-        if $res_error_code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
-            Err($crate::error_from!($res_error_code))
+    ($res_code:ident, $ret_expr:expr) => {
+        if $res_code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
+            Err($crate::error_from!($res_code))
         } else {
             Ok($ret_expr)
         }
     };
-    (return => $ret_error:expr, $res_error_code:ident) => {
-        if $res_error_code != windows_sys::Win32::Foundation::ERROR_SUCCESS {
+    (return => $ret_error:expr, $res_code:ident) => {
+        if $res_code != windows_sys::Win32::Foundation::ERROR_SUCCESS {
             return $ret_error;
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_HRESULT {
+    { $func:ident($($arg:expr), * $(,)?) } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_HRESULT!(res_code, ())
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident: $ret_type:ty $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let mut $ret_val = <$ret_type>::default();
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_HRESULT!(res_code, $ret_val)
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) -> mut $ret_val:ident = $init_val:expr $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let mut $ret_val = $init_val;
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_HRESULT!(res_code, $ret_val)
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res_code = unsafe { $func($($arg),*) };
+            $crate::handle_HRESULT!(return res_code)
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! handle_HRESULT {
+    ($res_code:ident, $ret_expr:expr) => {
+        if $res_code < 0 {
+            Err($crate::error_from!($res_code))
+        } else {
+            Ok($ret_expr)
+        }
+    };
+    (return $res_code:ident) => {
+        if $res_code < 0 {
+            return Err($crate::error_from!($res_code));
         }
     };
 }
