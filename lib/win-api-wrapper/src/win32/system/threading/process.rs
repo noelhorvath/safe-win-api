@@ -191,10 +191,6 @@ pub fn is_elevated(handle: isize) -> bool {
 /// Gets the full name of the executable image for the specified process.
 /// The `use_win32_path_format` parameter specifies whether to use Win32 or native system path format.
 ///
-/// # Remarks
-///
-/// * The returned full name is trimmed by [`trim_wide_end`][`crate::common::trim_wide_end`] which means it is not null-terminated.
-///
 /// # Errors
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.

@@ -182,7 +182,7 @@ pub fn format_message_from_module(
 ///
 /// # Errors
 ///
-/// Returns an error of type [`Error`][crate::error::Error] if the function fails.
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
 ///

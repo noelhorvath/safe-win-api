@@ -21,7 +21,10 @@ impl Code {
     }
 
     #[inline]
-    /// https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/0c0bcf55-277e-4120-b5dc-f6115fc8dc38
+    /// Converts a Win32 error code to an [`HRESULT`][windows_sys::core::HRESULT].
+    ///
+    /// For more information see the [`HRESULT_FROM_WIN32`][https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/0c0bcf55-277e-4120-b5dc-f6115fc8dc38] macro specification.
+    ///
     pub const fn from_win32(code: u32) -> Self {
         Self(if code == windows_sys::Win32::Foundation::ERROR_SUCCESS {
             code
