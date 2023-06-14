@@ -9,6 +9,8 @@ use windows_sys::Win32::System::Diagnostics::Debug::{
     FORMAT_MESSAGE_IGNORE_INSERTS, FORMAT_MESSAGE_OPTIONS,
 };
 
+pub use windows_sys::Win32::System::Diagnostics::Debug::{FACILITY_NT_BIT, FACILITY_WIN32};
+
 /// A [`FORMAT_MESSAGE_OPTIONS`] flag that is used to tell [`FormatMessageW`] to
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
