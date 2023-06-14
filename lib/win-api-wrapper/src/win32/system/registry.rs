@@ -1,4 +1,3 @@
-use crate::common::ToDebugString;
 use crate::core::Result;
 use crate::{call_WIN32_ERROR, default_sized};
 use core::ptr;
@@ -30,7 +29,14 @@ impl core::fmt::Debug for RegistryKeyEnumInfo {
         f.debug_struct("RegistryKeyEnumInfo")
             .field("name", &self.name)
             .field("class", &self.name)
-            .field("last_write_time", &self.last_write_time.to_debug_string())
+            .field(
+                "last_write_time.dwHighDateTime",
+                &self.last_write_time.dwHighDateTime,
+            )
+            .field(
+                "last_write_time.dwLowDateTime",
+                &self.last_write_time.dwLowDateTime,
+            )
             .finish()
     }
 }
@@ -231,7 +237,14 @@ impl core::fmt::Debug for RegistryKeyInfo {
             .field("max_value_len", &self.max_value_len)
             .field("max_value_len", &self.max_value_len)
             .field("security_descriptor", &self.security_descriptor)
-            .field("last_write_time", &self.last_write_time.to_debug_string())
+            .field(
+                "last_write_time.dwHighDateTime",
+                &self.last_write_time.dwHighDateTime,
+            )
+            .field(
+                "last_write_time.dwLowDateTime",
+                &self.last_write_time.dwLowDateTime,
+            )
             .finish()
     }
 }

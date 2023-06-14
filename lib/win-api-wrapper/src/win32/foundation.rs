@@ -1,17 +1,8 @@
+use crate::call_BOOL;
 use crate::core::Result;
-use crate::{call_BOOL, common::ToDebugString};
-use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, SetLastError, FILETIME};
+use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, SetLastError};
 
 pub use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, ERROR_INVALID_WINDOW_HANDLE};
-
-impl ToDebugString for FILETIME {
-    fn to_debug_string(&self) -> String {
-        format!(
-            "high_date_time: {}, low_date_time: {}",
-            self.dwHighDateTime, self.dwLowDateTime
-        )
-    }
-}
 
 /// Closes the specified handle.
 ///
