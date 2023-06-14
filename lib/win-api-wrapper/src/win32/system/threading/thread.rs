@@ -1,7 +1,6 @@
 use super::super::kernel::PROCESSOR_NUMBER;
 use crate::core::Result;
 use crate::{call_BOOL, call_num, free, to_BOOL};
-use alloc::boxed::Box;
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
 use core::ptr;
@@ -405,11 +404,11 @@ pub fn get_selected_cpu_set_count(handle: isize) -> Result<u32> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadselectedcpusets
 ///
-pub fn get_selected_cpu_sets(handle: isize) -> Result<Box<[u32]>> {
+pub fn get_selected_cpu_sets(handle: isize) -> Result<Vec<u32>> {
     let mut count = 0;
     call_BOOL! { GetThreadSelectedCpuSets(handle, ptr::null_mut(), count, &mut count) return Error};
     if count == 0 {
-        return Ok(Box::from([]));
+        return Ok(Vec::new());
     }
 
     call_BOOL! {
@@ -418,7 +417,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Box<[u32]>> {
             buffer.as_mut_ptr(),
             buffer.len() as u32,
             &mut count,
-        ) -> From { mut buffer = vec![0; count as usize]; }
+        ) -> mut buffer = vec![0; count as usize]
     }
 }
 

@@ -1,6 +1,5 @@
 use crate::call_BOOL;
 use crate::core::Result;
-use alloc::boxed::Box;
 use core::mem::size_of;
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
 
@@ -24,7 +23,7 @@ const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 /// # Examples
 /// TODO
 ///
-pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
+pub fn get_pids(initial_buffer_len: u32) -> Result<Vec<u32>> {
     let mut buffer = vec![0_u32; initial_buffer_len as usize];
     let mut bytes_written = 0;
     while buffer.len() < MAX_PID_BUFFER_LEN {
@@ -45,7 +44,7 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Box<[u32]>> {
 
     let len = bytes_written as usize / size_of::<u32>();
     buffer.truncate(len);
-    Ok(buffer.into_boxed_slice())
+    Ok(buffer)
 }
 
 /// Copies the process identifier for each process in the system to `buffer`

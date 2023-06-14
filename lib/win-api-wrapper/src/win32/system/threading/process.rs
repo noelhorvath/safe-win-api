@@ -2,7 +2,6 @@ use crate::common::To;
 use crate::core::Result;
 use crate::{call_BOOL, call_num};
 use crate::{from_BOOL, to_BOOL};
-use alloc::boxed::Box;
 use core::ffi::c_void;
 use core::mem::{size_of, transmute, zeroed};
 use core::ptr::{self, addr_of, addr_of_mut};
@@ -309,7 +308,7 @@ pub fn get_affinity_mask(handle: isize) -> Result<(usize, usize)> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessdefaultcpusets
 ///
-pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Box<[u32]>>> {
+pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Vec<u32>>> {
     let mut count = 0;
     call_BOOL! { GetProcessDefaultCpuSets(handle, ptr::null_mut(), count, &mut count) return Error };
     if count == 0 {
@@ -325,7 +324,7 @@ pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Box<[u32]>>> {
             &mut count,
         ) return Error
     };
-    Ok(Some(buffer.into()))
+    Ok(Some(buffer))
 }
 
 /// Determines whether the specified process is running.
@@ -399,7 +398,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processtopologyapi/nf-processtopologyapi-getprocessgroupaffinity
 ///
-pub fn get_group_affinity(handle: isize) -> Result<Box<[u16]>> {
+pub fn get_group_affinity(handle: isize) -> Result<Vec<u16>> {
     let mut count = 0;
     call_BOOL! {
         GetProcessGroupAffinity(
@@ -413,9 +412,7 @@ pub fn get_group_affinity(handle: isize) -> Result<Box<[u16]>> {
     call_BOOL! { GetProcessGroupAffinity(
         handle,
         &mut count,
-        buffer.as_mut_ptr()) -> From {
-             mut buffer = vec![0; count as usize];
-        }
+        buffer.as_mut_ptr()) -> mut buffer = vec![0; count as usize]
     }
 }
 

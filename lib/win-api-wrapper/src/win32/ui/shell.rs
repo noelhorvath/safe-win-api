@@ -1,8 +1,7 @@
 use crate::core::Result;
 use crate::{call_BOOL, call_HRESULT, call_num, default_sized, free, from_BOOL, to_BOOL};
-use core::ptr;
+use core::ptr::{self, addr_of};
 use core::slice;
-use std::ptr::{addr_of, addr_of_mut};
 use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::Foundation::{POINT, RECT};
 use windows_sys::Win32::UI::Shell::{
@@ -19,7 +18,7 @@ pub use windows_sys::Win32::UI::Shell::{
     SHELLEXECUTEINFOW,
 };
 
-pub fn parse_args(commandline: &U16CStr) -> Result<Box<[U16CString]>> {
+pub fn parse_args(commandline: &U16CStr) -> Result<Vec<U16CString>> {
     let mut args_count = 0;
     let arg_ptrs = call_num! {
         CommandLineToArgvW(
@@ -30,7 +29,7 @@ pub fn parse_args(commandline: &U16CStr) -> Result<Box<[U16CString]>> {
     println!("args count: {}", args_count);
     let mut args = if args_count == 0 {
         free!(Local: arg_ptrs);
-        return Ok(Box::new([]));
+        return Ok(Vec::new());
     } else {
         Vec::with_capacity(args_count as usize)
     };
@@ -42,7 +41,7 @@ pub fn parse_args(commandline: &U16CStr) -> Result<Box<[U16CString]>> {
     }
 
     free!(Local: arg_ptrs);
-    Ok(args.into_boxed_slice())
+    Ok(args)
 }
 
 pub fn drag_accept_files(window_handle: isize, accept: bool) {
@@ -121,10 +120,10 @@ pub fn extract_icon_count(file_name: &U16CStr) -> Result<u32> {
     }
 }
 
-pub fn extract_small_icons(file_name: &U16CStr) -> Result<Box<[isize]>> {
+pub fn extract_small_icons(file_name: &U16CStr) -> Result<Vec<isize>> {
     let mut icon_count = extract_icon_count(file_name)?;
     if icon_count == 0 {
-        return Ok(Box::new([]));
+        return Ok(Vec::new());
     }
 
     let mut buffer = vec![0; icon_count as usize];
@@ -138,13 +137,13 @@ pub fn extract_small_icons(file_name: &U16CStr) -> Result<Box<[isize]>> {
         ) == u32::MAX => return if Error
     };
     buffer.truncate(icon_count as usize);
-    Ok(buffer.into_boxed_slice())
+    Ok(buffer)
 }
 
-pub fn extract_large_icons(file_name: &U16CStr) -> Result<Box<[isize]>> {
+pub fn extract_large_icons(file_name: &U16CStr) -> Result<Vec<isize>> {
     let mut icon_count = extract_icon_count(file_name)?;
     if icon_count == 0 {
-        return Ok(Box::new([]));
+        return Ok(Vec::new());
     }
 
     let mut buffer = vec![0; icon_count as usize];
@@ -158,7 +157,7 @@ pub fn extract_large_icons(file_name: &U16CStr) -> Result<Box<[isize]>> {
         ) == u32::MAX => return if Error
     };
     buffer.truncate(icon_count as usize);
-    Ok(buffer.into_boxed_slice())
+    Ok(buffer)
 }
 
 pub fn init_network_address_control() -> Result<()> {
@@ -166,13 +165,35 @@ pub fn init_network_address_control() -> Result<()> {
 }
 
 pub fn send_app_bar_message(message: u32, app_bar_data: &mut APPBARDATA) -> usize {
-    unsafe { SHAppBarMessage(message, addr_of_mut!(*app_bar_data)) }
+    unsafe { SHAppBarMessage(message, app_bar_data) }
 }
 
-pub fn get_notify_icon_rect(notify_icon_id: &NOTIFYICONIDENTIFIER) -> Result<RECT> {
+pub fn get_asssoc_string(
+    search_flags: ASSOCF,
+    string_type: ASSOCSTR,
+    association_string: &U16CStr,
+    extra: Option<&U16CStr>,
+) -> Result<U16CString> {
+    let mut char_count = get_assoc_string_len(search_flags, string_type, association_string)?;
+    let mut buffer = vec![0_u16; char_count as usize];
+    call_HRESULT! {
+        AssocQueryStringW(
+            search_flags,
+            string_type,
+            association_string.as_ptr(),
+            extra.map_or(ptr::null(), |ext| ext.as_ptr()),
+            buffer.as_mut_ptr(),
+            &mut char_count,
+        ) return Error;
+    }
+    // Safety: `buffer` contains no interior null values
+    Ok(unsafe { U16CString::from_vec_unchecked(buffer) })
+}
+
+pub fn get_notify_icon_rect(notify_icon_id: NOTIFYICONIDENTIFIER) -> Result<RECT> {
     call_HRESULT!(
         Shell_NotifyIconGetRect(
-            addr_of!(*notify_icon_id),
+            addr_of!(notify_icon_id),
             &mut rect,
         ) -> mut rect = default_sized!(RECT)
     )
@@ -180,7 +201,7 @@ pub fn get_notify_icon_rect(notify_icon_id: &NOTIFYICONIDENTIFIER) -> Result<REC
 
 pub fn send_notify_icon_message(message: u32, data: &NOTIFYICONDATAW) -> Result<()> {
     call_BOOL! {
-        Shell_NotifyIconW(message, addr_of!(*data))
+        Shell_NotifyIconW(message, data)
     }
 }
 
@@ -269,28 +290,6 @@ pub fn query_user_notification_state() -> Result<i32> {
     call_HRESULT! {
         SHQueryUserNotificationState(&mut state) -> mut state: i32
     }
-}
-
-pub fn get_asssoc_string(
-    search_flags: ASSOCF,
-    string_type: ASSOCSTR,
-    association_string: &U16CStr,
-    extra: Option<Box<&U16CStr>>,
-) -> Result<U16CString> {
-    let mut char_count = get_assoc_string_len(search_flags, string_type, association_string)?;
-    let mut buffer = vec![0_u16; char_count as usize];
-    call_HRESULT! {
-        AssocQueryStringW(
-            search_flags,
-            string_type,
-            association_string.as_ptr(),
-            extra.map_or(ptr::null(), |ext| ext.as_ptr()),
-            buffer.as_mut_ptr(),
-            &mut char_count,
-        ) return Error;
-    }
-    // Safety: `buffer` contains no interior null values
-    Ok(unsafe { U16CString::from_vec_unchecked(buffer) })
 }
 
 #[inline]
