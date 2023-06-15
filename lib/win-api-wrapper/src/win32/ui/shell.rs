@@ -1,5 +1,5 @@
 use crate::core::Result;
-use crate::{call_BOOL, call_HRESULT, call_num, default_sized, free, from_BOOL, to_BOOL};
+use crate::{call, call_BOOL, call_HRESULT, default_sized, free, from_BOOL, to_BOOL};
 use core::ptr::{self, addr_of};
 use core::slice;
 use widestring::{U16CStr, U16CString};
@@ -20,7 +20,7 @@ pub use windows_sys::Win32::UI::Shell::{
 
 pub fn parse_args(commandline: &U16CStr) -> Result<Vec<U16CString>> {
     let mut args_count = 0;
-    let arg_ptrs = call_num! {
+    let arg_ptrs = call! {
         CommandLineToArgvW(
             commandline.as_ptr(),
             &mut args_count,
@@ -53,7 +53,7 @@ pub fn drag_finish(drop_handle: isize) {
 }
 
 pub fn drag_query_file_count(drop_handle: isize) -> Result<u32> {
-    call_num! {
+    call! {
         DragQueryFileW(
             drop_handle,
             u32::MAX,
@@ -64,7 +64,7 @@ pub fn drag_query_file_count(drop_handle: isize) -> Result<u32> {
 }
 
 pub fn drag_query_file_len(drop_handle: isize, index: u32) -> Result<u32> {
-    call_num! {
+    call! {
         DragQueryFileW(
             drop_handle,
             index,
@@ -77,7 +77,7 @@ pub fn drag_query_file_len(drop_handle: isize, index: u32) -> Result<u32> {
 pub fn drag_query_file(drop_handle: isize, index: u32) -> Result<U16CString> {
     let file_len = drag_query_file_len(drop_handle, index)? + 1; // + null-term
     let mut buffer = vec![0; file_len as usize];
-    call_num! {
+    call! {
         DragQueryFileW(
             drop_handle,
             index,
@@ -109,7 +109,7 @@ pub fn extract_icon(instance_handle: isize, file_name: &U16CStr, index: u32) -> 
 }
 
 pub fn extract_icon_count(file_name: &U16CStr) -> Result<u32> {
-    call_num! {
+    call! {
         ExtractIconExW(
             file_name.as_ptr(),
             -1,
@@ -127,7 +127,7 @@ pub fn extract_small_icons(file_name: &U16CStr) -> Result<Vec<isize>> {
     }
 
     let mut buffer = vec![0; icon_count as usize];
-    icon_count = call_num! {
+    icon_count = call! {
         ExtractIconExW(
             file_name.as_ptr(),
             0,
@@ -147,7 +147,7 @@ pub fn extract_large_icons(file_name: &U16CStr) -> Result<Vec<isize>> {
     }
 
     let mut buffer = vec![0; icon_count as usize];
-    icon_count = call_num! {
+    icon_count = call! {
         ExtractIconExW(
             file_name.as_ptr(),
             0,
@@ -224,7 +224,7 @@ pub fn show_message_box(
     title: &U16CStr,
     style: u32,
 ) -> Result<i32> {
-    call_num! {
+    call! {
         ShellMessageBoxW(
             instance_handle,
             window_handle,

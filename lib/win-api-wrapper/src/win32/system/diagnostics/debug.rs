@@ -15,7 +15,7 @@ pub use windows_sys::Win32::System::Diagnostics::Debug::{FACILITY_NT_BIT, FACILI
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
-use crate::{call_num, free};
+use crate::{call, free};
 
 /// A marker trait for types that can be used as a source in [`format_message_with_source`].
 pub trait FormatSource {
@@ -239,7 +239,7 @@ where
         | args_flag
         | options.to()
         | system_flag;
-    call_num! {
+    call! {
         FormatMessageW(
             option_flags,
             T::as_c_void_ptr(&source),
@@ -431,7 +431,7 @@ where
             0
         };
     let option_flags = T::format_message_options_flag() | args_flag | options.to() | system_flag;
-    call_num! {
+    call! {
         FormatMessageW(
             option_flags,
             T::as_c_void_ptr(&source),

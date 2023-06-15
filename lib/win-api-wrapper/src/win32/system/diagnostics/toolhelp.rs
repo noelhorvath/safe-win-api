@@ -1,6 +1,6 @@
 use crate::core::Result;
 use crate::default_sized;
-use crate::{call_BOOL, call_num};
+use crate::{call, call_BOOL};
 use core::mem::size_of;
 use windows_sys::Win32::Foundation::ERROR_NO_MORE_FILES;
 use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
@@ -49,7 +49,7 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot
 ///
 pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Result<isize> {
-    call_num! { CreateToolhelp32Snapshot(flags, pid) != INVALID_HANDLE_VALUE }
+    call! { CreateToolhelp32Snapshot(flags, pid) != INVALID_HANDLE_VALUE }
 }
 
 /// Retrieves information about the first process recorded in the specified system snapshot.

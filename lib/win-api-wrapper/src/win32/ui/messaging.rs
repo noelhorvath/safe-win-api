@@ -1,5 +1,5 @@
 use crate::core::Result;
-use crate::{call_BOOL, call_num, default_sized, from_BOOL};
+use crate::{call, call_BOOL, default_sized, from_BOOL};
 use core::ptr;
 use widestring::U16CStr;
 use windows_sys::Win32::Foundation::POINT;
@@ -39,7 +39,7 @@ pub fn dispatch(message: &MSG) -> isize {
 }
 
 pub fn get(window_handle: isize, message_filter_min: u32, message_filter_max: u32) -> Result<MSG> {
-    call_num! {
+    call! {
         GetMessageW(
             &mut message,
             window_handle,
@@ -123,7 +123,7 @@ pub fn send_timeout(
     timeout_flags: SendMessageTimoutFlags,
     timeout: u32,
 ) -> Result<usize> {
-    call_num! {
+    call! {
         SendMessageTimeoutW(
             window_handle,
             message,
@@ -183,7 +183,7 @@ pub fn set_windows_hook(
     module_handle: isize,
     thread_id: u32,
 ) -> Result<isize> {
-    call_num! {
+    call! {
         SetWindowsHookExW(
             hook_id,
             Some(hook_procedure),
@@ -202,5 +202,5 @@ pub fn wait() -> Result<()> {
 }
 
 pub fn register_message(message: &U16CStr) -> Result<u32> {
-    call_num! { RegisterWindowMessageW(message.as_ptr()) != 0 }
+    call! { RegisterWindowMessageW(message.as_ptr()) != 0 }
 }
