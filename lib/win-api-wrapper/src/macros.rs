@@ -252,6 +252,22 @@ macro_rules! call {
             $crate::handle!(res, $op, $check_val, Ok($ret_val), Err($crate::last_error!(Win32)))
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => mut ($($ret_val:ident), *): $ret_tuple_type:ty } => {
+        {
+            let ($(mut $ret_val), *) = <$ret_tuple_type>::default();
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle!(res, $op, $check_val, Ok(($($ret_val), *)), Err($crate::last_error!(Win32)))
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) $op:tt $check_val:expr => mut ($($ret_val:ident), *) = $init_val:expr } => {
+        {
+            let ($(mut $ret_val), *) = $init_val;
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle!(res, $op, $check_val, Ok(($($ret_val), *)), Err($crate::last_error!(Win32)))
+        }
+    };
     { $func:ident($($arg:expr), * $(,)?) == $error_val:expr => return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
