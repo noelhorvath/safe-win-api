@@ -2,7 +2,9 @@ use crate::call_BOOL;
 use crate::core::Result;
 use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, SetLastError};
 
-pub use windows_sys::Win32::Foundation::{ERROR_INVALID_HANDLE, ERROR_INVALID_WINDOW_HANDLE};
+pub use windows_sys::Win32::Foundation::{
+    ERROR_INVALID_HANDLE, ERROR_INVALID_WINDOW_HANDLE, MAX_PATH,
+};
 
 /// Closes the specified handle.
 ///
