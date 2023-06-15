@@ -1,6 +1,6 @@
 use crate::common::To;
 use crate::core::Result;
-use crate::{call_BOOL, call_num};
+use crate::{call, call_BOOL};
 use crate::{from_BOOL, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, transmute, zeroed};
@@ -157,7 +157,7 @@ pub fn get_current_id() -> u32 {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
 ///
 pub fn open(pid: u32, access: ProcessAccessRights, inherit_handle: bool) -> Result<isize> {
-    call_num! { OpenProcess(access, to_BOOL!(inherit_handle), pid) != 0 }
+    call! { OpenProcess(access, to_BOOL!(inherit_handle), pid) != 0 }
 }
 
 /// Determines whether the specified process is elevated.
@@ -509,7 +509,7 @@ pub fn is_critical(handle: isize) -> Result<bool> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessid
 ///
 pub fn get_id(handle: isize) -> Result<u32> {
-    call_num! { GetProcessId(handle) != 0 }
+    call! { GetProcessId(handle) != 0 }
 }
 
 /// Gets the information of all I/O operations performed by the specified process.
@@ -575,7 +575,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getpriorityclass
 ///
 pub fn get_priority_class(handle: isize) -> Result<PROCESS_CREATION_FLAGS> {
-    call_num! { GetPriorityClass(handle) != 0 => PROCESS_CREATION_FLAGS }
+    call! { GetPriorityClass(handle) != 0 => PROCESS_CREATION_FLAGS }
 }
 
 /// Gets the timing information for the specified process.
@@ -637,7 +637,7 @@ pub fn get_times(handle: isize) -> Result<[FILETIME; 4]> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessversion
 ///
 pub fn get_version(pid: u32) -> Result<(u16, u16)> {
-    call_num! { GetProcessVersion(pid) != 0 => To }
+    call! { GetProcessVersion(pid) != 0 => To }
 }
 
 /// Gets the minimum and maximum working set sizes of the specified process in a tuple.
@@ -989,5 +989,5 @@ pub fn clear_default_cpu_sets(handle: isize) -> Result<()> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-waitforinputidle
 ///
 pub fn wait_for_input_idle(handle: isize, timeout_ms: u32) -> Result<()> {
-    call_num! { WaitForInputIdle(handle, timeout_ms) == 0 }
+    call! { WaitForInputIdle(handle, timeout_ms) == 0 }
 }

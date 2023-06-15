@@ -1,6 +1,6 @@
 use super::super::kernel::PROCESSOR_NUMBER;
 use crate::core::Result;
-use crate::{call_BOOL, call_num, free, to_BOOL};
+use crate::{call, call_BOOL, free, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
 use core::ptr;
@@ -66,7 +66,7 @@ pub use windows_sys::Win32::System::Threading::{
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openthread
 ///
 pub fn open(id: u32, access_rights: ThreadAccessRights, inherit_handle: bool) -> Result<isize> {
-    call_num! { OpenThread(access_rights, to_BOOL!(inherit_handle), id) != 0 }
+    call! { OpenThread(access_rights, to_BOOL!(inherit_handle), id) != 0 }
 }
 
 #[allow(clippy::undocumented_unsafe_blocks)]
@@ -181,7 +181,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessidofthread
 ///
 pub fn get_process_id(handle: isize) -> Result<u32> {
-    call_num! { GetProcessIdOfThread(handle) != 0 }
+    call! { GetProcessIdOfThread(handle) != 0 }
 }
 
 /// Gets the description that was assigned to a thread by [`set_description`].
@@ -206,7 +206,7 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 ///
 pub fn get_description(handle: isize) -> Result<U16CString> {
     let mut description_ptr = ptr::null_mut::<u16>();
-    call_num! {
+    call! {
         GetThreadDescription(
             handle,
             addr_of_mut!(description_ptr).cast()
@@ -331,7 +331,7 @@ pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> 
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadpriority
 ///
 pub fn get_priority(handle: isize) -> Result<i32> {
-    call_num! { GetThreadPriority(handle) != 0 }
+    call! { GetThreadPriority(handle) != 0 }
 }
 
 /// Determines whether the specified thread has dynamic boosting enabled.
@@ -441,7 +441,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Vec<u32>> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread
 ///
 pub fn resume(handle: isize) -> Result<u32> {
-    call_num! { ResumeThread(handle) != u32::MAX }
+    call! { ResumeThread(handle) != u32::MAX }
 }
 
 /// Suspends the specified thread.
@@ -464,7 +464,7 @@ pub fn resume(handle: isize) -> Result<u32> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-suspendthread
 ///
 pub fn suspend(handle: isize) -> Result<u32> {
-    call_num! { SuspendThread(handle) != u32::MAX }
+    call! { SuspendThread(handle) != u32::MAX }
 }
 
 /// Sets a processor affinity mask for the specified thread.
@@ -489,7 +489,7 @@ pub fn suspend(handle: isize) -> Result<u32> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask
 ///
 pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
-    call_num! { SetThreadAffinityMask(handle, affinity_mask) != 0 }
+    call! { SetThreadAffinityMask(handle, affinity_mask) != 0 }
 }
 
 /// Sets description to a thread.
