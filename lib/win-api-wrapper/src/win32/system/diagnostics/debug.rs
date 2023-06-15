@@ -84,6 +84,7 @@ impl FormatSource for System {
 /// Gets the null-terminated formatted message string from the system message table.
 ///
 /// # Arguments
+///
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
 /// * `args`: An array of values that are used as insert values in the formatted message.
@@ -122,6 +123,7 @@ pub fn format_message(
 /// Gets the null-terminated formatted message string from the specified module.
 ///
 /// # Arguments
+///
 /// * `source`: The handle to the source module that contains the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
@@ -171,6 +173,7 @@ pub fn format_message_from_module(
 /// Gets the null-terminated formatted message string from the specified string.
 ///
 /// # Arguments
+///
 /// * `source`: The source string that contains the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
@@ -259,6 +262,7 @@ where
 /// Gets the null-terminated formatted message string from the system message table and copies it into `buffer`.
 ///
 /// # Arguments
+///
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
 /// * `args`: An array of values that are used as insert values in the formatted message.
@@ -303,6 +307,7 @@ pub fn format_message_with_buffer(
 /// Gets the formatted message string from the specified module and copies it into `buffer`.
 ///
 /// # Arguments
+///
 /// * `source`: The handle to the source module that contains the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
@@ -362,6 +367,7 @@ pub fn format_message_from_module_with_buffer(
 /// Gets the formatted message string from the specified string and copies it into `buffer`.
 ///
 /// # Arguments
+///
 /// * `source`: The source string that contains the message definition.
 /// * `id`: The message identifier for the requested message.
 /// * `lang_id`: The language identifier for the requested message.
