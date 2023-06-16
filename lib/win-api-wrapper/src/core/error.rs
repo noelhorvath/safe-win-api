@@ -3,16 +3,21 @@ use crate::win32::foundation::get_last_error;
 use crate::win32::system::diagnostics::debug::{format_message, FormatMessagetOptions};
 use crate::win32::system::library_loader::{free_library, load_library};
 
+/// Represents different code types that a Windows API function could return.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Code {
+    /// [`WIN32_ERROR`][windows_sys::Win32::Foundation::WIN32_ERROR] code
     Win32(u32),
+    /// [`HRESULT`][windows_sys::core::HRESULT] code
     HResult(i32),
+    /// [`NTSTATUS`][windows_sys::Win32::Foundation::NTSTATUS] code
     NtStatus(i32),
 }
 
 impl Code {
     #[inline]
-    pub const fn is_ok(self) -> bool {
+    /// Determines whether the code represents a success code.
+    pub const fn is_success(self) -> bool {
         match self {
             Self::HResult(val) => val >= 0,
             _ => self.as_u32() == 0,
@@ -20,26 +25,31 @@ impl Code {
     }
 
     #[inline]
+    /// Determines whether the code represents an error code.
     pub const fn is_error(self) -> bool {
-        !self.is_ok()
+        !self.is_success()
     }
 
     #[inline]
+    /// Creates a [`Code::HResult`] from an [`HRESULT`][windows_sys::core::HRESULT] value.
     pub fn from_hresult(value: i32) -> Self {
         Self::HResult(value)
     }
 
     #[inline]
+    /// Creates a [`Code::NtStatus`] from an [`NTSTATUS`][windows_sys::Win32::Foundation::NTSTATUS] value.
     pub const fn from_nt(value: i32) -> Self {
         Self::NtStatus(value)
     }
 
     #[inline]
+    /// Creates a [`Code::Win32`] from an [`WIN32_ERROR`][windows_sys::Win32::Foundation::WIN32_ERROR] value.
     pub const fn from_win32(value: u32) -> Self {
         Self::Win32(value)
     }
 
     #[inline]
+    /// Converts the [`Code`]'s value to an `u32` value.
     pub const fn as_u32(self) -> u32 {
         match self {
             Code::HResult(val) => val as u32,
@@ -49,6 +59,7 @@ impl Code {
     }
 
     #[inline]
+    /// Converts the [`Code`]'s value to an `i32` value.
     pub const fn as_i32(self) -> i32 {
         match self {
             Code::HResult(val) => val,
@@ -58,6 +69,7 @@ impl Code {
     }
 
     #[inline]
+    /// Determines whether the current [`Code`] is [`HRESULT`][windows_sys::core::HRESULT] value.
     pub fn is_hresult(self) -> bool {
         if let Self::HResult(_) = self {
             true
@@ -67,6 +79,7 @@ impl Code {
     }
 
     #[inline]
+    /// Determines whether the current [`Code`] is an [`NTSTATUS`][windows_sys::Win32::Foundation::NTSTATUS] value.
     pub fn is_nt(self) -> bool {
         if let Self::NtStatus(_) = self {
             true
@@ -76,6 +89,7 @@ impl Code {
     }
 
     #[inline]
+    /// Determines whether the current [`Code`] is a [`WIN32_ERROR`][windows_sys::Win32::Foundation::WIN32_ERROR] value.
     pub fn is_win32(self) -> bool {
         if let Self::Win32(_) = self {
             true
@@ -84,6 +98,7 @@ impl Code {
         }
     }
 
+    /// Gets the [`Code`]'s associated message by calling [`format_message`].
     pub fn to_message(self) -> String {
         if self.is_nt() {
             // TODO: fix no message
@@ -152,6 +167,7 @@ impl Error {
         "Failed to retrieve the error message from the system!";
 
     #[inline]
+    /// Creates a new [`Error`] from a `code` and `message`.
     pub(crate) const fn new(code: Code, message: Box<str>) -> Self {
         Self { code, message }
     }
@@ -177,7 +193,7 @@ impl Error {
     #[inline]
     /// Determines whether the error code represents success. This method is the opposite of [`is_failure`][`Error::is_failure`].
     pub const fn is_success(&self) -> bool {
-        self.code.is_ok()
+        self.code.is_success()
     }
 
     #[inline]

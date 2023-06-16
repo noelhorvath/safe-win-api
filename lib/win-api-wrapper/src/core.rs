@@ -1,10 +1,12 @@
 pub use windows_sys::core::GUID;
 
+/// Contains the error type.
 pub mod error;
 
 pub type Result<T> = core::result::Result<T, super::core::error::Error>;
 
 #[inline]
+/// Creates a [`GUID`] from an array of `16` bytes.
 pub fn guid_from_array(bytes: [u8; 16]) -> GUID {
     GUID {
         data1: u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]),
@@ -16,25 +18,26 @@ pub fn guid_from_array(bytes: [u8; 16]) -> GUID {
     }
 }
 
-pub fn get_string_len_from_bytes(buffer: &[u8]) -> usize {
+/// Gets the length from the bytes of an UTF-16 encoded string.
+pub fn get_utf16_string_len_from_bytes(bytes: &[u8]) -> usize {
     let mut len = 0;
-    if buffer.len() >= 2 && buffer[0] != 0 {
+    if bytes.len() >= 2 && bytes[0] != 0 {
         len += 1;
     }
 
-    if buffer.len() <= 2 {
+    if bytes.len() <= 2 {
         return len;
     }
 
-    let buffer_slice = if buffer.len() % 2 == 0 {
-        buffer
+    let bytes_slice = if bytes.len() % 2 == 0 {
+        bytes
     } else {
-        &buffer[..buffer.len() - 1]
+        &bytes[..bytes.len() - 1]
     };
     let mut i = 1; // == index of last checked u16 byte's lower byte => [0x11, 0x00] -> 1
-    while i < buffer.len() {
+    while i < bytes.len() {
         i += 1;
-        if buffer_slice[i] == 0 {
+        if bytes_slice[i] == 0 {
             break;
         }
 

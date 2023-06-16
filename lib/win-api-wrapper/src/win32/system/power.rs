@@ -1,6 +1,6 @@
 use super::registry::RegistryValue;
 use super::threading::REASON_CONTEXT;
-use crate::core::{get_string_len_from_bytes, guid_from_array, Result};
+use crate::core::{get_utf16_string_len_from_bytes, guid_from_array, Result};
 use crate::win32::foundation::MAX_PATH;
 use crate::{
     call, call_BOOL, call_HRESULT, call_NTSTATUS, call_WIN32_ERROR, default_sized, free, to_BOOL,
@@ -256,12 +256,12 @@ pub fn enum_devices(
             &mut buffer_size,
         ) return Error
     };
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -663,12 +663,12 @@ pub fn read_description(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<
             &mut buffer_size,
         ) == 0 => return Error
     }
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -717,12 +717,12 @@ pub fn read_friendly_name(scheme: GUID, sub_group: GUID, setting: GUID) -> Resul
             &mut buffer_size,
         ) == 0 => return Error
     }
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -771,12 +771,12 @@ pub fn read_icon_resource_name(scheme: GUID, sub_group: GUID, setting: GUID) -> 
             &mut buffer_size,
         ) == 0 => return Error
     }
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -833,12 +833,12 @@ pub fn read_possible_description(
             &mut buffer_size,
         ) == 0 => return Error
     }
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -895,12 +895,12 @@ pub fn read_possible_friendly_name(
             &mut buffer_size,
         ) == 0 => return Error
     }
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
@@ -1047,12 +1047,12 @@ pub fn read_value_unit(sub_group: GUID, setting: GUID) -> Result<U16CString> {
             &mut buffer_size,
         ) == 0 => return Error
     };
-    // Safety: `buffer` is valid for `get_string_len_from_bytes` elements.
-    //          Result of `get_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
+    // Safety: `buffer` is valid for `get_utf16_string_len_from_bytes` elements.
+    //          Result of `get_utf16_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
     Ok(unsafe {
         U16CString::from_ptr_unchecked(
             buffer.as_ptr().cast(),
-            get_string_len_from_bytes(buffer.as_slice()),
+            get_utf16_string_len_from_bytes(buffer.as_slice()),
         )
     })
 }
