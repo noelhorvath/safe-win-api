@@ -34,6 +34,7 @@ pub type HookProcedure =
 pub type SendAsyncCallback =
     unsafe extern "system" fn(param0: HWND, param1: u32, param2: usize, param3: LRESULT) -> ();
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Passes the hook `hook_code` and `parameters` to the next hook procedure in the current hook chain.
 /// A hook procedure can call this function either before or after processing the hook information.
 ///
@@ -64,6 +65,7 @@ pub fn call_next_hook(hook_code: i32, parameters: (usize, isize)) -> isize {
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Dispatches `message` to a window procedure. It is tipically used to dispatch a message retrieved by [`get`].
 ///
 /// # Remarks
@@ -137,6 +139,7 @@ pub fn get(window_handle: isize, message_filter_min: u32, message_filter_max: u3
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Gets the message time for the last message retrieved by [`get`].
 /// The returned `i32` value specifies the elapsed time, in milliseconds,
 /// from the time the system was started to the time the message was created
@@ -170,6 +173,7 @@ pub fn get_last_cursor_position() -> POINT {
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Gets the extra message information for the current thread.
 /// Extra message information is an application- or driver-defined value associated with the current thread's message queue.
 ///
@@ -186,6 +190,7 @@ pub fn get_extra_info() -> isize {
     unsafe { GetMessageExtraInfo() }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Sets the extra message information for the current thread.
 /// Extra message information is an application- or driver-defined value associated with the current thread's message queue.
 ///
@@ -301,6 +306,7 @@ pub fn post(window_handle: isize, message: u32, parameters: (usize, isize)) -> R
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Posts a [`WM_QUIT`] message, which is is typically used in response to a [`WM_DESTROY`] message,
 /// to the thread's message queue indicating to the system
 /// that the calling thread has made a request to terminate at some time in the future.
@@ -362,6 +368,7 @@ pub fn post_thread(thread_id: u32, message: u32, parameters: (usize, isize)) -> 
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Replies to a message sent from another thread by [`send`].
 /// The return values specifies whether the calling thread was processing a message sent from another thread or process.
 ///
@@ -383,6 +390,7 @@ pub fn reply(processing_result: isize) -> bool {
     from_BOOL!(unsafe { ReplyMessage(processing_result) })
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Sends `message` with `parameters` to a window or windows specified by `window_handle`.
 /// The [`send`] call the window procedure for the specified windows and oes not return until the window
 /// procedure has processed the message.
@@ -593,6 +601,8 @@ pub fn send_with_callback(
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
+#[inline]
 /// Determines whether the current window procedure is processing a message
 /// that was sent from another thread in the same process or a different process.
 ///
@@ -603,21 +613,21 @@ pub fn send_with_callback(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-insendmessageex
 ///
-#[inline]
 pub fn in_send() -> u32 {
     unsafe { InSendMessageEx(ptr::null()) }
 }
 
+#[inline]
 /// Determines whether the sender is blocked.
 ///
 /// # Examples
 /// TODO
 ///
-#[inline]
 pub fn is_sender_blocked() -> bool {
     in_send() & (ISMEX_REPLIED | ISMEX_SEND) == ISMEX_SEND
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Translates virtual-key messages into character messages.
 /// The character messages are posted to the calling thread's message queue,
 /// to be read the next time the thread calls the [`get`] or [`peek`] function.
@@ -671,6 +681,7 @@ pub fn translate_accelerator(
     }
 }
 
+#[allow(clippy::undocumented_unsafe_blocks)]
 /// Calls the default window procedure to provide default processing for any window messages that an application
 /// does not process. This function ensures that every message is processed. [`use_default_procedure`] is called
 /// with the same parameters received by the window procedure.
