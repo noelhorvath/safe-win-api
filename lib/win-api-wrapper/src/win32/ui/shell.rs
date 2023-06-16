@@ -674,6 +674,10 @@ pub fn query_bin(root_path: &U16CStr) -> Result<SHQUERYRBINFO> {
 /// Checks the state of the computer for the current user to determine
 /// whether sending a notification is appropriate.
 ///
+/// # Arguments
+///
+/// * `root_path`: The path of the root drive on which the `Recycle Bin` is located.
+///
 /// # Remarks
 ///
 /// Applications should call [`query_user_notification_state`] and test the return
@@ -688,10 +692,6 @@ pub fn query_bin(root_path: &U16CStr) -> Result<SHQUERYRBINFO> {
 ///
 /// If this function returns QUNS_QUIET_TIME, notifications should be displayed
 /// only if critical.
-///
-/// # Arguments
-///
-/// * `root_path`: The path of the root drive on which the `Recycle Bin` is located.
 ///
 /// # Errors
 ///
