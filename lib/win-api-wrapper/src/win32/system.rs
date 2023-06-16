@@ -14,8 +14,6 @@ pub mod power;
 pub mod process_status;
 /// `Win32::System::Registry`
 pub mod registry;
-/// `Win32::System::SystemServices`
-pub mod system_services;
 /// `Win32::System::Threading`
 pub mod threading;
 /// `Win32::System::Time`
