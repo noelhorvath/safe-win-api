@@ -6,10 +6,10 @@ use windows_sys::Win32::Foundation::BOOL;
 use windows_sys::Win32::Foundation::{HWND, LPARAM, POINT};
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     AllowSetForegroundWindow, ArrangeIconicWindows, BringWindowToTop, ChildWindowFromPointEx,
-    CloseWindow, DestroyWindow, EnumChildWindows, EnumThreadWindows, EnumWindows, FindWindowExW,
-    GetAncestor, GetDesktopWindow, GetParent, GetShellWindow, GetTopWindow, GetWindow,
-    GetWindowTextLengthW, GetWindowTextW, IsChild, IsIconic, IsWindow, IsWindowVisible, IsZoomed,
-    LogicalToPhysicalPoint, MoveWindow, OpenIcon, RealChildWindowFromPoint, SetParent,
+    CloseWindow, DestroyIcon, DestroyWindow, EnumChildWindows, EnumThreadWindows, EnumWindows,
+    FindWindowExW, GetAncestor, GetDesktopWindow, GetParent, GetShellWindow, GetTopWindow,
+    GetWindow, GetWindowTextLengthW, GetWindowTextW, IsChild, IsIconic, IsWindow, IsWindowVisible,
+    IsZoomed, LogicalToPhysicalPoint, MoveWindow, OpenIcon, RealChildWindowFromPoint, SetParent,
     SetWindowTextW, ShowWindow, ShowWindowAsync,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
@@ -226,4 +226,8 @@ pub fn show(handle: isize, show_command: SHOW_WINDOW_CMD) -> Result<bool> {
 
 pub fn show_async(handle: isize, show_command: SHOW_WINDOW_CMD) -> Result<()> {
     call_BOOL! { ShowWindowAsync(handle, show_command) }
+}
+
+pub fn destroy_icon(icon_handle: isize) -> Result<()> {
+    call_BOOL! { DestroyIcon(icon_handle) }
 }
