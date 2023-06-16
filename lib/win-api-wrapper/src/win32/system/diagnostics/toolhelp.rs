@@ -1,7 +1,6 @@
 use crate::core::Result;
 use crate::default_sized;
 use crate::{call, call_BOOL};
-use core::mem::size_of;
 use windows_sys::Win32::Foundation::ERROR_NO_MORE_FILES;
 use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
 use windows_sys::Win32::System::Diagnostics::ToolHelp::{
