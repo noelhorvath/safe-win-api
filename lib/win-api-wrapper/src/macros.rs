@@ -522,10 +522,16 @@ macro_rules! default_sized {
         // Safety: The sized type is not a reference or a pointer.
         unsafe { core::mem::zeroed::<$sized>() }
     };
-    (mut $entry:ty: SnapshotEntry) => {{
+    (Cb -> mut $val:ident: $val_type:ty) => {{
         // Safety: The sized type is not a reference or a pointer.
-        let mut entry = unsafe { core::mem::zeroed::<$entry>() };
-        entry.dwSize = size_of::<$entry>() as u32;
-        entry
+        let mut $val = unsafe { core::mem::zeroed::<$val_type>() };
+        $val.cbSize = core::mem::size_of::<$val_type>() as u32;
+        $val
+    }};
+    (Dw -> mut $val:ident: $val_type:ty) => {{
+        // Safety: The sized type is not a reference or a pointer.
+        let mut $val = unsafe { core::mem::zeroed::<$val_type>() };
+        $val.dwSize = core::mem::size_of::<$val_type>() as u32;
+        $val
     }};
 }

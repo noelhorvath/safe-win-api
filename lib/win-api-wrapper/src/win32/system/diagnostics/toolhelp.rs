@@ -79,7 +79,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
     call_BOOL! {
         Process32FirstW(handle, &mut entry) -> Result<Option> {
-            mut entry = default_sized!(mut PROCESSENTRY32W: SnapshotEntry);
+            mut entry = default_sized!(Dw -> mut entry: PROCESSENTRY32W);
             ERROR_NO_MORE_FILES => None;
         }
     }
@@ -112,7 +112,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
     call_BOOL! {
         Process32NextW(handle, &mut entry) -> Result<Option> {
-            mut entry = default_sized!(mut PROCESSENTRY32W: SnapshotEntry);
+            mut entry = default_sized!(Dw -> mut entry: PROCESSENTRY32W);
             ERROR_NO_MORE_FILES => None;
         }
     }
@@ -145,7 +145,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
     call_BOOL! {
         Thread32First(handle, &mut entry) -> Result<Option> {
-            mut entry = default_sized!(mut THREADENTRY32: SnapshotEntry);
+            mut entry = default_sized!(Dw -> mut entry: THREADENTRY32);
             ERROR_NO_MORE_FILES => None;
         }
     }
@@ -178,7 +178,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 pub fn next_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
     call_BOOL! {
         Thread32Next(handle, &mut entry) -> Result<Option> {
-            mut entry = default_sized!(mut THREADENTRY32: SnapshotEntry);
+            mut entry = default_sized!(Dw -> mut entry: THREADENTRY32);
             ERROR_NO_MORE_FILES => None;
         }
     }
