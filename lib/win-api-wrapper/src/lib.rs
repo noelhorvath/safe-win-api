@@ -114,7 +114,7 @@ extern crate alloc;
 
 pub use widestring::{u16cstr, u16str, U16CStr, U16CString, U16Str, U16String};
 
-/// This module contains common functions or traits that are used accross the whole crate.
+/// This module contains common functions and traits
 pub mod common;
 /// Contains error types.
 pub mod core;
