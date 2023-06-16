@@ -1,8 +1,40 @@
-use crate::call;
 use crate::core::Result;
+use crate::{call, call_HRESULT};
 use core::ptr;
 use std::os::raw::c_void;
-use windows_sys::Win32::System::Com::{CoTaskMemAlloc, CoTaskMemFree};
+use windows_sys::Win32::System::Com::{CoInitializeEx, CoTaskMemAlloc, CoTaskMemFree};
+
+pub use windows_sys::Win32::System::Com::{
+    COINIT_APARTMENTTHREADED, COINIT_DISABLE_OLE1DDE, COINIT_MULTITHREADED,
+    COINIT_SPEED_OVER_MEMORY,
+};
+
+/// Initializes the `COM` library for use by the calling thread,
+/// sets the thread's concurrency model, and creates a new apartment
+/// for the thread if one is required.
+///
+/// [`initialize`] must be called at least once, and is usually called only once,
+/// for each thread that uses the `COM` library.
+///
+/// # Arguments
+///
+/// * `options`: The concurrency model and initialization options for the thread.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex
+///
+pub fn initialize(options: i32) -> Result<()> {
+    call_HRESULT! { CoInitializeEx(ptr::null(), options) }
+}
 
 /// Allocates an uninitialized block of task memory.
 ///
