@@ -706,7 +706,7 @@ pub fn query_bin(root_path: &U16CStr) -> Result<SHQUERYRBINFO> {
 ///
 /// For more information see the official [documentation].
 ///
-/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shqueryrecyclebinw
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shqueryusernotificationstate
 ///
 pub fn query_user_notification_state() -> Result<i32> {
     call_HRESULT! {
