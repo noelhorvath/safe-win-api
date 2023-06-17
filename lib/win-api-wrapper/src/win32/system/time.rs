@@ -1,6 +1,5 @@
 use crate::call_BOOL;
-use crate::common::To;
-use crate::core::Result;
+use crate::core::{Result, To};
 use core::mem::transmute;
 use core::ptr::addr_of;
 use core::ptr::addr_of_mut;

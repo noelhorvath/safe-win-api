@@ -1,5 +1,4 @@
-use crate::common::To;
-use crate::core::Result;
+use crate::core::{Result, To};
 use crate::{call, call_BOOL};
 use crate::{from_BOOL, to_BOOL};
 use core::ffi::c_void;

@@ -1,9 +1,17 @@
+pub use crate::U16CString;
+pub use core::mem::size_of;
 pub use windows_sys::core::GUID;
 
 /// Contains the error type.
 pub mod error;
 
 pub type Result<T> = core::result::Result<T, super::core::error::Error>;
+
+/// This trait defines a `to` method for `Borrowed` to `Owned` conversion between two types.
+pub trait To<T> {
+    /// Converts the borrowed type to an owned type of `T`.
+    fn to(&self) -> T;
+}
 
 #[inline]
 /// Creates a [`GUID`] from an array of `16` bytes.
@@ -18,8 +26,9 @@ pub fn guid_from_array(bytes: [u8; 16]) -> GUID {
     }
 }
 
-/// Gets the length from the bytes of an UTF-16 encoded string.
-pub fn get_utf16_string_len_from_bytes(bytes: &[u8]) -> usize {
+/// Gets the length from a wide string (`WSTR`). The returned length
+/// does not include the null terminator (`\0`).
+pub fn get_wide_string_len_from_bytes(bytes: &[u8]) -> usize {
     let mut len = 0;
     if bytes.len() >= 2 && bytes[0] != 0 {
         len += 1;
@@ -29,20 +38,58 @@ pub fn get_utf16_string_len_from_bytes(bytes: &[u8]) -> usize {
         return len;
     }
 
+    // The slice should contain even number of bytes, because each wide character consists of 2 bytes.
     let bytes_slice = if bytes.len() % 2 == 0 {
         bytes
     } else {
+        // If the slice has odd number of bytes, just exclude the last byte of the byte sequence.
+        // It is safe to exclude the last byte, beacuse the slice contains atleast 3 bytes.
         &bytes[..bytes.len() - 1]
     };
-    let mut i = 1; // == index of last checked u16 byte's lower byte => [0x11, 0x00] -> 1
+    let mut i = 2; // index of the first byte of the next u16 character to be checked
     while i < bytes.len() {
-        i += 1;
-        if bytes_slice[i] == 0 {
+        // if both bytes of the wide character are 0, the character is a null terminator ([0, 0])
+        if bytes_slice[i] == 0 && bytes_slice[i + 1] == 0 {
             break;
         }
 
-        i += 1;
+        i += 2;
         len += 1;
     }
     len
+}
+
+/// Gets the number of strings that the multi-string byte sequence contains.
+pub fn get_multi_string_bytes_count(mut bytes: &[u8]) -> usize {
+    let mut count = 0;
+    loop {
+        let next_string_bytes_len = get_wide_string_len_from_bytes(bytes) * size_of::<u16>();
+        if next_string_bytes_len == 0 {
+            break;
+        }
+
+        let start_index_of_next_string = next_string_bytes_len + 2;
+        bytes = &bytes[start_index_of_next_string..];
+        count += 1;
+    }
+
+    count
+}
+
+/// Extracts each string from the multi-string byte sequence and returns them in a vector.
+pub fn multi_string_bytes_to_strings(mut bytes: &[u8]) -> Vec<U16CString> {
+    let string_count = get_multi_string_bytes_count(bytes);
+    let mut strings = Vec::with_capacity(string_count);
+    let mut i = 0;
+    while i < string_count {
+        let len = get_wide_string_len_from_bytes(bytes);
+        let string = unsafe { U16CString::from_ptr_unchecked(bytes.as_ptr().cast(), len) };
+        strings.push(string);
+
+        let start_index_of_next_string = (len + 1) * size_of::<u16>();
+        bytes = &bytes[start_index_of_next_string..];
+        i += 1;
+    }
+
+    strings
 }

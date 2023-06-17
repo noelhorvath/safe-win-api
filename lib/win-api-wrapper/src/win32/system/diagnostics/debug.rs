@@ -1,5 +1,4 @@
-use crate::common::To;
-use crate::core::Result;
+use crate::core::{Result, To};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
 use widestring::{U16CStr, U16CString};
