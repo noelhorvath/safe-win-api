@@ -124,6 +124,11 @@ macro_rules! call_BOOL {
         let res = unsafe { $func($($arg),*) };
         $crate::handle_BOOL!(res if $error_val return else return $def_ret_val)
     };
+    { $func:ident($($arg:expr), * $(,)?) -> if Error == $error_val:expr => $error_ret:expr; else return $(;)? } => {
+        #[allow(clippy::undocumented_unsafe_blocks)]
+        let res = unsafe { $func($($arg),*) };
+        $crate::handle_BOOL!(if Error == $error_val => $error_ret; else return, res)
+    };
 }
 
 #[doc(hidden)]
@@ -173,6 +178,16 @@ macro_rules! handle_BOOL {
             } else {
                 Err(error)
             }
+        }
+    };
+    (if Error == $error_val:expr => $error_ret:expr; else return, $res:ident) => {
+        if $crate::from_BOOL!(!$res) {
+            let error = $crate::last_error!(Win32);
+            return if error.code.as_u32() == $error_val {
+                Ok($error_ret)
+            } else {
+                Err(error)
+            };
         }
     };
 }
