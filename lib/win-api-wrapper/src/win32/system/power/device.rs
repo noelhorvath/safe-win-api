@@ -101,7 +101,7 @@ pub fn open_device_list() -> Result<()> {
 ///
 /// Opening and closing the device list is a costly process in terms of CPU time.
 /// Therefore it is recommended to open and close the device list explicitly when
-/// more than one function call is using it (implicitly) like in the [first example][enum_device_names#examples].
+/// subsequent function calls are using it (implicitly) like in the [first example][enum_device_names#examples].
 ///
 /// The function detects whether the device list is open, and if not, opens a new one.
 /// If the device list was opened by the [`enum_device_names`], it is closed before the function returns, but
@@ -227,7 +227,7 @@ pub fn enum_device_names(
 ///
 /// Opening and closing the device list is a costly process in terms of CPU time.
 /// Therefore it is recommended to open and close the device list explicitly when
-/// more than one function call is using it (implicitly) like in the [first example][enum_device_names_with_buffer#examples].
+/// subsequent function calls are using it (implicitly) like in the [first example][enum_device_names_with_buffer#examples].
 ///
 /// The function detects whether the device list is open, and if not, opens a new one.
 /// If the device list was opened by the [`enum_device_names_with_buffer`], it is closed before the function returns, but
@@ -330,7 +330,7 @@ pub fn enum_device_names_with_buffer(
 ///
 /// Opening and closing the device list is a costly process in terms of CPU time.
 /// Therefore it is recommended to open and close the device list explicitly when
-/// more than one function call is using it (implicitly) like in the [first example][enum_device_hardware_ids#examples].
+/// subsequent function calls are using it (implicitly) like in the [first example][enum_device_hardware_ids#examples].
 ///
 /// The function detects whether the device list is open, and if not, opens a new one.
 /// If the device list was opened by the [`enum_device_hardware_ids`], it is closed before the function returns, but
@@ -429,7 +429,7 @@ pub fn enum_device_hardware_ids(
 ///
 /// Opening and closing the device list is a costly process in terms of CPU time.
 /// Therefore it is recommended to open and close the device list explicitly when
-/// more than one function call is using it (implicitly) like in the [first example][enum_device_hardware_ids_with_buffer#examples].
+/// subsequent function calls are using it (implicitly) like in the [first example][enum_device_hardware_ids_with_buffer#examples].
 ///
 /// The function detects whether the device list is open, and if not, opens a new one.
 /// If the device list was opened by the [`enum_device_hardware_ids_with_buffer`], it is closed before the function returns, but
@@ -528,10 +528,13 @@ pub fn enum_device_hardware_ids_with_buffer(
 /// To match all the capabilites use the [`EnumerationOptions::AndOperationOnCapabilities`] flag.
 ///
 /// Opening and closing the device list is a costly process in terms of CPU time.
+/// Therefore it is recommended to open and close the device list explicitly when
+/// subsequent function calls are using it (implicitly) like in the [first example][has_device#examples].
+///
 /// The function detects whether the device list is open, and if not, opens a new one.
-/// If the device list was opened by [`has_device`], it is closed before the function returns, but
-/// the function will not close the device list if it has been explicitly opened
-/// by [`open_device_list`]. If the device list was explicitly opened
+/// If the device list was opened by the [`has_device`], it is closed before the function returns, but
+/// the function will not close the device list if it has been explicitly opened by [`open_device_list`].
+/// To close the explicitly opened device list call [`close_device_list`].
 ///
 /// # Arguments
 ///
@@ -549,7 +552,34 @@ pub fn enum_device_hardware_ids_with_buffer(
 ///
 /// # Examples
 ///
-/// TODO
+/// Checking if the fingerprint reader supports D0 and D1 power states:
+///
+/// ```
+/// let device_name = u16cstr!("FPC Fingerprint Reader (Disum)");
+///     // Let `has_device` open the device list for this one function call
+///     match power::device::has_device(
+///         device_name,
+///         // With option we can check if the device
+///         // supports both D0 and D1 power states.
+///         // If we used `EnumerationOptions::None` the function
+///         // would check if the device either has D0 or D1 support
+///         EnumerationOptions::AndOperationOnCapabilities,
+///         PDCAP_D1_SUPPORTED | PDCAP_D0_SUPPORTED,
+///     ) {
+///         Ok(has_capabilities) => {
+///             println!(
+///                 "The fingerprint device {} both
+///                  D0 and D1 power states.",
+///                 if has_capabilities {
+///                     "supports"
+///                 } else {
+///                     "does not support"
+///                 }
+///             );
+///         }
+///         Err(error) => println!("{:?}", error),
+///     }
+/// ```
 ///
 /// For more information see the official [documentation].
 ///
@@ -570,8 +600,6 @@ pub fn has_device(
     let filter_bytes_slice =
         unsafe { core::slice::from_raw_parts(device_name.as_ptr() as *const u8, buffer_size) };
     buffer.copy_from_slice(filter_bytes_slice);
-    println!("buffer_len: {}", buffer.len());
-    println!("buffer: {:?}", buffer);
     call_BOOL! {
         DevicePowerEnumDevices(
             0,
