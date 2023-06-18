@@ -28,11 +28,13 @@ pub mod drag;
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// # Examples
-/// [TODO][https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw]
+///
+/// See the [official example] in C++.
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
+/// [official example]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
 ///
 pub fn parse_args(commandline: &U16CStr) -> Result<Vec<U16CString>> {
     let mut args_count = 0;
@@ -225,8 +227,8 @@ pub fn init_network_address_control() -> Result<()> {
 /// the `message` parameter.
 ///
 /// The returned value is a message-dependent value.
-/// For more information, see the [Windows SDK documentation][https://learn.microsoft.com/en-us/windows/win32/shell/application-desktop-toolbars#appbar-notification-messages]
-/// for the specific appbar message sent.
+/// For more information, see the [Windows SDK documentation] for the specific
+/// appbar message sent.
 ///
 /// # Arguments
 ///
@@ -239,6 +241,7 @@ pub fn init_network_address_control() -> Result<()> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shappbarmessage
+/// [Windows SDK documentation]: https://learn.microsoft.com/en-us/windows/win32/shell/application-desktop-toolbars#appbar-notification-messages
 ///
 pub fn send_app_bar_message(message: u32, data: &mut APPBARDATA) -> usize {
     unsafe { SHAppBarMessage(message, data) }
@@ -420,7 +423,7 @@ pub fn get_notify_icon_rect(notify_icon_id: NOTIFYICONIDENTIFIER) -> Result<RECT
 /// # Arguments
 ///
 /// * `message`: A value that specifies the action to be taken by this function.
-/// * `data`: A reference to [`NOTIFYICONDATA`] instance.
+/// * `data`: A reference to [`NOTIFYICONDATAW`] instance.
 ///     * The content of the parameter depends on the value of `message`.
 ///
 /// # Errors

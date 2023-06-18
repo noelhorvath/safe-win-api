@@ -16,7 +16,7 @@ pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
 use crate::{call, free};
 
-/// A marker trait for types that can be used as a source in [`format_message_with_source`].
+/// A marker trait for types that can be used as a source when formatting a message.
 pub trait FormatSource {
     /// Gets the associated [`FORMAT_MESSAGE_OPTIONS`] flag for the type.
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS;
@@ -30,8 +30,7 @@ pub trait FormatSource {
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy)]
-/// Specifies options for message formatting.
-/// It can be passed to both [`format_message`] and [`format_message_with_buffer`] as the `options` argument.
+/// Specifies the options for message formatting.
 pub enum FormatMessagetOptions {
     /// Do not ignore anything.
     None,

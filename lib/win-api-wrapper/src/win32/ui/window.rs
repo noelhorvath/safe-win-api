@@ -885,7 +885,7 @@ pub fn set_text(handle: isize, text: &U16CStr) -> Result<()> {
 ///
 /// For more information see the official [documentation].
 ///
-/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent
 ///
 pub fn set_parent(child_handle: isize, new_parent_handle: isize) -> Result<isize> {
     call! { SetParent(child_handle, new_parent_handle) != 0 }

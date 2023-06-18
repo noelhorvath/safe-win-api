@@ -29,8 +29,11 @@ pub use windows_sys::Win32::System::SystemServices::{
     PDCAP_WAKE_FROM_D3_SUPPORTED, PDCAP_WARM_EJECT_SUPPORTED,
 };
 
-/// The maximum size of the device name that [`enum_devices`] could return
-/// based on [this offical example][https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api].
+/// The maximum size of the device name that [`enum_device_names`] could return
+/// based on the [offical example].
+///
+/// [offical example]: https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api.
+///
 pub const MAX_DEVICE_NAME_SIZE: usize = MAX_PATH as usize * size_of::<u16>();
 
 bitflags! {
@@ -63,7 +66,7 @@ bitflags! {
 ///
 /// # Examples
 ///
-/// See the [first example][enum_devices#examples] of [`enum_devices`].
+/// See the [first example][enum_device_names#examples] of [`enum_device_names`].
 ///
 ///
 /// For more information see the official [documentation].
@@ -82,7 +85,7 @@ pub fn close_device_list() -> Result<()> {
 ///
 /// # Examples
 ///
-/// See the [first example][enum_devices#examples] of [`enum_devices`].
+/// See the [first example][enum_device_names#examples] of [`enum_device_names`].
 ///
 /// For more information see the official [documentation].
 ///
@@ -185,11 +188,12 @@ pub fn open_device_list() -> Result<()> {
 /// }
 /// ```
 ///
-/// Based on the official `C++` [example][https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api].
+/// Based on the official `C++` [example].
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
+/// [example]: https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api
 ///
 pub fn enum_device_names(
     index: u32,
@@ -294,11 +298,12 @@ pub fn enum_device_names(
 /// }
 /// ```
 ///
-/// Based on the official `C++` [example][https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api].
+/// Based on the official `C++` [example].
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
+/// [example]: https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api
 ///
 pub fn enum_device_names_with_buffer(
     index: u32,
@@ -535,40 +540,12 @@ pub fn enum_device_hardware_ids_with_buffer(
 /// * `options`: The criteria applied to the search results.
 ///     * See [`EnumerationOptions`].
 /// * `capability_flags`: The query criteria.
-///     * See the [`Query flags`][enum_devices#query-flags] section.
+///     * See the [`Capability flags`][enum_device_names#query-flags] section.
 /// * `filter_device_name`: The query criteria.
-///
-/// ## Capability flags
-///
-/// | Flag | Description |
-/// |------|------|
-/// | [`PDCAP_D0_SUPPORTED`] | The device supports system power state D0. |
-/// | [`PDCAP_D1_SUPPORTED`] | The device supports system power state D1. |
-/// | [`PDCAP_D2_SUPPORTED`] | The device supports system power state D2. |
-/// | [`PDCAP_D3_SUPPORTED`] | The device supports system power state D3. |
-/// | [`PDCAP_S0_SUPPORTED`] | The device supports system power state S0. |
-/// | [`PDCAP_S1_SUPPORTED`] | The device supports system power state S1. |
-/// | [`PDCAP_S2_SUPPORTED`] | The device supports system power state S2. |
-/// | [`PDCAP_S3_SUPPORTED`] | The device supports system power state S3. |
-/// | [`PDCAP_S4_SUPPORTED`] | The device supports system power state S4. |
-/// | [`PDCAP_S5_SUPPORTED`] | The device supports system power state S5. |
-/// | [`PDCAP_WAKE_FROM_D0_SUPPORTED`] | The device supports waking from system power state D0. |
-/// | [`PDCAP_WAKE_FROM_D1_SUPPORTED`] | The device supports waking from system power state D1. |
-/// | [`PDCAP_WAKE_FROM_D2_SUPPORTED`] | The device supports waking from system power state D2. |
-/// | [`PDCAP_WAKE_FROM_D3_SUPPORTED`] | The device supports waking from system power state D3. |
-/// | [`PDCAP_WAKE_FROM_S0_SUPPORTED`] | The device supports waking from system power state S0. |
-/// | [`PDCAP_WAKE_FROM_S1_SUPPORTED`] | The device supports waking from system power state S1. |
-/// | [`PDCAP_WAKE_FROM_S2_SUPPORTED`] | The device supports waking from system power state S2. |
-/// | [`PDCAP_WAKE_FROM_S3_SUPPORTED`] | The device supports waking from system power state S3. |
-/// | [`PDCAP_WARM_EJECT_SUPPORTED`] | The device supports warm eject. |
 ///
 /// # Errors
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
-///
-/// # Remarks
-///
-/// See the official [example][https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api].
 ///
 /// # Examples
 ///
@@ -645,7 +622,7 @@ pub fn get_device_power_state(handle: isize) -> Result<i32> {
 ///
 /// * `id`: The name or hardware identifier string of the device to be modified.
 /// * `flags`: The properties of the device that are to be modified.
-///     * See the [`Set Flags`][enum_devices#set-flags] section
+///     * See the [`Set Flags`][set_device_state#set-flags] section
 ///
 /// ## Set flags
 ///

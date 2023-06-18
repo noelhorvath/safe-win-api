@@ -6,15 +6,16 @@ use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
 /// The recommended value for `initial_buffer_size` in [`get_pids`].
 pub const RECOMMENDED_INITIAL_PID_BUFFER_LENGTH: usize = 1024;
 /// Maximum number of processes that [`EnumProcesses`] could enumerate.
-const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
+pub const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 
 /// Gets the process identifier for each process in the system.
 ///
-/// # Remarks
+/// If `initial_buffer_len` is too small, the buffer is resized by `buffer.len() * 2` until
+/// it is large enough to hold the process identifiers.
+/// The maximum number of process identifiers that could be returned is [`MAX_PID_BUFFER_LEN`].
 ///
-/// * If `initial_buffer_len` is too small, the buffer is resized by `buffer.len() * 2` until it is large enough to hold the process identifiers.
-/// * The maximum number of process identifiers that could be returned is [`MAX_PID_BUFFER_LEN`].
-/// * [`MAX_PID_BUFFER_LEN`] is used instead of `initial_buffer_len` to allocate the initial buffer if the specidied length is larger than [`MAX_PID_BUFFER_LEN`].
+/// If the specidied length is larger than [`MAX_PID_BUFFER_LEN`], then [`MAX_PID_BUFFER_LEN`]
+/// is used instead.
 ///
 /// # Errors
 ///

@@ -380,11 +380,13 @@ pub fn post_thread(thread_id: u32, message: u32, parameters: (usize, isize)) -> 
 /// [`reply`] has no effect.
 ///
 /// # Examples
-/// [TODO][https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues]
+///
+/// See the [official example] in C++.
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-replymessage
+/// [offical example]: https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues
 ///
 pub fn reply(processing_result: isize) -> bool {
     from_BOOL!(unsafe { ReplyMessage(processing_result) })
@@ -422,11 +424,13 @@ pub fn reply(processing_result: isize) -> bool {
 ///     * The posted message is blocked by `UIPI`.
 ///
 /// # Examples
-/// [TODO][https://learn.microsoft.com/en-us/windows/win32/inputdev/using-keyboard-input]
+///
+/// See the [official example] in C++.
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
+/// [official example]: https://learn.microsoft.com/en-us/windows/win32/inputdev/using-keyboard-input
 ///
 pub fn send(window_handle: isize, message: u32, parameters: (usize, isize)) -> Result<isize> {
     let result = unsafe { SendMessageW(window_handle, message, parameters.0, parameters.1) };
