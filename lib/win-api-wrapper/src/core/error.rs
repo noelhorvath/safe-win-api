@@ -99,20 +99,16 @@ impl Code {
     }
 
     /// Gets the [`Code`]'s associated message by calling [`format_message`].
+    /// TODO: Fix NTSTATUS message
     pub fn to_message(self) -> String {
         if self.is_nt() {
-            // TODO: fix no message
             let lib_name = widestring::u16cstr!("Ntdll");
             // Ntdll.dll library is needed to be loaded inorder to get a proper message for an NTSTATUS.
             // https://stackoverflow.com/questions/25566234/how-to-convert-specific-ntstatus-value-to-the-hresult
             let module_handle = match load_library(lib_name) {
                 Ok(handle) => handle,
-                Err(err) => {
-                    println!("{:?}", err);
-                    return self.to_string();
-                }
+                Err(_) => return self.to_string(),
             };
-            println!("handle: {}", module_handle);
             let message = format_message(self.as_u32(), 0, None, FormatMessagetOptions::All)
                 .map_or(self.to_string(), |message| message.to_string_lossy());
             match free_library(module_handle) {
