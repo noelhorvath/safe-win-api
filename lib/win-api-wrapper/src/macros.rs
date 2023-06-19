@@ -59,7 +59,7 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!(res, Ok($ret_val), Err($crate::last_error!(Win32)))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *): $ret_tuple_type:ty } => {
+    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *): $ret_tuple_type:ty $(;)? } => {
         {
             let ($(mut $ret_val), *) = <$ret_tuple_type>::default();
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -67,7 +67,7 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!(res, Ok((($($ret_val), *))), Err($crate::last_error!(Win32)))
         }
     };
-    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *) = $init_val:expr } => {
+    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *) = $init_val:expr $(;)? } => {
         {
             let ($(mut $ret_val), *) = $init_val;
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -369,6 +369,22 @@ macro_rules! call_WIN32_ERROR {
             $crate::handle_WIN32_ERROR!(res, $ret_val)
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *): $ret_tuple_type:ty $(;)? } => {
+        {
+            let ($(mut $ret_val), *) = <$ret_tuple_type>::default();
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res, ($($ret_val), *))
+        }
+    };
+    { $func:ident($($arg:expr), * $(,)?) -> mut ($($ret_val:ident), *) = $init_val:expr  $(;)? } => {
+        {
+            let ($(mut $ret_val), *) = $init_val;
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { $func($($arg),*) };
+            $crate::handle_WIN32_ERROR!(res, ($($ret_val), *))
+        }
+    };
     { $func:ident($($arg:expr), * $(,)?) return Error $(;)? } => {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
@@ -398,9 +414,9 @@ macro_rules! call_WIN32_ERROR {
 macro_rules! handle_WIN32_ERROR {
     ($res:ident, $ret_expr:expr) => {
         if $res == windows_sys::Win32::Foundation::ERROR_SUCCESS {
-            Err($crate::error_from!(Win32: $res))
-        } else {
             Ok($ret_expr)
+        } else {
+            Err($crate::error_from!(Win32: $res))
         }
     };
     (return => $ret_error:expr, $res:ident) => {
