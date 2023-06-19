@@ -403,7 +403,6 @@ macro_rules! call_WIN32_ERROR {
         {
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            println!("result: {:x}", res);
             $crate::handle_WIN32_ERROR!(==, $($exception_error)*, Ok(None), Err($crate::error_from!(Win32: res)), res)
         }
     };
@@ -523,7 +522,6 @@ macro_rules! call_NTSTATUS {
             let mut $ret_val = $init_val;
             #[allow(clippy::undocumented_unsafe_blocks)]
             let res = unsafe { $func($($arg),*) };
-            println!("{}", res);
             $crate::handle_NTSTATUS!(res, $ret_val.into())
         }
     };
