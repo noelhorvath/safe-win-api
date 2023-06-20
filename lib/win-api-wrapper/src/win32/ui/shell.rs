@@ -1,6 +1,6 @@
 use crate::core::Result;
 use crate::{call, call_BOOL, call_HRESULT, default_sized, free};
-use core::ptr::{self, addr_of};
+use core::ptr::{self};
 use core::slice;
 use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::Foundation::RECT;
@@ -409,10 +409,10 @@ pub fn execute(execute_info: &mut SHELLEXECUTEINFOW) -> Result<()> {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyicongetrect
 ///
-pub fn get_notify_icon_rect(notify_icon_id: NOTIFYICONIDENTIFIER) -> Result<RECT> {
+pub fn get_notify_icon_rect(notify_icon_id: &NOTIFYICONIDENTIFIER) -> Result<RECT> {
     call_HRESULT!(
         Shell_NotifyIconGetRect(
-            addr_of!(notify_icon_id),
+            notify_icon_id,
             &mut rect,
         ) -> mut rect = default_sized!(RECT)
     )
