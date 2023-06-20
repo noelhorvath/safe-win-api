@@ -54,7 +54,7 @@ pub type SendAsyncCallback =
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callnexthookex
 ///
-pub fn call_next_hook(hook_code: i32, parameters: (usize, isize)) -> isize {
+pub fn call_next_hook(hook_code: i32, parameters: &(usize, isize)) -> isize {
     unsafe {
         CallNextHookEx(
             0, // ignored
@@ -300,7 +300,7 @@ pub fn peek(
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew
 ///
-pub fn post(window_handle: isize, message: u32, parameters: (usize, isize)) -> Result<()> {
+pub fn post(window_handle: isize, message: u32, parameters: &(usize, isize)) -> Result<()> {
     call_BOOL! {
         PostMessageW(window_handle, message, parameters.0, parameters.1)
     }
@@ -362,7 +362,7 @@ pub fn post_quit(exit_code: i32) {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew
 ///
-pub fn post_thread(thread_id: u32, message: u32, parameters: (usize, isize)) -> Result<()> {
+pub fn post_thread(thread_id: u32, message: u32, parameters: &(usize, isize)) -> Result<()> {
     call_BOOL! {
         PostThreadMessageW(thread_id, message, parameters.0, parameters.1)
     }
@@ -432,7 +432,7 @@ pub fn reply(processing_result: isize) -> bool {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
 /// [official example]: https://learn.microsoft.com/en-us/windows/win32/inputdev/using-keyboard-input
 ///
-pub fn send(window_handle: isize, message: u32, parameters: (usize, isize)) -> Result<isize> {
+pub fn send(window_handle: isize, message: u32, parameters: &(usize, isize)) -> Result<isize> {
     let result = unsafe { SendMessageW(window_handle, message, parameters.0, parameters.1) };
     // checking for possible errors
     let last_error_code = get_last_error();
@@ -476,7 +476,7 @@ pub fn send(window_handle: isize, message: u32, parameters: (usize, isize)) -> R
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendnotifymessagew
 ///
-pub fn send_notify(window_handle: isize, message: u32, parameters: (usize, isize)) -> Result<()> {
+pub fn send_notify(window_handle: isize, message: u32, parameters: &(usize, isize)) -> Result<()> {
     call_BOOL! {
         SendNotifyMessageW(window_handle, message, parameters.0, parameters.1)
     }
@@ -525,7 +525,7 @@ pub fn send_notify(window_handle: isize, message: u32, parameters: (usize, isize
 pub fn send_with_timeout(
     window_handle: isize,
     message: u32,
-    parameters: (usize, isize),
+    parameters: &(usize, isize),
     timeout_flags: SendMessageTimoutFlags,
     timeout: u32,
 ) -> Result<usize> {
@@ -589,7 +589,7 @@ pub fn send_with_timeout(
 pub fn send_with_callback(
     window_handle: isize,
     message: u32,
-    parameters: (usize, isize),
+    parameters: &(usize, isize),
     callback: SendAsyncCallback,
     callback_parameter: usize,
 ) -> Result<()> {
@@ -658,8 +658,8 @@ pub fn is_sender_blocked() -> bool {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
 ///
-pub fn translate(message: MSG) -> bool {
-    from_BOOL!(unsafe { TranslateMessage(&message) })
+pub fn translate(message: &MSG) -> bool {
+    from_BOOL!(unsafe { TranslateMessage(message) })
 }
 
 /// Processes accelerator keys for menu commands.
@@ -678,10 +678,10 @@ pub fn translate(message: MSG) -> bool {
 pub fn translate_accelerator(
     window_handle: isize,
     accelerator_table_handle: isize,
-    message: MSG,
+    message: &MSG,
 ) -> Result<i32> {
     call! {
-        TranslateAcceleratorW(window_handle, accelerator_table_handle, &message) != 0
+        TranslateAcceleratorW(window_handle, accelerator_table_handle, message) != 0
     }
 }
 
@@ -708,7 +708,7 @@ pub fn translate_accelerator(
 pub fn use_default_procedure(
     window_handle: isize,
     message: u32,
-    parameters: (usize, isize),
+    parameters: &(usize, isize),
 ) -> isize {
     unsafe { DefWindowProcW(window_handle, message, parameters.0, parameters.1) }
 }
