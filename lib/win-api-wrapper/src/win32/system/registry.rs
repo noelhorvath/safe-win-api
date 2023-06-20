@@ -2298,7 +2298,7 @@ pub fn load_mui_string(
 ///             [Allowed predefined keys][load_mui_string#allowed-predefined-keys] section.
 /// * `value_name`: The name of the registry value.
 /// * `directory`: The directory path.
-/// * `trancate`: Specifies whether the string is truncated to fit the size of `buffer`.
+/// * `truncate`: Specifies whether the string is truncated to fit the size of `buffer`.
 ///     * If this parameter is `false` and `buffer` is not big enough to contain the
 ///       string, the function fails.
 /// * `buffer`: The buffer where the loaded MUI string gets copied to.
@@ -2335,7 +2335,7 @@ pub fn load_mui_string_with_buffer(
     key_handle: isize,
     value_name: &U16CStr,
     directory: &U16CStr,
-    trancate: bool,
+    truncate: bool,
     buffer: &mut [u16],
 ) -> Result<u32> {
     let mut string_size = 0;
@@ -2346,7 +2346,7 @@ pub fn load_mui_string_with_buffer(
             buffer.as_mut_ptr(),
             (buffer.len() * size_of::<u16>()) as u32,
             &mut string_size,
-            if trancate { REG_MUI_STRING_TRUNCATE } else { 0 },
+            if truncate { REG_MUI_STRING_TRUNCATE } else { 0 },
             directory.as_ptr(),
         ) return Error
     };
