@@ -388,7 +388,7 @@ pub fn get_process_and_thread_ids(handle: isize) -> Result<(u32, u32)> {
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
 ///
 pub fn get_text_len(handle: isize) -> Result<i32> {
-    call! { GetWindowTextLengthW(handle) != 0 => SetError }
+    call! { GetWindowTextLengthW(handle) == 0 => ClearLastError }
 }
 
 /// Gets the text of the specified window's title bar (if it has one).
