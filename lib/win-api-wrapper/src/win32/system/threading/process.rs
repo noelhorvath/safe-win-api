@@ -1,5 +1,5 @@
 use crate::core::{Result, To};
-use crate::{call, call_BOOL};
+use crate::{call, call_BOOL, default_sized};
 use crate::{from_BOOL, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, transmute, zeroed};
@@ -693,11 +693,6 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 pub trait ProcessInformation: Sized {
     /// Gets the [`PROCESS_INFORMATION_CLASS`], that is associated with the type.
     fn information_class() -> PROCESS_INFORMATION_CLASS;
-
-    fn default_information() -> Self {
-        // Safety: type is not a reference or prointer.
-        unsafe { zeroed() }
-    }
 }
 
 impl ProcessInformation for MEMORY_PRIORITY_INFORMATION {
@@ -755,7 +750,7 @@ pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T>
             T::information_class(),
             addr_of_mut!(information).cast::<c_void>(),
             size_of::<T>() as u32,
-        ) -> mut information = T::default_information()
+        ) -> mut information = default_sized!(T)
     }
 }
 

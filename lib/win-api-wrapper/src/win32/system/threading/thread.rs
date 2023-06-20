@@ -1,6 +1,6 @@
 use super::super::kernel::PROCESSOR_NUMBER;
 use crate::core::Result;
-use crate::{call, call_BOOL, free, to_BOOL};
+use crate::{call, call_BOOL, default_sized, free, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
 use core::ptr;
@@ -247,11 +247,6 @@ pub fn is_io_pending(handle: isize) -> Result<bool> {
 pub trait ThreadInformation: Sized {
     /// Returns the associated [`THREAD_INFORMATION_CLASS`] of the type.
     fn information_class() -> THREAD_INFORMATION_CLASS;
-
-    fn default_information() -> Self {
-        // Safety: type is not a reference or prointer.
-        unsafe { zeroed() }
-    }
 }
 
 impl ThreadInformation for i32 {
@@ -304,7 +299,7 @@ pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> 
             T::information_class(),
             addr_of_mut!(information).cast::<c_void>(),
             size_of::<T>() as u32,
-        ) -> mut information = T::default_information()
+        ) -> mut information = default_sized!(T)
     }
 }
 
