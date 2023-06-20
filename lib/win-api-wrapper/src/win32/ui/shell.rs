@@ -233,7 +233,9 @@ pub fn init_network_address_control() -> Result<()> {
 /// # Arguments
 ///
 /// * `message`: The appbar message value to send.
-/// * `data`: A mutable reference to an [`APPBARDATA`] instance.
+/// * `data`: The [data][`APPBARDATA`] that contains information about the system appbar message specified by
+///           `message`.
+///     * The content of this parameter depends on the value of `message`.
 ///
 /// # Examples
 /// TODO
@@ -423,8 +425,9 @@ pub fn get_notify_icon_rect(notify_icon_id: &NOTIFYICONIDENTIFIER) -> Result<REC
 /// # Arguments
 ///
 /// * `message`: A value that specifies the action to be taken by this function.
-/// * `data`: A reference to [`NOTIFYICONDATAW`] instance.
-///     * The content of the parameter depends on the value of `message`.
+/// * `data`: The [data][`NOTIFYICONDATAW`] that contains information the system needs to display
+///           notifications in the notification area.
+///     * The content of this parameter depends on the value of `message`.
 ///
 /// # Errors
 ///
