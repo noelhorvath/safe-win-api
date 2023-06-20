@@ -15,7 +15,7 @@ pub trait To<T> {
 
 #[inline]
 /// Creates a [`GUID`] from an array of `16` bytes.
-pub fn guid_from_array(bytes: [u8; 16]) -> GUID {
+pub fn guid_from_array(bytes: &[u8; 16]) -> GUID {
     GUID {
         data1: u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]),
         data2: u16::from_le_bytes([bytes[4], bytes[5]]),
