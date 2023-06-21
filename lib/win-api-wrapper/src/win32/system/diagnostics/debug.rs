@@ -1,4 +1,5 @@
 use crate::core::{Result, To};
+use crate::{call, free};
 use core::ffi::c_void;
 use core::ptr::{self, addr_of, addr_of_mut};
 use widestring::{U16CStr, U16CString};
@@ -14,22 +15,18 @@ pub use windows_sys::Win32::System::Diagnostics::Debug::{FACILITY_NT_BIT, FACILI
 /// remove regular line breaks (`\r\n` or `\n`) from the formatted message.
 pub const FORMAT_MESSAGE_IGNORE_REGULAR_LINE_BREAKS: u32 = 0x000000FF;
 
-use crate::{call, free};
-
 /// A marker trait for types that can be used as a source when formatting a message.
-pub trait FormatSource {
+trait FormatSource {
     /// Gets the associated [`FORMAT_MESSAGE_OPTIONS`] flag for the type.
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS;
 
-    /// Converts the reference to `self` to a `*const` [`c_void`] pointer.
+    /// Converts the borrowed `self` to an immutable [`c_void`] pointer.
     /// This is a free `Borrowed` -> `Borrowed` conversion.
-    fn as_c_void_ptr(&self) -> *const c_void {
-        addr_of!(*self).cast()
-    }
+    fn as_c_void_ptr(&self) -> *const c_void;
 }
 
 #[repr(u32)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Specifies the options for message formatting.
 pub enum FormatMessagetOptions {
     /// Do not ignore anything.
@@ -51,7 +48,7 @@ impl To<u32> for FormatMessagetOptions {
 
 #[derive(Debug)]
 /// The `System` source that can be used with [`format_message`] and [`format_message_with_buffer`] as a `source` argument.
-pub struct System;
+struct System;
 
 impl FormatSource for &U16CStr {
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS {
@@ -66,6 +63,10 @@ impl FormatSource for &U16CStr {
 impl FormatSource for isize {
     fn format_message_options_flag() -> FORMAT_MESSAGE_OPTIONS {
         FORMAT_MESSAGE_FROM_HMODULE
+    }
+
+    fn as_c_void_ptr(&self) -> *const c_void {
+        addr_of!(*self).cast()
     }
 }
 
