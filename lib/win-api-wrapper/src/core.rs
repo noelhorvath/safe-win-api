@@ -26,8 +26,8 @@ pub fn guid_from_array(bytes: &[u8; 16]) -> GUID {
     }
 }
 
-/// Gets the length from a wide string (`WSTR`). The returned length
-/// does not include the null terminator (`\0`).
+/// Gets the length from the bytes of a wide string in characters.
+/// The returned length does not include the null terminator (`\0`).
 pub fn get_wide_string_len_from_bytes(bytes: &[u8]) -> usize {
     let mut len = 0;
     if bytes.len() >= 2 && bytes[0] != 0 {
@@ -76,7 +76,8 @@ pub fn get_multi_string_bytes_count(mut bytes: &[u8]) -> usize {
     count
 }
 
-/// Extracts each string from the multi-string byte sequence and returns them in a vector.
+/// Extracts each string from the multi-string byte sequence and returns
+/// them in a [vector][alloc::vec::Vec].
 pub fn multi_string_bytes_to_strings(mut bytes: &[u8]) -> Vec<U16CString> {
     let string_count = get_multi_string_bytes_count(bytes);
     let mut strings = Vec::with_capacity(string_count);
