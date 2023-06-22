@@ -119,6 +119,13 @@ macro_rules! call_BOOL {
             $crate::handle_BOOL!(bool => res, Ok(res))
         }
     };
+    { $func:ident($($arg:expr), * $(,)?) -> !bool } => {
+        {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            let res = $crate::from_BOOL!(unsafe { $func($($arg),*) });
+            $crate::handle_BOOL!(bool => res, Ok(!res))
+        }
+    };
     { $func:ident($($arg:expr), * $(,)?) -> if $error_val:tt return $(;)? else return $def_ret_val:expr $(;)? } => {
         #[allow(clippy::undocumented_unsafe_blocks)]
         let res = unsafe { $func($($arg),*) };
@@ -447,7 +454,7 @@ macro_rules! handle_WIN32_ERROR {
         }
     };
     ($op:tt, $($exception_error:expr)*, $exception_ret_val:expr, $ret_error:expr, $res:ident) => {
-        if $($res $op $exception_error)&& * {
+        if $($res $op $exception_error) && * {
             return $exception_ret_val
         } else if $res != windows_sys::Win32::Foundation::ERROR_SUCCESS {
             return $ret_error;
