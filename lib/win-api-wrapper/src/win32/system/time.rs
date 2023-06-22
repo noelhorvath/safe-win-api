@@ -1,12 +1,11 @@
 use crate::call_BOOL;
 use crate::core::{Result, To};
+use crate::win32::foundation::{FILETIME, SYSTEMTIME};
 use core::mem::transmute;
 use core::ptr::addr_of;
 use core::ptr::addr_of_mut;
 use core::time::Duration;
 use windows_sys::Win32::System::Time::FileTimeToSystemTime;
-
-pub use windows_sys::Win32::Foundation::{FILETIME, SYSTEMTIME};
 
 impl To<Duration> for FILETIME {
     fn to(&self) -> Duration {

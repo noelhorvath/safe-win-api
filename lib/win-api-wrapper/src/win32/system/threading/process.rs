@@ -1,11 +1,11 @@
+use super::MEMORY_PRIORITY_INFORMATION;
 use crate::core::{Result, To};
-use crate::{call, call_BOOL, default_sized};
-use crate::{from_BOOL, to_BOOL};
+use crate::win32::foundation::{ERROR_INSUFFICIENT_BUFFER, FILETIME, STILL_ACTIVE};
+use crate::{call, call_BOOL, default_sized, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, transmute, zeroed};
 use core::ptr::{self, addr_of, addr_of_mut};
 use widestring::U16CString;
-use windows_sys::Win32::Foundation::{ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE, STILL_ACTIVE};
 use windows_sys::Win32::System::Threading::{
     ExitProcess, GetCurrentProcess, GetCurrentProcessId, GetExitCodeProcess, GetPriorityClass,
     GetProcessAffinityMask, GetProcessDefaultCpuSets, GetProcessGroupAffinity,
@@ -17,33 +17,26 @@ use windows_sys::Win32::System::Threading::{
     SetProcessAffinityUpdateMode, SetProcessDefaultCpuSets, SetProcessInformation,
     SetProcessPriorityBoost, SetProcessWorkingSetSize, TerminateProcess, WaitForInputIdle,
     PROCESS_AFFINITY_DISABLE_AUTO_UPDATE, PROCESS_AFFINITY_ENABLE_AUTO_UPDATE,
+    PROCESS_INFORMATION_CLASS,
 };
 
 pub use windows_sys::Win32::System::Threading::{
     ABOVE_NORMAL_PRIORITY_CLASS, APP_MEMORY_INFORMATION, BELOW_NORMAL_PRIORITY_CLASS,
-    HIGH_PRIORITY_CLASS, IDLE_PRIORITY_CLASS, IO_COUNTERS, MEMORY_PRIORITY,
-    MEMORY_PRIORITY_BELOW_NORMAL, MEMORY_PRIORITY_INFORMATION, MEMORY_PRIORITY_LOW,
-    MEMORY_PRIORITY_MEDIUM, MEMORY_PRIORITY_NORMAL, MEMORY_PRIORITY_VERY_LOW,
-    NORMAL_PRIORITY_CLASS, PROCESS_ACCESS_RIGHTS as ProcessAccessRights, PROCESS_ALL_ACCESS,
-    PROCESS_CREATE_PROCESS, PROCESS_CREATE_THREAD, PROCESS_CREATION_FLAGS, PROCESS_DELETE,
-    PROCESS_DUP_HANDLE, PROCESS_INFORMATION_CLASS, PROCESS_LEAP_SECOND_INFO,
+    HIGH_PRIORITY_CLASS, IDLE_PRIORITY_CLASS, IO_COUNTERS, NORMAL_PRIORITY_CLASS,
+    PROCESS_ALL_ACCESS, PROCESS_CREATE_PROCESS, PROCESS_CREATE_THREAD, PROCESS_CREATION_FLAGS,
+    PROCESS_DELETE, PROCESS_DUP_HANDLE, PROCESS_LEAP_SECOND_INFO,
     PROCESS_LEAP_SECOND_INFO_FLAG_ENABLE_SIXTY_SECOND, PROCESS_LEAP_SECOND_INFO_VALID_FLAGS,
-    PROCESS_MODE_BACKGROUND_BEGIN, PROCESS_MODE_BACKGROUND_END, PROCESS_NAME_FORMAT,
-    PROCESS_NAME_NATIVE, PROCESS_NAME_WIN32, PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+    PROCESS_MODE_BACKGROUND_BEGIN, PROCESS_MODE_BACKGROUND_END, PROCESS_NAME_NATIVE,
+    PROCESS_NAME_WIN32, PROCESS_POWER_THROTTLING_CURRENT_VERSION,
     PROCESS_POWER_THROTTLING_EXECUTION_SPEED, PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION,
-    PROCESS_POWER_THROTTLING_STATE, PROCESS_PROTECTION_LEVEL, PROCESS_PROTECTION_LEVEL_INFORMATION,
+    PROCESS_POWER_THROTTLING_STATE, PROCESS_PROTECTION_LEVEL_INFORMATION,
     PROCESS_QUERY_INFORMATION, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_READ_CONTROL,
     PROCESS_SET_INFORMATION, PROCESS_SET_LIMITED_INFORMATION, PROCESS_SET_QUOTA,
     PROCESS_SET_SESSIONID, PROCESS_STANDARD_RIGHTS_REQUIRED, PROCESS_SUSPEND_RESUME,
     PROCESS_SYNCHRONIZE, PROCESS_TERMINATE, PROCESS_VM_OPERATION, PROCESS_VM_READ,
-    PROCESS_VM_WRITE, PROCESS_WRITE_DAC, PROCESS_WRITE_OWNER, PROTECTION_LEVEL_ANTIMALWARE_LIGHT,
-    PROTECTION_LEVEL_AUTHENTICODE, PROTECTION_LEVEL_CODEGEN_LIGHT, PROTECTION_LEVEL_LSA_LIGHT,
-    PROTECTION_LEVEL_NONE, PROTECTION_LEVEL_PPL_APP, PROTECTION_LEVEL_WINDOWS,
-    PROTECTION_LEVEL_WINDOWS_LIGHT, PROTECTION_LEVEL_WINTCB, PROTECTION_LEVEL_WINTCB_LIGHT,
-    REALTIME_PRIORITY_CLASS, THREAD_POWER_THROTTLING_CURRENT_VERSION,
+    PROCESS_VM_WRITE, PROCESS_WRITE_DAC, PROCESS_WRITE_OWNER, PROTECTION_LEVEL_NONE,
+    PROTECTION_LEVEL_PPL_APP, REALTIME_PRIORITY_CLASS,
 };
-
-use crate::win32::security::{self, TOKEN_ELEVATION, TOKEN_QUERY};
 
 #[doc(hidden)]
 mod private {
@@ -189,21 +182,15 @@ pub fn get_current_id() -> u32 {
     }
 }
 
-/// Opens an existing local process object.
+/// Opens an existing local process object and returns a handle to it.
+///
+/// If the handle is not needed any longer, call [`close_handle`](crate::win32::foundation::close_handle).
 ///
 /// # Arguments
 ///
-/// * `pid`: The process identifier
-/// * `access`: One or more [access rights][`ProcessAccessRights`] to the process object
-/// * `inherit_handle`: Specifies whether processes created by this process should inherit it's handle
-///
-/// # Result
-///
-/// An open handle to the specified process.
-///
-/// # Remarks
-///
-/// * If the handle is not needed anymore close it using [`close_handle`](crate::win32::foundation::close_handle).
+/// * `pid`: The process identifier.
+/// * `access`: One or more access rights to the process object.
+/// * `inherit_handle`: Specifies whether processes created by this process should inherit its handle.
 ///
 /// # Errors
 ///
@@ -211,25 +198,42 @@ pub fn get_current_id() -> u32 {
 ///
 /// ## Possible errors
 ///
-///
-/// * The process doesn't exist.
+/// * The process does not exist.
 /// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
 ///     * The specified process is the `System Idle Process` (`0`).
 /// * [`ERROR_ACCESS_DENIED`][windows_sys::Win32::Foundation::ERROR_ACCESS_DENIED]
 ///     * The specified process is the `System` process or one of the `Client Server Run-Time Subsystem` (`CSRSS`) processes.
 ///
 /// # Examples
+///
 /// TODO
 ///
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
 ///
-pub fn open(pid: u32, access: ProcessAccessRights, inherit_handle: bool) -> Result<isize> {
+pub fn open(pid: u32, access: u32, inherit_handle: bool) -> Result<isize> {
     call! { OpenProcess(access, to_BOOL!(inherit_handle), pid) != 0 }
 }
 
-/// Determines whether the specified process is elevated.
+/// Opens the access token associated with the process specified by `handle` and
+/// returns a handle to it.
+///
+/// To get a handle to an elevated process from within a non-elevated process,
+/// both processes must be started from the same account.
+/// If the process being checked was started by a different account, the checking
+/// process needs to have the `SE_DEBUG_NAME` privilege enabled.
+///
+/// To close the access token returned by this function,
+/// call [`close_handle`](crate::win32::foundation::close_handle).
+///
+/// # Arguments
+///
+/// * `handle`: A handle to the process.
+/// * `access`: Specifies an access mask that specifies the requested types
+///             of access to the access token. These requested access types
+///             are compared with the `discretionary access control list` (`DACL`)
+///             of the token to determine which accesses are granted or denied.
 ///
 /// # Errors
 ///
@@ -238,22 +242,23 @@ pub fn open(pid: u32, access: ProcessAccessRights, inherit_handle: bool) -> Resu
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have the [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
 ///
-pub fn is_elevated(handle: isize) -> bool {
-    let mut token_handle = HANDLE::default();
-    #[allow(clippy::undocumented_unsafe_blocks)]
-    unsafe {
-        if from_BOOL!(!OpenProcessToken(handle, TOKEN_QUERY, &mut token_handle)) {
-            return false;
-        }
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
+///
+pub fn open_token(handle: isize, access: u32) -> Result<isize> {
+    call_BOOL! {
+         OpenProcessToken(
+            handle,
+            access,
+            &mut token_handle
+        ) -> mut token_handle: isize
     }
-
-    security::get_token_information::<TOKEN_ELEVATION>(token_handle)
-        .map_or(false, |info| info.TokenIsElevated > 0)
 }
 
 /// Gets the full name of the executable image for the specified process.
@@ -266,7 +271,7 @@ pub fn is_elevated(handle: isize) -> bool {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -301,7 +306,7 @@ pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 /// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER]
 ///     * `buffer` is too small.
 ///
@@ -339,7 +344,7 @@ pub fn get_full_image_name_with_buffer(
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -368,7 +373,7 @@ pub fn get_affinity_mask(handle: isize) -> Result<(usize, usize)> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -405,7 +410,7 @@ pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Vec<u32>>> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -429,7 +434,7 @@ pub fn is_running(handle: isize) -> Result<bool> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -457,8 +462,8 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
-/// * 'buffer' is too small.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `buffer` is too small.
 ///
 /// # Examples
 /// TODO
@@ -494,7 +499,7 @@ pub fn get_group_affinity(handle: isize) -> Result<Vec<u16>> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 /// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER]
 ///     * `buffer` is too small.
 ///
@@ -524,7 +529,7 @@ pub fn get_group_affinity_with_buffer(handle: isize, buffer: &mut [u16]) -> Resu
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -546,7 +551,7 @@ pub fn get_handle_count(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -568,7 +573,7 @@ pub fn is_critical(handle: isize) -> Result<bool> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -590,7 +595,7 @@ pub fn get_id(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -612,7 +617,7 @@ pub fn get_io_counters(handle: isize) -> Result<IO_COUNTERS> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -634,7 +639,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -665,7 +670,7 @@ pub fn get_priority_class(handle: isize) -> Result<PROCESS_CREATION_FLAGS> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -718,7 +723,7 @@ pub fn get_version(pid: u32) -> Result<(u16, u16)> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_QUERY_INFORMATION`] or [`PROCESS_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -746,7 +751,7 @@ pub fn get_working_set_size(handle: isize) -> Result<(usize, usize)> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_TERMINATE`] access right.
+/// * `handle` does not have [`PROCESS_TERMINATE`] access right.
 ///
 /// # Examples
 /// TODO
@@ -760,7 +765,7 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 }
 
 /// Gets [information][get_information#retrievable-process-information] about
-/// the specified process.
+/// the process specified by `handle`.
 ///
 /// # Retrievable process information
 ///
@@ -775,10 +780,10 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 ///
 /// ### Fields of [`APP_MEMORY_INFORMATION`]
 ///
-/// * `AvailableCommit`: [`u64`] - Total commit available to the app.
-/// * `PrivateCommitUsage`: [`u64`] - The app's usage of private commit.
-/// * `PeakPrivateCommitUsage`: [`u64`] - The app's peak usage of private commit.
-/// * `TotalCommitUsage`: [`u64`] - The app's total usage of private plus shared commit.
+/// * `AvailableCommit`: [`u64`] - Total commit available to the application.
+/// * `PrivateCommitUsage`: [`u64`] - The application's usage of private commit.
+/// * `PeakPrivateCommitUsage`: [`u64`] - The application's peak usage of private commit.
+/// * `TotalCommitUsage`: [`u64`] - The application's total usage of private plus shared commit.
 ///
 /// ## Memory priority
 ///
@@ -789,18 +794,17 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 /// ### Fields of [`MEMORY_PRIORITY_INFORMATION`]
 ///
 /// `MemoryPriority`: [`u32`] - The memory priority for the process.
-///     * See [Priority values#get_information] for possible
-///       values.
+///     * See [Priorities][get_information#priorities] for possible
 ///
-/// ### Priority values
+/// ### Priorities
 ///
-/// | Value | Description |
+/// | Value | Meaning |
 /// |-------|-------------|
-/// | [`MEMORY_PRIORITY_VERY_LOW`] | Very low memory priority. |
-/// | [`MEMORY_PRIORITY_LOW`] | Low memory priority. |
-/// | [`MEMORY_PRIORITY_MEDIUM`] | Medium memory priority. |
-/// | [`MEMORY_PRIORITY_BELOW_NORMAL`] | Below normal memory priority. |
-/// | [`MEMORY_PRIORITY_NORMAL`] | Normal memory priority. This is the default priority for all threads and processes on the system. |
+/// | [`MEMORY_PRIORITY_VERY_LOW`][super::MEMORY_PRIORITY_VERY_LOW] | Very low memory priority. |
+/// | [`MEMORY_PRIORITY_LOW`][super::MEMORY_PRIORITY_LOW] | Low memory priority. |
+/// | [`MEMORY_PRIORITY_MEDIUM`][super::MEMORY_PRIORITY_MEDIUM] | Medium memory priority. |
+/// | [`MEMORY_PRIORITY_BELOW_NORMAL`][super::MEMORY_PRIORITY_BELOW_NORMAL] | Below normal memory priority. |
+/// | [`MEMORY_PRIORITY_NORMAL`][super::MEMORY_PRIORITY_NORMAL] | Normal memory priority. This is the default priority for all threads and processes on the system. |
 ///
 /// ## Protection level
 ///
@@ -838,7 +842,7 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -861,7 +865,8 @@ where
     }
 }
 
-/// Sets information for the specified process.
+/// Sets [information][set_information#modifiable-process-information]
+/// for the process specified by `handle`.
 ///
 /// # Modifiable process information
 ///
@@ -872,8 +877,23 @@ where
 ///
 /// If the specified information type is [`MEMORY_PRIORITY_INFORMATION`],
 /// the function sets the memory priority for the process indentified by
-/// `handle`. See [`get_information`]'s [Memory priority#get_information]
-/// section for more information about the information type.
+/// `handle`. See the [Memory priority#get_information] section of
+/// [`get_information`] for more information about this information type.
+///
+/// To help improve system performance, applications should use this function
+/// with this information to lower the default memory priority of threads that
+/// perform background operations or access files and data that are not expected
+/// to be accessed again soon. For example, a file indexing application might
+/// set a lower default priority for the process that performs the indexing task.
+///
+/// Memory priority helps to determine how long pages remain in the working set
+/// of a process before they are trimmed. A process's memory priority determines
+/// the default priority of the physical pages that are added to the process
+/// working set by the threads of that process. When the memory manager trims
+/// the working set, it trims lower priority pages before higher priority pages.
+/// This improves overall system performance because higher priority pages are
+/// less likely to be trimmed from the working set and then trigger a page fault
+/// when they are accessed again.
 ///   
 /// ## Power throttling state
 ///
@@ -890,9 +910,9 @@ where
 /// * `ControlMask`: Enables the caller to take control of the power throttling
 ///                  mechanism.
 ///     * This parameter specifies what to control.
-///     * See [Masks][set_information#policy-masks] for possible values.
+///     * See [Policy masks][set_information#policy-masks] for possible values.
 /// * `StateMask`: Manages the power throttling mechanism on/off state.
-///     * See [Masks][set_information#policy-masks] for possible values.
+///     * See [Policy masks][set_information#policy-masks] for possible values.
 ///     * If `ControlMask` is not `0` and this parameter is
 ///         * 0, the function disables the policy specified by `ControlMask`
 ///           for the process.
@@ -912,15 +932,16 @@ where
 ///
 /// ### Controling Timer Resolution
 ///
-/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] and `StateMask` is
-/// `0`, the function opts into enabling [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`]
-/// for the process, which means that any current timer resolution requests made by the process
-/// will be ignored. Timers belonging to the process are no longer guaranteed to expire with
-/// higher timer resolution, which can improve power efficiency.
+/// If both masks are [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`], the function opts
+/// into enabling [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] for the process, which
+/// means that any current timer resolution requests made by the processwill be ignored.
+/// Timers belonging to the process are no longer guaranteed to expire with higher timer
+/// resolution, which can improve power efficiency.
 ///
-/// If both masks are [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`], opts out of using
-/// [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] for the process, which means that
-/// the system remembers and honors any previous timer resolution request by the process.
+/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] and `StateMask`
+/// is `0`, opts out of using [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] for the
+/// process, which means that the system remembers and honors any previous timer resolution
+/// request by the process.
 ///
 /// By default in Windows 11 if a window owning process becomes fully occluded, minimized,
 /// or otherwise non-visible to the end user, and non-audible, Windows may automatically
@@ -929,19 +950,19 @@ where
 ///
 /// ### Controlling [Quality of Service] (QoS)
 ///
-/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] and `StateMask` is
-/// `0`, the function opts into enabling [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`]
-/// for the process, which means that the process will be classified as `EcoQoS`. The
-/// system will try to increase power efficiency through strategies such as reducing
-/// CPU frequency or using more power efficient cores. EcoQoS should be used when the
-/// work is not contributing to the foreground user experience, which provides longer
-/// battery life, and reduced heat and fan noise. EcoQoS should not be used for
-/// performance critical or foreground user experiences. Prior to Windows 11,
-/// the `EcoQoS` level did not exist and the process was labeled as `LowQoS`.
+/// If both masks are [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`], the function turns
+/// on throttling policies for the process, which means that the process will be
+/// classified as `EcoQoS`. The system will try to increase power efficiency through
+/// strategies such as reducing CPU frequency or using more power efficient cores.
+/// `EcoQoS` should be used when the work is not contributing to the foreground user
+/// experience, which provides longer battery life, and reduced heat and fan noise.
+/// EcoQoS should not be used for performance critical or foreground user experiences.
+/// Prior to Windows 11, the `EcoQoS` level did not exist and the process was labeled
+/// as `LowQoS`.
 ///
-/// If both masks are [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`], opts out of using
-/// [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] for the process, which means that
-/// the system will use its own heuristics to automatically infer a `QoS` level.
+/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] and `StateMask` is
+/// `0`, the function turns off throttling policies for the process, which means
+/// that the system will use its own heuristics to automatically infer a `QoS` level.
 /// For more information, see [Quality of Service].
 ///
 /// ### [Efficiency mode]
@@ -959,7 +980,7 @@ where
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -993,7 +1014,7 @@ where
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -1040,7 +1061,7 @@ pub fn set_current_affinity_update_mode(enable_auto_update: bool) -> Result<()> 
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -1062,7 +1083,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -1084,7 +1105,7 @@ pub fn set_affinity_mask(handle: isize, mask: usize) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_QUOTA`] access right.
+/// * `handle` does not have [`PROCESS_SET_QUOTA`] access right.
 ///
 /// # Examples
 /// TODO
@@ -1106,7 +1127,7 @@ pub fn set_working_set_size(handle: isize, min_size: usize, max_size: usize) -> 
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_QUOTA`] access right.
+/// * `handle` does not have [`PROCESS_SET_QUOTA`] access right.
 ///
 /// # Examples
 /// TODO
@@ -1130,7 +1151,7 @@ pub fn shrink_working_set(handle: isize) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_LIMITED_INFORMATION`] access right.
 ///
 /// ## Examples
 /// TODO
@@ -1152,7 +1173,7 @@ pub fn set_default_cpu_sets(handle: isize, cpu_sets: &[u32]) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`PROCESS_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`PROCESS_SET_LIMITED_INFORMATION`] access right.
 ///
 /// For more information see the official [documentation].
 ///

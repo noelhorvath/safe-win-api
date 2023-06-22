@@ -1,12 +1,13 @@
 use super::super::kernel::PROCESSOR_NUMBER;
+use super::MEMORY_PRIORITY_INFORMATION;
 use crate::core::Result;
+use crate::win32::foundation::STILL_ACTIVE;
 use crate::{call, call_BOOL, default_sized, free, to_BOOL};
 use core::ffi::c_void;
 use core::mem::{size_of, zeroed};
 use core::ptr;
 use core::ptr::{addr_of, addr_of_mut};
 use widestring::{U16CStr, U16CString};
-use windows_sys::Win32::Foundation::STILL_ACTIVE;
 use windows_sys::Win32::System::Threading::{
     ExitThread, GetCurrentThread, GetCurrentThreadId, GetExitCodeThread, GetProcessIdOfThread,
     GetThreadDescription, GetThreadIOPendingFlag, GetThreadIdealProcessorEx, GetThreadInformation,
@@ -14,8 +15,7 @@ use windows_sys::Win32::System::Threading::{
     SetThreadAffinityMask, SetThreadDescription, SetThreadIdealProcessorEx, SetThreadInformation,
     SetThreadPriority, SetThreadPriorityBoost, SetThreadSelectedCpuSets, SuspendThread,
     SwitchToThread, TerminateThread, ThreadAbsoluteCpuPriority, ThreadDynamicCodePolicy,
-    ThreadMemoryPriority, ThreadPowerThrottling, MEMORY_PRIORITY_INFORMATION,
-    THREAD_INFORMATION_CLASS,
+    ThreadMemoryPriority, ThreadPowerThrottling, THREAD_INFORMATION_CLASS,
 };
 
 pub use windows_sys::Win32::System::Threading::{
@@ -33,13 +33,92 @@ pub use windows_sys::Win32::System::Threading::{
     THREAD_WRITE_OWNER,
 };
 
+#[doc(hidden)]
+mod private {
+    use super::Information;
+
+    /// A marker trait for sealing traits.
+    pub trait Sealed {}
+
+    /// A marker trait for [thread information][super::Information] types that can
+    /// be set by [`set_information`][super::set_information].
+    pub trait Settable: Information {}
+
+    /// A marker trait for [thread information][super::Information] types that can
+    /// be retrieved by [`get_information`][super::get_information].
+    pub trait Gettable: Information {}
+}
+
+/// Specific information that the system contains about a thread.
+///
+/// This trait is sealed, therefore it cannot be implemented for other types
+/// outside this crate.
+pub trait Information: Sized {
+    /// Returns the associated [`THREAD_INFORMATION_CLASS`] of the type.
+    fn information_class() -> THREAD_INFORMATION_CLASS;
+}
+
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
+/// Represents the absolute cpu priority of a thread.
+///
+/// To get or set the cpu priority of a thread use [`get_information`]
+/// or [`set_information`].
+pub struct CpuPriority(i32);
+
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
+/// The dynamic code policy of the process. When turned on, the process
+/// cannot generate dynamic code or modify existing executable code.
+///
+/// Note that this information is supported in Windows Server 2016 and newer, Windows 10 LTSB 2016
+/// and newer, and Windows 10 version 1607 and newer.
+///
+/// To get or set The dynamic code policy of a thread use [`get_information`]
+/// or [`set_information`].
+pub struct DynamicCodePolicy(u32);
+
+impl private::Sealed for CpuPriority {}
+impl private::Sealed for DynamicCodePolicy {}
+impl private::Sealed for THREAD_POWER_THROTTLING_STATE {}
+impl private::Sealed for MEMORY_PRIORITY_INFORMATION {}
+
+impl private::Gettable for CpuPriority {}
+impl private::Gettable for DynamicCodePolicy {}
+impl private::Gettable for MEMORY_PRIORITY_INFORMATION {}
+
+impl private::Settable for THREAD_POWER_THROTTLING_STATE {}
+impl private::Settable for MEMORY_PRIORITY_INFORMATION {}
+
+impl Information for CpuPriority {
+    fn information_class() -> THREAD_INFORMATION_CLASS {
+        ThreadAbsoluteCpuPriority
+    }
+}
+
+impl Information for DynamicCodePolicy {
+    fn information_class() -> THREAD_INFORMATION_CLASS {
+        ThreadDynamicCodePolicy
+    }
+}
+
+impl Information for THREAD_POWER_THROTTLING_STATE {
+    fn information_class() -> THREAD_INFORMATION_CLASS {
+        ThreadPowerThrottling
+    }
+}
+
+impl Information for MEMORY_PRIORITY_INFORMATION {
+    fn information_class() -> THREAD_INFORMATION_CLASS {
+        ThreadMemoryPriority
+    }
+}
+
 /// Opens an existing thread object.
 ///
 /// # Arguments
 ///
 /// * `id`: The thread identifier
 /// * `access`: One or more [access rights][`ThreadAccessRights`] to the thread object
-/// * `inherit_handle`: Specifies whether processes created by this thread should inherit it's handle
+/// * `inherit_handle`: Specifies whether processes created by this thread should inherit its handle
 ///
 /// # Result
 ///
@@ -118,7 +197,7 @@ pub fn get_current_id() -> u32 {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -142,7 +221,7 @@ pub fn is_running(handle: isize) -> Result<bool> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 /// TODO
@@ -170,7 +249,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -193,7 +272,7 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -227,7 +306,7 @@ pub fn get_description(handle: isize) -> Result<U16CString> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -243,37 +322,52 @@ pub fn is_io_pending(handle: isize) -> Result<bool> {
     }
 }
 
-/// Specific information that the system contains about a thread.
-pub trait ThreadInformation: Sized {
-    /// Returns the associated [`THREAD_INFORMATION_CLASS`] of the type.
-    fn information_class() -> THREAD_INFORMATION_CLASS;
-}
-
-impl ThreadInformation for i32 {
-    fn information_class() -> THREAD_INFORMATION_CLASS {
-        ThreadAbsoluteCpuPriority
-    }
-}
-
-impl ThreadInformation for u32 {
-    fn information_class() -> THREAD_INFORMATION_CLASS {
-        ThreadDynamicCodePolicy
-    }
-}
-
-impl ThreadInformation for THREAD_POWER_THROTTLING_STATE {
-    fn information_class() -> THREAD_INFORMATION_CLASS {
-        ThreadPowerThrottling
-    }
-}
-
-impl ThreadInformation for MEMORY_PRIORITY_INFORMATION {
-    fn information_class() -> THREAD_INFORMATION_CLASS {
-        ThreadMemoryPriority
-    }
-}
-
-/// Gets information about the specified thread.
+/// Gets [information][get_information#retrievable-thread-information]
+/// about the thread specified by `handle`.
+///
+/// # Retrievable thread information
+///
+/// Check the sections below to see what kind of information can be
+/// retreived by calling this function.
+///
+/// ## Cpu priority
+///
+/// If the specified information type is [`CpuPriority`],
+/// the the function returns the absolute priority of the
+/// cpu that the thread is running on.
+///
+/// ## Dynamic code policy
+///
+/// If the specified information type is [`CpuPriority`],
+/// the the function returns a value indicating whether
+/// the specified thread is allowed to generate dynamic
+/// code or modify executable code.
+///
+/// This type of information is supported in Windows Server 2016
+/// and newer, Windows 10 LTSB 2016 and newer, and Windows 10
+/// version 1607 and newer.
+///
+/// ## Memory priority
+///
+/// If the specified information type is [`MEMORY_PRIORITY_INFORMATION`],
+/// the function returns the memory priority of the process identified
+/// by `handle`
+///
+/// ### Fields of [`MEMORY_PRIORITY_INFORMATION`]
+///
+/// `MemoryPriority`: [`u32`] - The memory priority for the process.
+///     * See [Priorities][get_information#priorities] for possible
+///       values.
+///
+/// ### Priorities
+///
+/// | Value | Description |
+/// |-------|-------------|
+/// | [`MEMORY_PRIORITY_VERY_LOW`][super::MEMORY_PRIORITY_VERY_LOW] | Very low memory priority. |
+/// | [`MEMORY_PRIORITY_LOW`][super::MEMORY_PRIORITY_LOW] | Low memory priority. |
+/// | [`MEMORY_PRIORITY_MEDIUM`][super::MEMORY_PRIORITY_MEDIUM] | Medium memory priority. |
+/// | [`MEMORY_PRIORITY_BELOW_NORMAL`][super::MEMORY_PRIORITY_BELOW_NORMAL] | Below normal memory priority. |
+/// | [`MEMORY_PRIORITY_NORMAL`][super::MEMORY_PRIORITY_NORMAL] | Normal memory priority. This is the default priority for all threads and processes on the system. |
 ///
 /// # Errors
 ///
@@ -282,7 +376,7 @@ impl ThreadInformation for MEMORY_PRIORITY_INFORMATION {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -292,7 +386,10 @@ impl ThreadInformation for MEMORY_PRIORITY_INFORMATION {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadinformation
 ///
-pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> {
+pub fn get_information<T>(handle: isize) -> Result<T>
+where
+    T: Information + private::Gettable,
+{
     call_BOOL! {
         GetThreadInformation(
             handle,
@@ -315,7 +412,7 @@ pub fn get_information<T: Copy + ThreadInformation>(handle: isize) -> Result<T> 
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -338,7 +435,7 @@ pub fn get_priority(handle: isize) -> Result<i32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -363,7 +460,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -389,7 +486,7 @@ pub fn get_selected_cpu_set_count(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -425,7 +522,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Vec<u32>> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SUSPEND_RESUME`] access right.
+/// * `handle` does not have [`THREAD_SUSPEND_RESUME`] access right.
 ///
 /// # Examples
 ///
@@ -448,7 +545,7 @@ pub fn resume(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SUSPEND_RESUME`] access right.
+/// * `handle` does not have [`THREAD_SUSPEND_RESUME`] access right.
 ///
 /// # Examples
 ///
@@ -471,7 +568,7 @@ pub fn suspend(handle: isize) -> Result<u32> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] and [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access rights.
+/// * `handle` does not have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] and [`THREAD_QUERY_INFORMATION`] or [`THREAD_QUERY_LIMITED_INFORMATION`] access rights.
 /// * [`ERROR_INVALID_PARAMETER`][windows_sys::Win32::Foundation::ERROR_INVALID_PARAMETER]
 ///     * `affinity_mask` requests a processor that is not selected for the process affinity mask.
 ///
@@ -496,7 +593,7 @@ pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -519,7 +616,7 @@ pub fn set_description(handle: isize, description: &U16CStr) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -549,7 +646,7 @@ pub fn get_ideal_processor(handle: isize) -> Result<PROCESSOR_NUMBER> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -583,7 +680,7 @@ pub fn set_ideal_processor(
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_QUERY_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -606,7 +703,7 @@ pub fn clear_selected_cpu_sets(handle: isize) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -630,7 +727,7 @@ pub fn set_selected_cpu_sets(handle: isize, cpu_sets: &[u32]) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -653,7 +750,7 @@ pub fn set_priority(handle: isize, priority: i32) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_INFORMATION`] or [`THREAD_SET_LIMITED_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -667,7 +764,93 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
     call_BOOL! { SetThreadPriorityBoost(handle, to_BOOL!(!enable)) }
 }
 
-/// Sets information for the specified thread.
+/// Sets [information][set_information#modifiable-process-information]
+/// for the thread specified by `handle`.
+///
+/// # Modifiable thread information
+///
+/// Check the sections below to see what kind of information can be
+/// set for a thread by calling this function.
+///
+/// ## Memory priority
+///
+/// If the specified information type is [`MEMORY_PRIORITY_INFORMATION`],
+/// the function sets the memory priority for the thread indentified by
+/// `handle`. See the [Memory priority#get_information] section of
+/// [`get_information`] for more information about this information type.
+///
+/// To help improve system performance, applications should use this function
+/// with this information to lower the memory priority of threads that perform
+/// background operations or access files and data that are not expected to be
+/// accessed again soon. For example, an anti-malware application might lower
+/// the priority of threads involved in scanning files.
+///
+/// Memory priority helps to determine how long pages remain in the working
+/// set of a process before they are trimmed. A thread's memory priority
+/// determines the minimum priority of the physical pages that are added
+/// to the process working set by that thread. When the memory manager
+/// trims the working set, it trims lower priority pages before higher
+/// priority pages. This improves overall system performance because
+/// higher priority pages are less likely to be trimmed from the working
+/// set and then trigger a page fault when they are accessed again.
+///   
+/// ## Power throttling state
+///
+/// If the specified information type is [`PROCESS_POWER_THROTTLING_STATE`],
+/// the function  enables throttling policies on a process, which can be used
+/// to balance out performance and power efficiency in cases where optimal
+/// performance is not required.
+///
+/// ### Fields of [`PROCESS_POWER_THROTTLING_STATE`]
+///
+/// * `Version`: [`u64`] - The version of the structure.
+///     * Possible versions:
+///         * [`THREAD_POWER_THROTTLING_CURRENT_VERSION`]: The current version.
+/// * `ControlMask`: Enables the caller to take control of the power throttling
+///                  mechanism.
+///     * This parameter specifies what to control.
+///     * See [Policy masks][set_information#policy-masks] for possible values.
+/// * `StateMask`: Manages the power throttling mechanism on/off state.
+///     * See [Policy masks][set_information#policy-masks] for possible values.
+///     * If `ControlMask` is not `0` and this parameter is
+///         * 0, the function disables the policy specified by `ControlMask`
+///           for the tjread.
+///         * the same as `ControlMask`, the function enables the policy
+///           specified by `ControlMask` for the tjread.
+///     
+/// ### Policy masks
+///
+/// | Mask | Meaning |
+/// |------|---------|
+/// | [`THREAD_POWER_THROTTLING_EXECUTION_SPEED`] | Manages the execution speed of the thread. |
+///
+/// ### Default system managed behavior
+///
+/// If both mask fields are `0`, the function resets the deault system managed behaviour.
+///
+/// ### Controlling [Quality of Service] (QoS)
+///
+/// If both masks are [`THREAD_POWER_THROTTLING_EXECUTION_SPEED`], the function turns
+/// on throttling policies for the thread, which means that the thread will be classified
+/// as `EcoQoS`. The system will try to increase power efficiency through strategies
+/// such as reducing CPU frequency or using more power efficient cores. `EcoQoS` should
+/// be used when the work is not contributing to the foreground user experience, which
+/// provides longer battery life, and reduced heat and fan noise. `EcoQoS` should not
+/// be used for performance critical or foreground user experiences. Prior to Windows 11,
+/// the `EcoQoS` level did not exist and the thread was labeled as `LowQoS`.
+///
+/// If `ControlMask` is [`THREAD_POWER_THROTTLING_EXECUTION_SPEED`] and `StateMask` is
+/// `0`, the function turns off throttling policies for the thread, which means that
+/// the system will use its own heuristics to automatically infer a `QoS` level.
+/// For more information, see [Quality of Service].
+///
+/// ### [Efficiency mode]
+///
+/// In Windows 11 a thread can be considered efficient if it fulfills the following
+/// efficiency requirements (similarly to a process):
+/// * The thread opted in for enabling [`THREAD_POWER_THROTTLING_EXECUTION_SPEED`],
+///   therefore its `QoS` level is `Eco`.
+/// * The priority of the thread is [`THREAD_PRIORITY_IDLE`].
 ///
 /// # Errors
 ///
@@ -676,7 +859,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_SET_INFORMATION`] access right.
+/// * `handle` does not have [`THREAD_SET_INFORMATION`] access right.
 ///
 /// # Examples
 ///
@@ -685,8 +868,12 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadinformation
+/// [Quality of Service]: https://learn.microsoft.com/en-us/windows/win32/procthread/quality-of-service
 ///
-pub fn set_information<T: Copy + ThreadInformation>(handle: isize, information: T) -> Result<()> {
+pub fn set_information<T>(handle: isize, information: T) -> Result<()>
+where
+    T: Information + private::Settable,
+{
     call_BOOL! {
         SetThreadInformation(
             handle,
@@ -729,7 +916,7 @@ pub fn switch_to_another() -> Result<()> {
 /// ## Possible errors
 ///
 /// * `handle` is invalid.
-/// * `handle` doesn't have [`THREAD_TERMINATE`] access right.
+/// * `handle` does not have [`THREAD_TERMINATE`] access right.
 ///
 /// # Examples
 ///
