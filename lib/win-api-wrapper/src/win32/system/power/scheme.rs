@@ -180,7 +180,7 @@ pub fn duplicate(scheme: &GUID) -> Result<GUID> {
 }
 
 /// Enumerates the power schemes in the system. This function is normally called in a
-/// loop incrementing the `index` parameter to retrieve schemes until they've all been
+/// loop incrementing the `index` parameter to retrieve schemes until they have all been
 /// enumerated (`None`).
 ///
 /// If the function succeeds and there is no pwoer scheme found at the specified index,
@@ -216,7 +216,7 @@ pub fn enum_schemes(index: u32) -> Result<Option<GUID>> {
 }
 
 /// Enumerates the subgroups under the `scheme`. This function is normally called in a
-/// loop incrementing the `index` parameter to retrieve subgroups until they've all been
+/// loop incrementing the `index` parameter to retrieve subgroups until they have all been
 /// enumerated (`None`).
 ///
 /// If the function succeeds and there is no subgroup found at the specified index,
@@ -257,7 +257,7 @@ pub fn enum_subgroups(index: u32, scheme: &GUID) -> Result<Option<GUID>> {
 }
 
 /// Enumerates the settings under the specified scheme or subhroup. This function is normally called in a
-/// loop incrementing the `index` parameter to retrieve settings until they've all been
+/// loop incrementing the `index` parameter to retrieve settings until they have all been
 /// enumerated (`None`).
 ///
 /// If the function succeeds and there is no power setting found at the specified index,
