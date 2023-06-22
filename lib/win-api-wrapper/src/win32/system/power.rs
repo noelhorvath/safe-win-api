@@ -1,68 +1,111 @@
-use super::registry::RegistryValue;
 use super::threading::REASON_CONTEXT;
-use crate::core::{get_wide_string_len_from_bytes, guid_from_array, Result};
-use crate::{call, call_BOOL, call_HRESULT, call_WIN32_ERROR, default_sized, free, to_BOOL};
-use core::ffi::c_void;
-use core::ptr::{self, addr_of_mut};
-use widestring::{U16CStr, U16CString};
-use windows_sys::core::GUID;
-use windows_sys::Win32::Foundation::ERROR_NO_MORE_ITEMS;
-use windows_sys::Win32::System::Power::{
-    GetCurrentPowerPolicies, GetSystemPowerStatus, IsAdminOverrideActive, IsSystemResumeAutomatic,
-    PowerCanRestoreIndividualDefaultPowerScheme, PowerClearRequest, PowerCreatePossibleSetting,
-    PowerCreateRequest, PowerCreateSetting, PowerDeleteScheme, PowerDeterminePlatformRoleEx,
-    PowerDuplicateScheme, PowerEnumerate, PowerGetActiveScheme, PowerImportPowerScheme,
-    PowerIsSettingRangeDefined, PowerOpenSystemPowerKey, PowerOpenUserPowerKey,
-    PowerReadACDefaultIndex, PowerReadACValue, PowerReadACValueIndex, PowerReadDCDefaultIndex,
-    PowerReadDCValue, PowerReadDCValueIndex, PowerReadDescription, PowerReadFriendlyName,
-    PowerReadIconResourceSpecifier, PowerReadPossibleDescription, PowerReadPossibleFriendlyName,
-    PowerReadPossibleValue, PowerReadSettingAttributes, PowerReadValueIncrement, PowerReadValueMax,
-    PowerReadValueMin, PowerReadValueUnitsSpecifier,
-    PowerRegisterForEffectivePowerModeNotifications, PowerRegisterSuspendResumeNotification,
-    PowerRemovePowerSetting, PowerReplaceDefaultPowerSchemes, PowerReportThermalEvent,
-    PowerRestoreDefaultPowerSchemes, PowerSetActiveScheme, PowerSetRequest,
-    PowerSettingAccessCheckEx, PowerSettingRegisterNotification,
-    PowerSettingUnregisterNotification, PowerUnregisterFromEffectivePowerModeNotifications,
-    PowerUnregisterSuspendResumeNotification, PowerWriteACDefaultIndex, PowerWriteACValueIndex,
-    PowerWriteDCDefaultIndex, PowerWriteDCValueIndex, PowerWriteDescription,
-    PowerWriteFriendlyName, PowerWriteIconResourceSpecifier, PowerWritePossibleDescription,
-    PowerWritePossibleFriendlyName, PowerWritePossibleValue, PowerWriteValueIncrement,
-    PowerWriteValueMax, PowerWriteValueMin, PowerWriteValueUnitsSpecifier,
-    RegisterPowerSettingNotification, RegisterSuspendResumeNotification, RequestWakeupLatency,
-    SetSuspendState, SetSystemPowerState, SetThreadExecutionState,
-    UnregisterPowerSettingNotification, UnregisterSuspendResumeNotification,
-    ACCESS_INDIVIDUAL_SETTING, ACCESS_SUBGROUP, THERMAL_EVENT,
-};
+use crate::core::error::{Code, Error};
+use crate::core::{Result, To};
+use crate::win32::foundation::get_last_error;
+use crate::{call, call_BOOL, default_sized, to_BOOL};
+use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 pub use windows_sys::Win32::System::Power::{
-    PowerRequestAwayModeRequired, PowerRequestDisplayRequired, PowerRequestExecutionRequired,
-    PowerRequestSystemRequired, ACCESS_ACTIVE_SCHEME, ACCESS_AC_POWER_SETTING_INDEX,
-    ACCESS_CREATE_SCHEME, ACCESS_DC_POWER_SETTING_INDEX, ACCESS_SCHEME, ADMINISTRATOR_POWER_POLICY,
-    EFFECTIVE_POWER_MODE_V1, EFFECTIVE_POWER_MODE_V2, ES_AWAYMODE_REQUIRED, ES_CONTINUOUS,
-    ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED, ES_USER_PRESENT, GLOBAL_POWER_POLICY,
-    POWER_INFORMATION_LEVEL, POWER_POLICY, PROCESSOR_POWER_INFORMATION, SYSTEM_BATTERY_STATE,
+    EffectivePowerModeBalanced, EffectivePowerModeBatterySaver, EffectivePowerModeBetterBattery,
+    EffectivePowerModeGameMode, EffectivePowerModeHighPerformance,
+    EffectivePowerModeMaxPerformance, EffectivePowerModeMixedReality, PowerRequestAwayModeRequired,
+    PowerRequestDisplayRequired, PowerRequestExecutionRequired, PowerRequestSystemRequired,
+    ACCESS_ACTIVE_SCHEME, ACCESS_AC_POWER_SETTING_INDEX, ACCESS_CREATE_SCHEME,
+    ACCESS_DC_POWER_SETTING_INDEX, ACCESS_SCHEME, ADMINISTRATOR_POWER_POLICY,
+    DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS, EFFECTIVE_POWER_MODE_V1, EFFECTIVE_POWER_MODE_V2,
+    ES_AWAYMODE_REQUIRED, ES_CONTINUOUS, ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED, ES_USER_PRESENT,
+    POWER_INFORMATION_LEVEL, POWER_PLATFORM_ROLE_V1, POWER_PLATFORM_ROLE_V2,
+    POWER_PLATFORM_ROLE_VERSION, PROCESSOR_POWER_INFORMATION, SYSTEM_BATTERY_STATE,
     SYSTEM_POWER_CAPABILITIES, SYSTEM_POWER_INFORMATION, SYSTEM_POWER_POLICY, SYSTEM_POWER_STATUS,
+    THERMAL_EVENT,
 };
-
-pub use windows_sys::Win32::System::SystemServices::{
-    GUID_ADAPTIVE_POWER_BEHAVIOR_SUBGROUP, GUID_BATTERY_SUBGROUP, GUID_DISK_SUBGROUP,
-    GUID_ENERGY_SAVER_SUBGROUP, GUID_GRAPHICS_SUBGROUP, GUID_IDLE_RESILIENCY_SUBGROUP,
-    GUID_INTSTEER_SUBGROUP, GUID_PCIEXPRESS_SETTINGS_SUBGROUP, GUID_PROCESSOR_SETTINGS_SUBGROUP,
-    GUID_SLEEP_SUBGROUP, GUID_SYSTEM_BUTTON_SUBGROUP, NO_SUBGROUP_GUID,
+use windows_sys::Win32::System::Power::{
+    GetSystemPowerStatus, IsSystemResumeAutomatic, PowerClearRequest, PowerCreateRequest,
+    PowerDeterminePlatformRoleEx, PowerSetRequest, SetSuspendState, SetThreadExecutionState,
 };
 
 pub mod device;
 pub mod info;
+pub mod policy;
 pub mod scheme;
 
-pub fn get_current_power_policies() -> Result<(GLOBAL_POWER_POLICY, POWER_POLICY)> {
-    call_BOOL! {
-         GetCurrentPowerPolicies(
-            &mut global,
-            &mut active,
-        ) -> mut (global, active) = default_sized!((GLOBAL_POWER_POLICY, POWER_POLICY))
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Default)]
+/// Indicates the OEM's preferred power management profile. These values are read from the
+/// `Preferred_PM_Profile` field of the `Fixed ACPI Description Table` (`FADT`).
+///
+/// To determine the system platform role, use [`get_platform_role`].
+///
+pub enum PlatformRole {
+    #[default]
+    /// The OEM did not specify a specific role.
+    Unspecified,
+    /// The OEM specified a desktop role.
+    Desktop,
+    /// The OEM specified a mobile role (for example, a laptop).
+    Mobile,
+    /// The OEM specified a workstation role.
+    Workstation,
+    /// The OEM specified an enterprise server role.
+    EnterpriseServer,
+    /// The OEM specified a single office/home office (SOHO) server role.
+    SOHOServer,
+    /// The OEM specified an appliance PC role.
+    AppliancePC,
+    /// The OEM specified a performance server role.
+    PerformanceServer,
+    /// The OEM specified a tablet form factor role.
+    Slate,
+}
+
+impl To<Option<PlatformRole>> for i32 {
+    #[inline]
+    fn to(&self) -> Option<PlatformRole> {
+        match *self {
+            0 => Some(PlatformRole::Unspecified),
+            1 => Some(PlatformRole::Desktop),
+            2 => Some(PlatformRole::Mobile),
+            3 => Some(PlatformRole::Workstation),
+            4 => Some(PlatformRole::EnterpriseServer),
+            5 => Some(PlatformRole::SOHOServer),
+            6 => Some(PlatformRole::AppliancePC),
+            7 => Some(PlatformRole::PerformanceServer),
+            8 => Some(PlatformRole::Slate),
+            _ => None,
+        }
     }
 }
 
+impl core::fmt::Display for PlatformRole {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::Unspecified => write!(f, "Unspecified"),
+            Self::Desktop => write!(f, "Desktop"),
+            Self::Mobile => write!(f, "Mobile"),
+            Self::Workstation => write!(f, "Workstation"),
+            Self::EnterpriseServer => write!(f, "Enterprise server"),
+            Self::SOHOServer => write!(f, "SOHO server"),
+            Self::AppliancePC => write!(f, "Appliance PC"),
+            Self::PerformanceServer => write!(f, "Performance server"),
+            Self::Slate => write!(f, "Slate"),
+        }
+    }
+}
+
+/// Gets the power status of the system. The status indicates whether the system is
+/// running on AC or DC power, whether the battery is currently discharging, how much
+/// battery life remains, and if the battery saver is on or off.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus
+///
 pub fn get_system_power_status() -> Result<SYSTEM_POWER_STATUS> {
     call_BOOL! {
         GetSystemPowerStatus(
@@ -71,1139 +114,196 @@ pub fn get_system_power_status() -> Result<SYSTEM_POWER_STATUS> {
     }
 }
 
-/// docs ???
-pub fn is_admin_override_active(admin_power_policy: ADMINISTRATOR_POWER_POLICY) -> Result<bool> {
-    call_BOOL! { IsAdminOverrideActive(&admin_power_policy) -> bool }
-}
-
+/// Determines the current state of the computer.
+///
+/// If the system was restored to the working state automatically and the
+/// user is not active, the returned value is `true`.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-issystemresumeautomatic
+///
 pub fn is_system_resume_automatic() -> Result<bool> {
     call_BOOL! { IsSystemResumeAutomatic() -> bool }
 }
 
-pub fn can_restore_default_power_scheme(scheme: GUID) -> Result<()> {
-    call_WIN32_ERROR! { PowerCanRestoreIndividualDefaultPowerScheme(&scheme) }
-}
-
-/// check [docs] for request types
+/// Decrements the count of power requests of the specified type for a power
+/// request object.
 ///
-/// [docs]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powerclearrequest
+/// # Arguments
 ///
-pub fn clear_power_request(request_handle: isize, request_type: i32) -> Result<()> {
+/// * `request_handle`: A handle to a power request object.
+/// * `request_type`: The power request type to be decremented.
+///     * See [Power request types][set_request#power-request-types]
+///       for possbile values.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powerclearrequest
+///
+pub fn clear_request(request_handle: isize, request_type: i32) -> Result<()> {
     call_BOOL! { PowerClearRequest(request_handle, request_type) }
 }
 
-pub fn create_possible_power_setting(
-    sub_group: GUID,
-    power_setting: GUID,
-    possible_index: u32,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerCreatePossibleSetting(
-            0,
-            &sub_group,
-            &power_setting,
-            possible_index,
-        )
-    }
-}
-
-/// Power request object must be freed with [`close_handle`][crate::win32::foundation::close_handle].
-pub fn create_power_request(context: REASON_CONTEXT) -> Result<isize> {
+/// Creates a new power request object from the specified information
+/// about the power request.
+///
+/// When the power request object is no longer needed, use [`close_handle`][crate::win32::foundation::close_handle]
+/// to free the handle clean up the object.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powercreaterequest
+///
+pub fn create_request(context: REASON_CONTEXT) -> Result<isize> {
     call! { PowerCreateRequest(&context) != 0 }
 }
 
-pub fn create_power_setting(sub_group: GUID, power_setting: GUID) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerCreateSetting(0, &sub_group, &power_setting)
-    }
-}
-
-pub fn delete_scheme(scheme: GUID) -> Result<()> {
-    call_WIN32_ERROR! { PowerDeleteScheme(0, &scheme) }
-}
-
-/// in `POWER_PLATFORM_ROLE_VERSION` out `POWER_PLATFORM_ROLE`
-/// win10+
-pub fn get_platform_role(version: u32) -> i32 {
-    unsafe { PowerDeterminePlatformRoleEx(version) }
-}
-
-pub fn duplicate_scheme(scheme: GUID) -> Result<GUID> {
-    let mut dup_scheme_ptr = ptr::null_mut::<GUID>();
-    call_WIN32_ERROR! {
-        PowerDuplicateScheme(
-            0,
-            &scheme,
-            addr_of_mut!(dup_scheme_ptr),
-        ) return Error
-    };
-    // Safety: `dup_scheme_ptr` is valid and initialized with a `GUID` by `PowerDuplicateScheme`.
-    let dup_scheme_guid = unsafe { dup_scheme_ptr.read() };
-    free!(Local: dup_scheme_ptr);
-    Ok(dup_scheme_guid)
-}
-
-/// POWER_DATA_ACCESSOR
-pub fn enum_schemes(index: u32) -> Result<Option<GUID>> {
-    let mut buffer = [0_u8; 16];
-    call_WIN32_ERROR! {
-        PowerEnumerate(
-            0,
-            ptr::null(),
-            ptr::null(),
-            ACCESS_SCHEME,
-            index,
-            buffer.as_mut_ptr(),
-            &mut 16,
-        ) != ERROR_NO_MORE_ITEMS => None
-            else return Error;
-    };
-    Ok(Some(guid_from_array(buffer)))
-}
-
-pub fn enum_sub_groups(index: u32, scheme: GUID) -> Result<Option<GUID>> {
-    let mut buffer = [0_u8; 16];
-    call_WIN32_ERROR! {
-        PowerEnumerate(
-            0,
-            &scheme,
-            ptr::null(),
-            ACCESS_SUBGROUP,
-            index,
-            buffer.as_mut_ptr(),
-            &mut 16,
-        ) != ERROR_NO_MORE_ITEMS => None
-            else return Error;
-    };
-    Ok(Some(guid_from_array(buffer)))
-}
-
-// pub enum PowerSchemeSubGroup {}
-
-pub fn enum_settings(index: u32, scheme: GUID, sub_group: GUID) -> Result<Option<GUID>> {
-    let mut buffer = [0_u8; 16];
-    call_WIN32_ERROR! {
-        PowerEnumerate(
-            0,
-            &scheme,
-            &sub_group,
-            ACCESS_INDIVIDUAL_SETTING,
-            index,
-            buffer.as_mut_ptr(),
-            &mut 16,
-        ) != ERROR_NO_MORE_ITEMS => None
-            else return Error;
-    };
-    Ok(Some(guid_from_array(buffer)))
-}
-
-pub fn get_active_scheme() -> Result<GUID> {
-    let mut scheme_ptr = ptr::null_mut::<GUID>();
-    call_WIN32_ERROR! {
-        PowerGetActiveScheme(0, addr_of_mut!(scheme_ptr)) return Error
-    };
-    // Safety: `dup_scheme_ptr` is valid and initialized with a `GUID` by `PowerDuplicateScheme`.
-    let scheme_guid = unsafe { scheme_ptr.read() };
-    free!(Local: scheme_ptr);
-    Ok(scheme_guid)
-}
-
-pub fn import_scheme(file_path: &U16CStr) -> Result<GUID> {
-    let mut new_scheme_guid_ptr = ptr::null_mut::<GUID>();
-    call_WIN32_ERROR! {
-        PowerImportPowerScheme(
-            0,
-            file_path.as_ptr(),
-            addr_of_mut!(new_scheme_guid_ptr),
-        ) return Error
-    }
-    // Safety: `dup_scheme_ptr` is valid and initialized with a `GUID` by `PowerDuplicateScheme`.
-    let new_scheme_guid = unsafe { new_scheme_guid_ptr.read() };
-    free!(Local: new_scheme_guid_ptr);
-    Ok(new_scheme_guid)
-}
-
-pub fn is_setting_range_defined(sub_group: GUID, setting: GUID) -> Result<bool> {
-    call_BOOL! {
-        PowerIsSettingRangeDefined(
-            &sub_group,
-            &setting,
-        ) -> bool
-    }
-}
-
-/// undocumented
-pub fn open_system_power_key(access: u32, open_existing: bool) -> Result<isize> {
-    call! {
-        PowerOpenSystemPowerKey(
-            &mut power_key_handle,
-            access,
-            to_BOOL!(open_existing),
-        ) != 0 /* or == 0 ??? */ => mut power_key_handle: isize
-    }
-}
-
-/// undocumented
-pub fn open_user_power_key(access: u32, open_existing: bool) -> Result<isize> {
-    call! {
-        PowerOpenUserPowerKey(
-            &mut power_key_handle,
-            access,
-            to_BOOL!(open_existing),
-        ) != 0 /* or == 0 ??? */ => mut power_key_handle: isize
-    }
-}
-
-pub fn read_ac_default_index(
-    scheme_personality: GUID,
-    sub_group: GUID,
-    setting: GUID,
-) -> Result<u32> {
-    call! {
-        PowerReadACDefaultIndex(
-            0,
-            &scheme_personality,
-            &sub_group,
-            &setting,
-            &mut default_index,
-        ) == 0 => mut default_index: u32
-    }
-}
-
-pub fn read_ac_value_size(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadACValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut 0,
-            ptr::null_mut(),
-            &mut size,
-        ) == 0 => mut size: u32
-    }
-}
-
-pub fn read_ac_value(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<RegistryValue> {
-    let mut buffer_size = read_ac_value_size(scheme, sub_group, setting)?;
-    let buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadACValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut reg_value.value_type,
-            reg_value.data.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut reg_value = RegistryValue { data: buffer.into_boxed_slice(), value_type: 0 }
-    }
-}
-
-pub fn read_ac_value_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<(u32, u32)> {
-    call! {
-        PowerReadACValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut reg_value_type,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut (reg_value_type, buffer_size) = (0, buffer.len() as u32)
-    }
-}
-
-pub fn read_ac_value_index(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadACValueIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut ac_value_index,
-        ) == 0 => mut ac_value_index: u32
-    }
-}
-
-pub fn read_dc_default_index(
-    scheme_personality: GUID,
-    sub_group: GUID,
-    setting: GUID,
-) -> Result<u32> {
-    call! {
-        PowerReadDCDefaultIndex(
-            0,
-            &scheme_personality,
-            &sub_group,
-            &setting,
-            &mut default_index,
-        ) == 0 => mut default_index: u32
-    }
-}
-
-pub fn read_dc_value_size(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadDCValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut 0,
-            ptr::null_mut(),
-            &mut size,
-        ) == 0 => mut size: u32
-    }
-}
-
-pub fn read_dc_value(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<RegistryValue> {
-    let mut buffer_size = read_dc_value_size(scheme, sub_group, setting)?;
-    let buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadDCValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut reg_value.value_type,
-            reg_value.data.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut reg_value = RegistryValue {
-            data: buffer.into_boxed_slice(),
-            value_type: 0
-        }
-    }
-}
-
-pub fn read_dc_value_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<(u32, u32)> {
-    call! {
-        PowerReadDCValue(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut reg_value_type,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut (reg_value_type, buffer_size) = (0, buffer.len() as u32)
-    }
-}
-
-pub fn read_dc_value_index(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadDCValueIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            &mut ac_value_index,
-        ) == 0 => mut ac_value_index: u32
-    }
-}
-
-pub fn read_description_size(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadDescription(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            ptr::null_mut(),
-            &mut needed_size,
-        ) == 0 => mut needed_size: u32
-    }
-}
-
-pub fn read_description(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<U16CString> {
-    let mut buffer_size = read_description_size(scheme, sub_group, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadDescription(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    }
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_description_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadDescription(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub fn read_friendly_name_size(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            ptr::null_mut(),
-            &mut needed_size,
-        ) == 0 => mut needed_size: u32
-    }
-}
-
-pub fn read_friendly_name(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<U16CString> {
-    let mut buffer_size = read_friendly_name_size(scheme, sub_group, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    }
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_friendly_name_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub fn read_icon_resource_name_size(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadIconResourceSpecifier(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            ptr::null_mut(),
-            &mut needed_size,
-        ) == 0 => mut needed_size: u32
-    }
-}
-
-pub fn read_icon_resource_name(scheme: GUID, sub_group: GUID, setting: GUID) -> Result<U16CString> {
-    let mut buffer_size = read_icon_resource_name_size(scheme, sub_group, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadIconResourceSpecifier(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    }
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_icon_resource_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadIconResourceSpecifier(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub fn read_possible_description_size(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-) -> Result<u32> {
-    call! {
-        PowerReadPossibleDescription(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            ptr::null_mut(),
-            &mut needed_size,
-        ) == 0 => mut needed_size: u32
-    }
-}
-
-pub fn read_possible_description(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-) -> Result<U16CString> {
-    let mut buffer_size = read_possible_description_size(scheme, sub_group, setting_index)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadPossibleDescription(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    }
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_possible_description_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadPossibleDescription(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub fn read_possible_friendly_name_size(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-) -> Result<u32> {
-    call! {
-        PowerReadPossibleFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            ptr::null_mut(),
-            &mut needed_size,
-        ) == 0 => mut needed_size: u32
-    }
-}
-
-pub fn read_possible_friendly_name(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-) -> Result<U16CString> {
-    let mut buffer_size = read_possible_friendly_name_size(scheme, sub_group, setting_index)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadPossibleFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    }
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_possible_friendly_name_with_buffer(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadPossibleFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub fn read_possible_value_size(sub_group: GUID, setting: GUID, setting_index: u32) -> Result<u32> {
-    call! {
-        PowerReadPossibleValue(
-            0,
-            &sub_group,
-            &setting,
-            &mut 0,
-            setting_index,
-            ptr::null_mut(),
-            &mut size,
-        ) == 0 => mut size: u32
-    }
-}
-
-pub fn read_possible_value(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    setting_index: u32,
-) -> Result<RegistryValue> {
-    let mut buffer_size = read_possible_value_size(scheme, sub_group, setting_index)?;
-    let buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadPossibleValue(
-            0,
-            &sub_group,
-            &setting,
-            &mut reg_value.value_type,
-            setting_index,
-            reg_value.data.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut reg_value = RegistryValue {
-            data: buffer.into_boxed_slice(),
-            value_type: 0
-        }
-    }
-}
-
-pub fn read_possible_value_with_buffer(
-    sub_group: GUID,
-    setting: GUID,
-    setting_index: u32,
-    buffer: &mut [u8],
-) -> Result<(u32, u32)> {
-    call! {
-        PowerReadPossibleValue(
-            0,
-            &sub_group,
-            &setting,
-            &mut reg_value_type,
-            setting_index,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => mut (reg_value_type, buffer_size) = (0, buffer.len() as u32)
-    }
-}
-
-// error ???
-pub fn read_setting_attributes(sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadSettingAttributes(
-            &sub_group,
-            &setting,
-        ) != 0
-    }
-}
-
-pub fn read_value_increment(sub_group: GUID, setting: GUID) -> Result<u32> {
-    call_WIN32_ERROR! {
-        PowerReadValueIncrement(
-            0,
-            &sub_group,
-            &setting,
-            &mut value_increment,
-        ) -> mut value_increment: u32
-    }
-}
-
-pub fn read_max_value(sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadValueMax(
-            0,
-            &sub_group,
-            &setting,
-            &mut max_value,
-        ) != 0 => mut max_value: u32
-    }
-}
-
-pub fn read_min_value(sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadValueMin(
-            0,
-            &sub_group,
-            &setting,
-            &mut min_value,
-        ) != 0 => mut min_value: u32
-    }
-}
-
-pub fn read_value_unit_size(sub_group: GUID, setting: GUID) -> Result<u32> {
-    call! {
-        PowerReadValueUnitsSpecifier(
-            0,
-            &sub_group,
-            &setting,
-            ptr::null_mut(),
-            &mut buffer_size,
-        ) != 0 => mut buffer_size: u32
-    }
-}
-
-pub fn read_value_unit(sub_group: GUID, setting: GUID) -> Result<U16CString> {
-    let mut buffer_size = read_value_unit_size(sub_group, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
-    call! {
-        PowerReadValueUnitsSpecifier(
-            0,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) == 0 => return Error
-    };
-    // Safety: `buffer` is valid for `get_wide_string_len_from_bytes` elements.
-    //          Result of `get_wide_string_len_from_bytes` is always less than equal to `buffer_size` / `size_of::<u16>`
-    Ok(unsafe {
-        U16CString::from_ptr_unchecked(
-            buffer.as_ptr().cast(),
-            get_wide_string_len_from_bytes(buffer.as_slice()),
-        )
-    })
-}
-
-pub fn read_value_unit_with_buffer(
-    sub_group: GUID,
-    setting: GUID,
-    buffer: &mut [u8],
-) -> Result<u32> {
-    call! {
-        PowerReadValueUnitsSpecifier(
-            0,
-            &sub_group,
-            &setting,
-            buffer.as_mut_ptr(),
-            &mut buffer_size,
-        ) != 0 => mut buffer_size = buffer.len() as u32
-    }
-}
-
-pub type EffectivePowerModeCallback = unsafe extern "system" fn(
-    mode: i32, // EFFECTIVE_POWER_MODE
-    context: *const ::core::ffi::c_void,
-) -> ();
-
-/// versions: EFFECTIVE_POWER_MODE_V1, EFFECTIVE_POWER_MODE_V2
-/// min build: Win10 1809
-/// TODO: how to use it?
-pub fn register_for_effective_power_mode_notifications(
-    version: u32,
-    callback: EffectivePowerModeCallback,
-    context: *const c_void, // TODO: safer type instead of ptr (&cvoid instead? or as Option? can be null ptr?)
-) -> Result<*mut c_void> {
-    call_HRESULT! {
-        PowerRegisterForEffectivePowerModeNotifications(
-            version,
-            Some(callback),
-            context,
-            addr_of_mut!(handle), // TODO: find out handle type (isize?)
-        ) -> mut handle = ptr::null_mut()
-    }
-}
-
-/// registration_flags must be [`DEVICE_NOTIFY_CALLBACK`][windows_sys::Win32::UI::WindowsAndMessaging::DEVICE_NOTIFY_CALLBACK]
-pub fn power_register_suspend_resume_notification(recipient_handle: isize) -> Result<*mut c_void> {
-    call_WIN32_ERROR! {
-         PowerRegisterSuspendResumeNotification(
-            2,
-            recipient_handle,
-            addr_of_mut!(registration_handle),
-         ) -> mut registration_handle = ptr::null_mut()
-    }
-}
-
-pub fn remove_setting(sub_group: GUID, setting: GUID) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerRemovePowerSetting(
-            &sub_group,
-            &setting
-        )
-    }
-}
-
-/// The caller must be a member of the local Administrators group.
-pub fn replace_default_schemes() -> Result<()> {
-    call! { PowerReplaceDefaultPowerSchemes() == 0 }
-}
-
-pub fn report_thermal_event(thermal_event: THERMAL_EVENT) -> Result<()> {
-    call_WIN32_ERROR! { PowerReportThermalEvent(&thermal_event) }
-}
-
-pub fn restore_default_power_schemes() -> Result<()> {
-    call_WIN32_ERROR! { PowerRestoreDefaultPowerSchemes() }
-}
-
-pub fn set_active_scheme(scheme: GUID) -> Result<()> {
-    call_WIN32_ERROR! { PowerSetActiveScheme(0, &scheme) }
-}
-
+/// Increments the count of power requests of the specified type for a power request object.
+///
+/// On Modern Standby systems on DC power, system and execution required power requests are
+/// terminated `5` minutes after the system sleep timeout has expired.
+///
+/// Except for [`PowerRequestAwayModeRequired`] on Traditional Sleep (S3) systems, power requests
+/// are terminated upon user-initiated system sleep entry (power button, lid close or
+/// selecting `Sleep` from the `Start` menu).
+///
+/// To conserve power and provide the best user experience, applications that use power
+/// requests should follow these best practices:
+/// * When creating a power request, provide a localized text string that describes
+///   the reason for the request in the [`REASON_CONTEXT`] instance.
+/// * Call [`set_request`] immediately before the scenario that requires the request.
+/// * Call [`clear_request`] to decrement the reference count for the request as
+///   soon as the scenario is finished.
+/// * Clean up all request objects and associated handles before the process exits
+///   or the service stops.
+///
+/// # Arguments
+///
+/// * `request_handle`: A handle to a power request object.
+/// * `request_type`: The power request type to be decremented.
+///     * See [Power request types][set_request#power-request-types]
+///       for possbile values.
+///
+/// ## Power request types
+///
+/// | Type | Description |
+/// |------|-------------|
+/// | [`PowerRequestDisplayRequired`] | The display remains on even if there is no user input for an extended period of time. |
+/// | [`PowerRequestSystemRequired`] | The system continues to run instead of entering sleep after a period of user inactivity. |
+/// | [`PowerRequestAwayModeRequired`] | The system enters away mode instead of sleep. In away mode, the system continues to run but turns off audio and video to give the appearance of sleep. [`PowerRequestAwayModeRequired`] is only applicable on Traditional Sleep (S3) systems. |
+/// | [`PowerRequestExecutionRequired`] | The calling process continues to run instead of being suspended or terminated by process lifetime management mechanisms. When and how long the process is allowed to run depends on the operating system and power policy settings. On Traditional Sleep (S3) systems, an active [`PowerRequestExecutionRequired`] request implies [`PowerRequestSystemRequired`]. The [`PowerRequestExecutionRequired`] request type can be used only by applications. Services cannot use this request type. This request type is supported starting with Windows 8 and Windows Server 2012. |
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powerclearrequest
+///
 pub fn set_request(power_request_handle: isize, request_type: i32) -> Result<()> {
     call_BOOL! { PowerSetRequest(power_request_handle, request_type) }
 }
 
-pub fn setting_access_check(access: i32, setting: GUID, access_type: u32) -> Result<()> {
-    call_WIN32_ERROR! { PowerSettingAccessCheckEx(access, &setting, access_type) }
-}
-
-pub fn setting_register_notification(
-    setting: GUID,
-    register_notifcation_flags: u32,
-    recipient_handle: isize,
-) -> Result<*mut c_void> {
-    call_WIN32_ERROR! {
-        PowerSettingRegisterNotification(
-            &setting,
-            register_notifcation_flags,
-            recipient_handle,
-            addr_of_mut!(registration_handle), // windows_sys::Win32::System::Power::HPOWERNOTIFY ???
-        ) -> mut registration_handle = ptr::null_mut()
-    }
-}
-
-/// registration_handle: [`HPOWERNOTIFY`][windows_sys::Win32::System::Power::HPOWERNOTIFY]
-pub fn setting_unregister_notification(registration_handle: isize) -> Result<()> {
-    call_WIN32_ERROR! { PowerSettingUnregisterNotification(registration_handle) }
-}
-
-pub fn unregister_from_effective_power_mode_notifications(
-    registration_handle: *const c_void,
-) -> Result<()> {
-    call_HRESULT! {
-        PowerUnregisterFromEffectivePowerModeNotifications(registration_handle)
-    }
-}
-
-pub fn power_unregister_suspend_resume_notification(registration_handle: isize) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerUnregisterSuspendResumeNotification(registration_handle)
-    }
-}
-
-pub fn write_ac_default_index(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    default_index: u32,
-) -> Result<()> {
-    call! {
-        PowerWriteACDefaultIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            default_index,
-        ) == 0
-    }
-}
-
-pub fn write_ac_value_index(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    value_index: u32,
-) -> Result<()> {
-    call! {
-        PowerWriteACValueIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            value_index,
-        ) == 0
-    }
-}
-
-pub fn write_dc_default_index(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    default_index: u32,
-) -> Result<()> {
-    call! {
-        PowerWriteDCDefaultIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            default_index,
-        ) == 0
-    }
-}
-
-pub fn write_dc_value_index(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    value_index: u32,
-) -> Result<()> {
-    call! {
-        PowerWriteDCValueIndex(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            value_index,
-        ) == 0
-    }
-}
-
-pub fn write_description(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    description: &U16CStr,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteDescription(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            description.as_ptr().cast(),
-            description.len() as u32,
-        )
-    }
-}
-
-pub fn write_friendly_name(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    friendly_name: &U16CStr,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            friendly_name.as_ptr().cast(),
-            friendly_name.len() as u32,
-        )
-    }
-}
-
-pub fn write_icon_resource(
-    scheme: GUID,
-    sub_group: GUID,
-    setting: GUID,
-    icon_resource: &U16CStr,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteIconResourceSpecifier(
-            0,
-            &scheme,
-            &sub_group,
-            &setting,
-            icon_resource.as_ptr().cast(),
-            icon_resource.len() as u32,
-        )
-    }
-}
-
-pub fn write_possible_description(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-    description: &U16CStr,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWritePossibleDescription(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            description.as_ptr().cast(),
-            description.len() as u32,
-        )
-    }
-}
-
-pub fn write_possible_friendly_name(
-    scheme: GUID,
-    sub_group: GUID,
-    setting_index: u32,
-    friendly_name: &U16CStr,
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWritePossibleFriendlyName(
-            0,
-            &scheme,
-            &sub_group,
-            setting_index,
-            friendly_name.as_ptr().cast(),
-            friendly_name.len() as u32,
-        )
-    }
-}
-
-pub fn write_possible_value(
-    sub_group: GUID,
-    setting: GUID,
-    value_type: u32,
-    setting_index: u32,
-    value: &[u8],
-) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWritePossibleValue(
-            0,
-            &sub_group,
-            &setting,
-            value_type,
-            setting_index,
-            value.as_ptr(),
-            value.len() as u32,
-        )
-    }
-}
-
-pub fn write_value_increment(sub_group: GUID, setting: GUID, value_increment: u32) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteValueIncrement(
-            0,
-            &sub_group,
-            &setting,
-            value_increment,
-        )
-    }
-}
-
-pub fn write_value_max(sub_group: GUID, setting: GUID, max_value: u32) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteValueMax(
-            0,
-            &sub_group,
-            &setting,
-            max_value,
-        )
-    }
-}
-
-pub fn write_value_min(sub_group: GUID, setting: GUID, min_value: u32) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteValueMin(
-            0,
-            &sub_group,
-            &setting,
-            min_value,
-        )
-    }
-}
-
-pub fn write_value_unit(sub_group: GUID, setting: GUID, unit: &U16CStr) -> Result<()> {
-    call_WIN32_ERROR! {
-        PowerWriteValueUnitsSpecifier(
-            0,
-            &sub_group,
-            &setting,
-            unit.as_ptr().cast(),
-            unit.len() as u32,
-        )
-    }
-}
-
-/// For interactive applications, the `flags` parameter should be `0`, and the `window_handle` parameter should be a window handle.
+/// Gets the [`platform role`][PlatformRole] of the current system and
+/// returns `None` if the retrieved platform role is unsupported on the
+/// current version of Windows that the system is running on.
 ///
-/// For services, the `flags` parameter should be `1`, and the `window_handle` parameter should be a SERVICE_STATUS_HANDLE
-pub fn register_setting_notification(
-    window_handle: isize,
-    setting: GUID,
-    flags: u32,
-) -> Result<isize> {
-    call! {
-        RegisterPowerSettingNotification(
-            window_handle,
-            &setting,
-            flags,
-        ) != 0
+/// If the specified returned platform role is not supported on the
+/// current version of Windows that the system is using, the return
+/// value is `None`. For example, on Windows 7, Windows Server 2008 R2,
+/// Windows Vista or Windows Server 2008 [`PlatformRole::Slate`] is unsupported
+/// and therefore `None` is returned.
+///
+/// This function reads the `ACPI Fixed ACPI Description Table` (`FADT`)
+/// to determine the OEM preferred computer role. If that information is
+/// not available, the function looks for a battery. If at least one battery
+/// is available, the function returns [`PlatformRole::Mobile`]. If no batteries
+/// are available, the function returns [`PlatformRole::Desktop`].
+///
+/// If the OEM preferred computer role is not supported on the platform specified
+/// by the caller, the function returns the closest supported value.
+///
+/// # Arguments
+///
+/// * `version`: The version of the platform role enumeration to use.
+///     * See [Power platform role versions].
+///
+/// ## Power platform role versions.
+///
+/// | Role | Description |
+/// |------|-------------|
+/// | [`POWER_PLATFORM_ROLE_V1`] | The version for Windows 7, Windows Server 2008 R2, Windows Vista or Windows Server 2008. |
+/// | [`POWER_PLATFORM_ROLE_V2`] | The version for Windows 8, Windows Server 2012 and newer versions of Windows. |
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powerbase/nf-powerbase-powerdetermineplatformroleex
+///
+pub fn get_platform_role(version: u32) -> Result<Option<PlatformRole>> {
+    let result: Option<PlatformRole> = unsafe { PowerDeterminePlatformRoleEx(version) }.to();
+    let last_error_code = get_last_error();
+    if last_error_code == ERROR_SUCCESS {
+        Ok(result)
+    } else {
+        Err(Error::from_code(Code::from_win32(last_error_code)))
     }
 }
 
-/// Similar to [`power_register_suspend_resume_notification`], but operates in user mode and can take a window handle.
-pub fn register_suspend_resume_notification(window_handle: isize, flags: u32) -> Result<isize> {
-    call! {
-        RegisterSuspendResumeNotification(
-            window_handle,
-            flags,
-        ) != 0
-    }
-}
-
-pub fn request_wake_up_latency(latency: i32) -> Result<()> {
-    call_BOOL! { RequestWakeupLatency(latency) }
-}
-
-pub fn set_susoend_state(hibernate: bool, disable_wake_events: bool) -> Result<()> {
+/// Suspends the system by shutting power down. Depending on the Hibernate parameter,
+/// the system either enters a suspend (sleep) state or hibernation (S4).
+///
+/// # Arguments
+///
+/// * `hibernate`: Specifies whether to hibernate the system.
+/// * `disable_wake_events`: Specifies wheter to disables all wake events or keep them enabled.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-setsuspendstate
+///
+pub fn set_suspend_state(hibernate: bool, disable_wake_events: bool) -> Result<()> {
     call_BOOL! {
         SetSuspendState(
             to_BOOL!(hibernate),
@@ -1213,20 +313,52 @@ pub fn set_susoend_state(hibernate: bool, disable_wake_events: bool) -> Result<(
     }
 }
 
-pub fn set_system_power_state(suspend: bool) -> Result<()> {
-    // 2. param has no effect
-    call_BOOL! { SetSystemPowerState(to_BOOL!(suspend), to_BOOL!(false)) }
-}
-
-pub fn set_thread_execution_state(flags: u32) -> Result<u32> {
-    call! { SetThreadExecutionState(flags) != 0 }
-}
-
-pub fn unregister_setting_notification(registration_handle: isize) -> Result<()> {
-    call_BOOL! { UnregisterPowerSettingNotification(registration_handle) }
-}
-
-/// same as [`power_unregister_suspend_resume_notification`], but operates in user mode
-pub fn unregister_suspend_resume_notification(registration_handle: isize) -> Result<()> {
-    call_BOOL! { UnregisterSuspendResumeNotification(registration_handle) }
+/// Enables an application to inform the system that it is in use, thereby
+/// preventing the system from entering sleep or turning off the display
+/// while the application is running.
+///
+/// The system automatically detects activities such as local keyboard or
+/// mouse input, server activity, and changing window focus. Activities
+/// that are not automatically detected include disk or CPU activity and
+/// video display.
+///
+/// Calling [`set_thread_execution_state`] without the `requirements` parameter with [`ES_CONTINUOUS`]
+/// simply resets the idle timer; to keep the display or system in the working state,
+/// the thread must call this function periodically.
+///
+/// # Arguments
+///
+/// * `requirements`: The thread's execution requirements.
+///     * See [Execution requirements][set_thread_execution_state#execution-requirements]
+///       for possible values.
+///
+/// ## Execution requirements
+///
+/// | Execution requirement flag | Meaning |
+/// |------|---------|
+/// | [`ES_AWAYMODE_REQUIRED`] | Enables away mode. This value must be specified with [`ES_CONTINUOUS`]. Away mode should be used only by media-recording and media-distribution applications that must perform critical background processing on desktop computers while the computer appears to be sleeping. |
+/// | [`ES_CONTINUOUS`] | Informs the system that the state being set should remain in effect until the next call that uses [`ES_CONTINUOUS`] and one of the other state flags is cleared. |
+/// | [`ES_DISPLAY_REQUIRED`] | Forces the display to be on by resetting the display idle timer. |
+/// | [`ES_SYSTEM_REQUIRED`] | Forces the system to be in the working state by resetting the system idle timer. |
+/// | [`ES_USER_PRESENT`] | This value is not supported. If [`ES_USER_PRESENT`] is combined with other execution requirement flags values, the call will fail and none of the specified states will be set. |
+///
+/// # Remarks
+///
+/// See the [Remarks] section in the official documentation.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate
+/// [Remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate#remarks
+///
+pub fn set_thread_execution_state(requirements: u32) -> Result<u32> {
+    call! { SetThreadExecutionState(requirements) != 0 }
 }
