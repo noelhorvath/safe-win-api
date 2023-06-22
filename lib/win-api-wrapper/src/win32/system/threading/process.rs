@@ -45,8 +45,78 @@ pub use windows_sys::Win32::System::Threading::{
 
 use crate::win32::security::{self, TOKEN_ELEVATION, TOKEN_QUERY};
 
+#[doc(hidden)]
+mod private {
+    use super::Information;
+
+    /// A marker trait for sealing traits.
+    pub trait Sealed {}
+
+    /// A marker trait for [process information][super::Information] types that can
+    /// be set by [`set_information`][super::set_information].
+    pub trait Settable: Information {}
+
+    /// A marker trait for [process information][super::Information] types that can
+    /// be retrieved by [`get_information`][super::get_information].
+    pub trait Gettable: Information {}
+}
+
 /// Maximum number of characters allowed in a long path.
 const MAX_CHARS_IN_LONG_PATH: usize = u16::MAX as usize / size_of::<u16>();
+
+/// A member of the [`PROCESS_INFORMATION_CLASS`] enumeration.
+///
+/// This trait is sealed, therefore it cannot be implemented for other types
+/// outside this crate.
+pub trait Information: private::Sealed {
+    /// Gets the [`PROCESS_INFORMATION_CLASS`], that is associated with the type.
+    fn information_class() -> PROCESS_INFORMATION_CLASS;
+}
+
+impl private::Sealed for APP_MEMORY_INFORMATION {}
+impl private::Sealed for MEMORY_PRIORITY_INFORMATION {}
+impl private::Sealed for PROCESS_POWER_THROTTLING_STATE {}
+impl private::Sealed for PROCESS_PROTECTION_LEVEL_INFORMATION {}
+impl private::Sealed for PROCESS_LEAP_SECOND_INFO {}
+
+impl private::Gettable for APP_MEMORY_INFORMATION {}
+impl private::Gettable for MEMORY_PRIORITY_INFORMATION {}
+impl private::Gettable for PROCESS_PROTECTION_LEVEL_INFORMATION {}
+impl private::Gettable for PROCESS_LEAP_SECOND_INFO {}
+
+impl private::Settable for MEMORY_PRIORITY_INFORMATION {}
+impl private::Settable for PROCESS_LEAP_SECOND_INFO {}
+impl private::Settable for PROCESS_POWER_THROTTLING_STATE {}
+
+impl Information for MEMORY_PRIORITY_INFORMATION {
+    fn information_class() -> PROCESS_INFORMATION_CLASS {
+        ProcessMemoryPriority
+    }
+}
+
+impl Information for APP_MEMORY_INFORMATION {
+    fn information_class() -> PROCESS_INFORMATION_CLASS {
+        ProcessAppMemoryInfo
+    }
+}
+
+impl Information for PROCESS_POWER_THROTTLING_STATE {
+    fn information_class() -> PROCESS_INFORMATION_CLASS {
+        ProcessPowerThrottling
+    }
+}
+
+impl Information for PROCESS_PROTECTION_LEVEL_INFORMATION {
+    fn information_class() -> PROCESS_INFORMATION_CLASS {
+        ProcessProtectionLevelInfo
+    }
+}
+
+impl Information for PROCESS_LEAP_SECOND_INFO {
+    fn information_class() -> PROCESS_INFORMATION_CLASS {
+        ProcessLeapSecondInfo
+    }
+}
 
 impl To<(u16, u16)> for u32 {
     #[inline]
@@ -689,43 +759,77 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
     call_BOOL! { TerminateProcess(handle, exit_code) }
 }
 
-/// A member of the [`PROCESS_INFORMATION_CLASS`] enumeration.
-pub trait ProcessInformation: Sized {
-    /// Gets the [`PROCESS_INFORMATION_CLASS`], that is associated with the type.
-    fn information_class() -> PROCESS_INFORMATION_CLASS;
-}
-
-impl ProcessInformation for MEMORY_PRIORITY_INFORMATION {
-    fn information_class() -> PROCESS_INFORMATION_CLASS {
-        ProcessMemoryPriority
-    }
-}
-
-impl ProcessInformation for APP_MEMORY_INFORMATION {
-    fn information_class() -> PROCESS_INFORMATION_CLASS {
-        ProcessAppMemoryInfo
-    }
-}
-
-impl ProcessInformation for PROCESS_POWER_THROTTLING_STATE {
-    fn information_class() -> PROCESS_INFORMATION_CLASS {
-        ProcessPowerThrottling
-    }
-}
-
-impl ProcessInformation for PROCESS_PROTECTION_LEVEL_INFORMATION {
-    fn information_class() -> PROCESS_INFORMATION_CLASS {
-        ProcessProtectionLevelInfo
-    }
-}
-
-impl ProcessInformation for PROCESS_LEAP_SECOND_INFO {
-    fn information_class() -> PROCESS_INFORMATION_CLASS {
-        ProcessLeapSecondInfo
-    }
-}
-
-/// Gets information about the specified process.
+/// Gets [information][get_information#retrievable-process-information] about
+/// the specified process.
+///
+/// # Retrievable process information
+///
+/// Check the sections below to see what kind of information can be
+/// retreived by calling this function.
+///
+/// ## Application memory usage
+///
+/// If the specified information type is [`APP_MEMORY_INFORMATION`],
+/// the the function returns the application's memory usage at time
+/// of calling.
+///
+/// ### Fields of [`APP_MEMORY_INFORMATION`]
+///
+/// * `AvailableCommit`: [`u64`] - Total commit available to the app.
+/// * `PrivateCommitUsage`: [`u64`] - The app's usage of private commit.
+/// * `PeakPrivateCommitUsage`: [`u64`] - The app's peak usage of private commit.
+/// * `TotalCommitUsage`: [`u64`] - The app's total usage of private plus shared commit.
+///
+/// ## Memory priority
+///
+/// If the specified information type is [`MEMORY_PRIORITY_INFORMATION`],
+/// the function returns the memory priority of the process identified
+/// by `handle`
+///
+/// ### Fields of [`MEMORY_PRIORITY_INFORMATION`]
+///
+/// `MemoryPriority`: [`u32`] - The memory priority for the process.
+///     * See [Priority values#get_information] for possible
+///       values.
+///
+/// ### Priority values
+///
+/// | Value | Description |
+/// |-------|-------------|
+/// | [`MEMORY_PRIORITY_VERY_LOW`] | Very low memory priority. |
+/// | [`MEMORY_PRIORITY_LOW`] | Low memory priority. |
+/// | [`MEMORY_PRIORITY_MEDIUM`] | Medium memory priority. |
+/// | [`MEMORY_PRIORITY_BELOW_NORMAL`] | Below normal memory priority. |
+/// | [`MEMORY_PRIORITY_NORMAL`] | Normal memory priority. This is the default priority for all threads and processes on the system. |
+///
+/// ## Protection level
+///
+/// If the specified information type is [`PROCESS_PROTECTION_LEVEL_INFORMATION`],
+/// the function returns protection level information about the process.
+///
+/// ### Fields of [`PROCESS_PROTECTION_LEVEL_INFORMATION`]
+///
+/// * `ProtectionLevel`: [`u32`] - Specifies whether Protected Process Light (PPL) is enabled.
+///     * See [get_information#protection-levels] for more information
+///       about the possible values.
+///
+/// ### Protection levels
+///
+/// | Value | Meaning |
+/// |-------|---------|
+/// | [`PROTECTION_LEVEL_PPL_APP`] | The process is a third party app that is using process protection. |
+/// | [`PROTECTION_LEVEL_NONE`] | The process is not protected. |
+///
+/// ## Leap seconds
+///
+/// If the specified information type is [`PROCESS_LEAP_SECOND_INFO`]
+/// the function returns how the system handles positive leap seconds.
+///
+/// ## Fields of [`PROCESS_LEAP_SECOND_INFO`]
+///
+/// * `Flags`: [`u32`] - Currently, the only valid flag is [`PROCESS_LEAP_SECOND_INFO_FLAG_ENABLE_SIXTY_SECOND`].
+///     * This parameter currently indicates whether the sixty seconds is enabled.
+/// * `Reserved`: [`u32`] - Reserved for future use.
 ///
 /// # Errors
 ///
@@ -743,7 +847,10 @@ impl ProcessInformation for PROCESS_LEAP_SECOND_INFO {
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessinformation
 ///
-pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T> {
+pub fn get_information<T>(handle: isize) -> Result<T>
+where
+    T: Information + private::Gettable,
+{
     call_BOOL! {
         GetProcessInformation(
             handle,
@@ -755,6 +862,95 @@ pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T>
 }
 
 /// Sets information for the specified process.
+///
+/// # Modifiable process information
+///
+/// Check the sections below to see what kind of information can be
+/// set for a process by calling this function.
+///
+/// ## Memory priority
+///
+/// If the specified information type is [`MEMORY_PRIORITY_INFORMATION`],
+/// the function sets the memory priority for the process indentified by
+/// `handle`. See [`get_information`]'s [Memory priority#get_information]
+/// section for more information about the information type.
+///   
+/// ## Power throttling state
+///
+/// If the specified information type is [`PROCESS_POWER_THROTTLING_STATE`],
+/// the function  enables throttling policies on a process, which can be used
+/// to balance out performance and power efficiency in cases where optimal
+/// performance is not required.
+///
+/// ### Fields of [`PROCESS_POWER_THROTTLING_STATE`]
+///
+/// * `Version`: [`u64`] - The version of the structure.
+///     * Possible versions:
+///         * [`PROCESS_POWER_THROTTLING_CURRENT_VERSION`]: The current version.
+/// * `ControlMask`: Enables the caller to take control of the power throttling
+///                  mechanism.
+///     * This parameter specifies what to control.
+///     * See [Masks][set_information#policy-masks] for possible values.
+/// * `StateMask`: Manages the power throttling mechanism on/off state.
+///     * See [Masks][set_information#policy-masks] for possible values.
+///     * If `ControlMask` is not `0` and this parameter is
+///         * 0, the function disables the policy specified by `ControlMask`
+///           for the process.
+///         * the same as `ControlMask`, the function enables the policy
+///           specified by `ControlMask` for the process.
+///     
+/// ### Policy masks
+///
+/// | Mask | Meaning |
+/// |------|---------|
+/// | [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] | Manages the execution speed of the process. |
+/// | [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] | Whether to ignore resolution requests made by the process or honor. |
+///
+/// ### Default system managed behavior
+///
+/// If both mask fields are `0`, the function resets the deault system managed behaviour.
+///
+/// ### Controling Timer Resolution
+///
+/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] and `StateMask` is
+/// `0`, the function opts into enabling [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`]
+/// for the process, which means that any current timer resolution requests made by the process
+/// will be ignored. Timers belonging to the process are no longer guaranteed to expire with
+/// higher timer resolution, which can improve power efficiency.
+///
+/// If both masks are [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`], opts out of using
+/// [`PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION`] for the process, which means that
+/// the system remembers and honors any previous timer resolution request by the process.
+///
+/// By default in Windows 11 if a window owning process becomes fully occluded, minimized,
+/// or otherwise non-visible to the end user, and non-audible, Windows may automatically
+/// ignore the timer resolution request and thus does not guarantee a higher resolution
+/// than the default system resolution.
+///
+/// ### Controlling [Quality of Service] (QoS)
+///
+/// If `ControlMask` is [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] and `StateMask` is
+/// `0`, the function opts into enabling [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`]
+/// for the process, which means that the process will be classified as `EcoQoS`. The
+/// system will try to increase power efficiency through strategies such as reducing
+/// CPU frequency or using more power efficient cores. EcoQoS should be used when the
+/// work is not contributing to the foreground user experience, which provides longer
+/// battery life, and reduced heat and fan noise. EcoQoS should not be used for
+/// performance critical or foreground user experiences. Prior to Windows 11,
+/// the `EcoQoS` level did not exist and the process was labeled as `LowQoS`.
+///
+/// If both masks are [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`], opts out of using
+/// [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`] for the process, which means that
+/// the system will use its own heuristics to automatically infer a `QoS` level.
+/// For more information, see [Quality of Service].
+///
+/// ### [Efficiency mode]
+///
+/// Windows 11 introduced the [Efficiency mode] status label, that is shown enabled
+/// in the Task Manager for processes that fulfill the following efficiency requirements:
+/// * The process opted in for enabling [`PROCESS_POWER_THROTTLING_EXECUTION_SPEED`], therefore
+///   its `QoS` level is `Eco`.
+/// * The priority of the process is [`IDLE_PRIORITY_CLASS`].
 ///
 /// # Errors
 ///
@@ -771,8 +967,13 @@ pub fn get_information<T: Copy + ProcessInformation>(handle: isize) -> Result<T>
 /// For more information see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
+/// [Quality of Service]: https://learn.microsoft.com/en-us/windows/win32/procthread/quality-of-service
+/// [`Efficiency mode`]: https://devblogs.microsoft.com/performance-diagnostics/reduce-process-interference-with-task-manager-efficiency-mode/
 ///
-pub fn set_information<T: Copy + ProcessInformation>(handle: isize, information: T) -> Result<()> {
+pub fn set_information<T>(handle: isize, information: T) -> Result<()>
+where
+    T: Information + private::Settable,
+{
     call_BOOL! {
         SetProcessInformation(
             handle,
