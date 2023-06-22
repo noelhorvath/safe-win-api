@@ -376,7 +376,7 @@ pub fn get_asssoc_string(
 /// * [`ERROR_ACCESS_DENIED`][windows_sys::Win32::Foundation::ERROR_ACCESS_DENIED]
 ///     * Access to the file specified in `execute_info` is denied.
 /// * [`ERROR_DLL_NOT_FOUND`][windows_sys::Win32::Foundation::ERROR_DLL_NOT_FOUND]
-///     * One of the library files necessary to run the application can't be found.
+///     * One of the library files necessary to run the application cannot be found.
 /// * [`ERROR_CANCELLED`][windows_sys::Win32::Foundation::ERROR_CANCELLED]
 ///     * The function prompted the user for additional information, but the user
 ///       canceled the request.

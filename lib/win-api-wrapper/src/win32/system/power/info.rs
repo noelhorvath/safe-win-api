@@ -113,7 +113,7 @@ pub fn get_battery_state() -> Result<SYSTEM_BATTERY_STATE> {
 }
 
 /// Returns an array of [`PROCESSOR_POWER_INFORMATION`] that contains power information for each processor.
-/// The `cpu_count` paramater can't be higher than the number of processors installed on the system.
+/// The `cpu_count` paramater cannot be higher than the number of processors installed on the system.
 ///
 /// # Errors
 ///

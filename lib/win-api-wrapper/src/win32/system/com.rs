@@ -44,7 +44,7 @@ pub fn initialize(options: i32) -> Result<()> {
 ///
 /// ## Possible errors
 ///
-/// * There's no sufficient memory available.
+/// * There is no sufficient memory available.
 ///
 /// # Examples
 ///

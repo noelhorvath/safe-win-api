@@ -1046,13 +1046,13 @@ pub fn get_info_without_class(handle: isize) -> Result<RegistryKeyInfo> {
 /// | [`REG_DWORD`] | A 32-bit number. |
 /// | [`REG_DWORD_LITTLE_ENDIAN`] | A 32-bit number in little-endian format. Windows is designed to run on little-endian computer architectures. Therefore, this value is defined as [`REG_DWORD`] in the Windows header files.|
 /// | [`REG_DWORD_BIG_ENDIAN`] | A 32-bit number in big-endian format. Some UNIX systems support big-endian architectures. |
-/// | [`REG_EXPAND_SZ`] | A null-terminated string that contains unexpanded references to environment variables, for example, %PATH%. It's either a Unicode or an ANSI string, depending on whether you use the Unicode or ANSI functions. |
+/// | [`REG_EXPAND_SZ`] | A null-terminated string that contains unexpanded references to environment variables, for example, %PATH%. It is either a Unicode or an ANSI string, depending on whether you use the Unicode or ANSI functions. |
 /// | [`REG_LINK`] | A null-terminated Unicode string that contains the target path of a symbolic link that was created by calling [`create`] with [`REG_OPTION_CREATE_LINK`]. |
 /// | [`REG_MULTI_SZ`] | A sequence of null-terminated strings, terminated by an empty string (`\0`). The following is an example: `"String1\0String2\0String3\0LastString\0\0"`. The first `\0` terminates the first string, the second-from-last `\0` terminates the last string, and the final `\0` terminates the sequence. Note that the final terminator must be factored into the length of the string. |
 /// | [`REG_NONE`] | No defined value type. |
 /// | [`REG_QWORD`] | A 64-bit number. |
 /// | [`REG_QWORD_LITTLE_ENDIAN`] | A 64-bit number in little-endian format. Windows is designed to run on little-endian computer architectures. Therefore, this value is defined as [`REG_QWORD`] in the Windows header files. |
-/// | [`REG_SZ`] | A null-terminated string. It's either a Unicode or an ANSI string, depending on whether you use the Unicode or ANSI functions. |
+/// | [`REG_SZ`] | A null-terminated string. It is either a Unicode or an ANSI string, depending on whether you use the Unicode or ANSI functions. |
 ///
 /// # Errors
 ///
@@ -2043,10 +2043,10 @@ pub fn disable_predefined_cache() -> Result<()> {
 /// disk immediately after modification. All modifications made to keys are
 /// visible to other processes without the need to flush them to disk.
 ///
-/// Alternatively, the registry has a 'lazy flush' mechanism that flushes registry
+/// Alternatively, the registry has a `lazy flush` mechanism that flushes registry
 /// modifications to disk at regular intervals of time. In addition to this regular
 /// flush operation, registry changes are also flushed to disk at system shutdown.
-/// Allowing the 'lazy flush' to flush registry changes is the most efficient way
+/// Allowing the `lazy flush` to flush registry changes is the most efficient way
 /// to manage registry writes to the registry store on disk.
 ///
 /// [`flush`] returns only when all the data for the hive that contains

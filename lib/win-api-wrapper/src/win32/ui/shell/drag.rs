@@ -121,7 +121,7 @@ pub fn get_file(drop_handle: isize, index: u32) -> Result<U16CString> {
             file_len,
         ) == 0 => return Error
     };
-    // Safety: `buffer` doesn't contain any interior null values.
+    // Safety: `buffer` does not contain any interior null values.
     Ok(unsafe { U16CString::from_vec_unchecked(buffer) })
 }
 

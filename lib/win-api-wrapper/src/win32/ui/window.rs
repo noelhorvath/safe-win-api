@@ -302,7 +302,7 @@ pub fn get_parent(handle: isize) -> Result<Option<isize>> {
     call! { GetParent(handle) != 0 => Result<Option> }
 }
 
-/// Gets a handle to the `Shell`'s desktop window.
+/// Gets a handle to the Shell's desktop window.
 /// If no `Shell` process is present, the return value is `None`.
 ///
 /// # Examples

@@ -52,7 +52,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 }
 
 /// Retrieves information about the first process recorded in the specified system snapshot.
-/// If the snapshot doesn't contain any processes the return value is [`None`].
+/// If the snapshot does not contain any processes the return value is [`None`].
 ///
 /// # Remarks
 ///
@@ -118,7 +118,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 }
 
 /// Retrieves information about the first thread of any process encountered in the specified system snapshot.
-/// If the snapshot doesn't contain any threads the return value is [`None`].
+/// If the snapshot does not contain any threads the return value is [`None`].
 ///  
 /// # Remarks
 ///

@@ -342,13 +342,13 @@ pub fn post_quit(exit_code: i32) {
 ///
 /// ## Possible errors
 ///
-/// * The thread specified by `thread_id` doesn't have a message queue.
+/// * The thread specified by `thread_id` does not have a message queue.
 /// * [`ERROR_INVALID_THREAD_ID`][windows_sys::Win32::Foundation::ERROR_INVALID_THREAD_ID]
 ///     * `thread_id` is not a valid thread identifier.  
-///     * The thread identified by `thread_id` doesn't have the [`SE_TCB_NAME`][windows_sys::Win32::Security::SE_TCB_NAME]
+///     * The thread identified by `thread_id` does not have the [`SE_TCB_NAME`][windows_sys::Win32::Security::SE_TCB_NAME]
 ///       privilege to post a message to a thread that belongs to a process with the same locally unique identifier (`LUID`)
 ///       but is in a different desktop.
-///     * The thread identified by `thread_id` doesn't belong to the same desktop as the calling thread or to a process
+///     * The thread identified by `thread_id` does not belong to the same desktop as the calling thread or to a process
 ///       of the same `LUID`.
 /// * [`ERROR_NOT_ENOUGH_QUOTA`][windows_sys::Win32::Foundation::ERROR_NOT_ENOUGH_QUOTA]
 ///     * Message limit has been hit.
@@ -513,7 +513,7 @@ pub fn send_notify(window_handle: isize, message: u32, parameters: &(usize, isiz
 ///
 /// * `window_handle` is invalid.
 /// * [`ERROR_TIMEOUT`][windows_sys::Win32::Foundation::ERROR_TIMEOUT]
-///     * The function timed out. If `0xFFFF` is passed as `window_handle` the function doesn't return timeout error.
+///     * The function timed out. If `0xFFFF` is passed as `window_handle` the function does not return timeout error.
 ///
 /// # Examples
 /// TODO
