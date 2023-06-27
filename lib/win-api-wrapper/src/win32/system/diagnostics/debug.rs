@@ -249,7 +249,7 @@ where
             lang_id,
             addr_of_mut!(buffer).cast(),
             buffer_len as u32,
-            if let Some(args) = args { args.as_ptr() } else { ptr::null() },
+            if let Some(array) = args { array.as_ptr() } else { ptr::null() },
         ) == 0 => return Error;
     };
     // Safety: `buffer` contains a valid system allocated `buffer_len` + 1 (including null termination).
@@ -258,7 +258,8 @@ where
     Ok(message)
 }
 
-/// Gets the null-terminated formatted message string from the system message table and copies it into `buffer`.
+/// Gets the null-terminated formatted message string from the system message table, copies it into `buffer`
+/// and returns the number of characters copied, excluding the terminating null character.
 ///
 /// # Arguments
 ///
@@ -303,7 +304,8 @@ pub fn format_message_with_buffer(
     internal_format_message_with_buffer(System, id, lang_id, args, options, buffer, false)
 }
 
-/// Gets the formatted message string from the specified module and copies it into `buffer`.
+/// Gets the formatted message string from the specified module, copies it into `buffer`
+/// and returns the number of characters copied, excluding the terminating null character.
 ///
 /// # Arguments
 ///
@@ -363,7 +365,8 @@ pub fn format_message_from_module_with_buffer(
     )
 }
 
-/// Gets the formatted message string from the specified string and copies it into `buffer`.
+/// Gets the formatted message string from the specified string, copies it into `buffer`
+/// and returns the number of characters copied, excluding the terminating null character.
 ///
 /// # Arguments
 ///
@@ -444,7 +447,7 @@ where
             lang_id,
             buffer.as_mut_ptr(),
             buffer.len() as u32,
-            if let Some(args) = args { args.as_ptr() } else { ptr::null() },
+            if let Some(array) = args { array.as_ptr() } else { ptr::null() },
         ) != 0
     }
 }
