@@ -69,7 +69,7 @@ bitflags! {
 /// See the [first example][enum_device_names#examples] of [`enum_device_names`].
 ///
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerclose
 ///
@@ -87,7 +87,7 @@ pub fn close_device_list() -> Result<()> {
 ///
 /// See the [first example][enum_device_names#examples] of [`enum_device_names`].
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepoweropen
 ///
@@ -190,7 +190,7 @@ pub fn open_device_list() -> Result<()> {
 ///
 /// Based on the official `C++` [example].
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
 /// [example]: https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api
@@ -300,7 +300,7 @@ pub fn enum_device_names(
 ///
 /// Based on the official `C++` [example].
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
 /// [example]: https://learn.microsoft.com/en-us/windows/win32/power/using-the-device-power-api
@@ -392,7 +392,7 @@ pub fn enum_device_names_with_buffer(
 /// }
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
 ///
@@ -501,7 +501,7 @@ pub fn enum_device_hardware_ids(
 /// }
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
 ///
@@ -581,7 +581,7 @@ pub fn enum_device_hardware_ids_with_buffer(
 ///     }
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowerenumdevices
 ///
@@ -634,7 +634,7 @@ pub fn has_device(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getdevicepowerstate
 ///
@@ -667,7 +667,7 @@ pub fn get_device_power_state(handle: isize) -> Result<i32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-devicepowersetdevicestate
 ///

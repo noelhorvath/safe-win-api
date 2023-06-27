@@ -30,7 +30,7 @@ pub use windows_sys::Win32::System::Com::{
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex
 ///
@@ -52,7 +52,7 @@ pub fn initialize(options: i32) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cotaskmemalloc
 ///
@@ -66,7 +66,7 @@ pub fn mem_alloc(size: usize) -> Result<*mut c_void> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cotaskmemfree
 ///
@@ -88,7 +88,7 @@ pub fn mem_free(ptr: *const c_void) {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cotaskmemrealloc
 ///

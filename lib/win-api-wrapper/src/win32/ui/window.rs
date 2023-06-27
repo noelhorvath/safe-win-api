@@ -54,7 +54,7 @@ pub type EnumWindowsCallback = unsafe extern "system" fn(param0: HWND, param1: L
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumchildwindows
 ///
@@ -90,7 +90,7 @@ pub fn enum_child_windows(handle: isize, callback: EnumWindowsCallback, paramete
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumthreadwindows
 ///
@@ -127,7 +127,7 @@ pub fn enum_thread_windows(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumchildwindows
 ///
@@ -172,7 +172,7 @@ pub fn enum_windows(callback: EnumWindowsCallback, parameter: isize) -> Result<(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowexw
 ///
@@ -201,7 +201,7 @@ pub fn find(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
 ///
@@ -220,7 +220,7 @@ pub fn get_foreground() -> Option<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
 ///
@@ -236,7 +236,7 @@ pub fn set_foreground(handle: isize) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-windowfrompoint
 ///
@@ -252,7 +252,7 @@ pub fn from_point(point: POINT) -> Option<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-windowfromphysicalpoint
 ///
@@ -267,7 +267,7 @@ pub fn from_physical_point(point: POINT) -> Option<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdesktopwindow
 ///
@@ -294,7 +294,7 @@ pub fn get_desktop_window() -> isize {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getparent
 ///
@@ -308,7 +308,7 @@ pub fn get_parent(handle: isize) -> Result<Option<isize>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getshellwindow
 ///
@@ -329,7 +329,7 @@ pub fn get_shell_window() -> Option<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getancestor
 ///
@@ -351,7 +351,7 @@ pub fn get_ancestor(handle: isize, flags: GET_ANCESTOR_FLAGS) -> Option<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
 ///
@@ -383,7 +383,7 @@ pub fn get_process_and_thread_ids(handle: isize) -> Result<(u32, u32)> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
 ///
@@ -406,7 +406,7 @@ pub fn get_text_len(handle: isize) -> Result<i32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
 ///
@@ -444,7 +444,7 @@ pub fn get_text(handle: isize) -> Result<U16CString> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
 ///
@@ -474,7 +474,7 @@ pub fn get_text_with_buffer(handle: isize, buffer: &mut [u16]) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-gettopwindow
 ///
@@ -499,7 +499,7 @@ pub fn get_top_child(handle: isize) -> Result<Option<isize>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindow
 ///
@@ -522,7 +522,7 @@ pub fn get_window(handle: isize, flags: GET_WINDOW_CMD) -> Result<Option<isize>>
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-allowsetforegroundwindow
 ///
@@ -539,7 +539,7 @@ pub fn allow_set_foreground(pid: u32) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-ischild
 ///
@@ -552,7 +552,7 @@ pub fn is_child(parent_handle: isize, child_handle: isize) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic
 ///
@@ -565,7 +565,7 @@ pub fn is_minimized(handle: isize) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iswindowvisible
 ///
@@ -578,7 +578,7 @@ pub fn is_visible(handle: isize) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iszoomed
 ///
@@ -596,7 +596,7 @@ pub fn is_maximized(handle: isize) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iswindow
 ///
@@ -617,7 +617,7 @@ pub fn exists(handle: isize) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-arrangeiconicwindows
 ///
@@ -639,7 +639,7 @@ pub fn arrange_iconic_windows(handle: isize) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-logicaltophysicalpoint
 ///
@@ -665,7 +665,7 @@ pub fn logical_to_physical_point(handle: isize, point: POINT) -> Result<POINT> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-openicon
 ///
@@ -701,7 +701,7 @@ pub fn open_minimized(handle: isize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-movewindow
 ///
@@ -725,7 +725,7 @@ pub fn r#move(handle: isize, point: POINT, height: i32, width: i32, redraw: bool
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-bringwindowtotop
 ///
@@ -757,7 +757,7 @@ pub fn to_top(handle: isize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-childwindowfrompointex
 ///
@@ -782,7 +782,7 @@ pub fn child_from_point(handle: isize, point: POINT, flags: CWP_FLAGS) -> Result
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-realchildwindowfrompoint
 ///
@@ -803,7 +803,7 @@ pub fn real_chold_from_point(handle: isize, point: POINT) -> Result<Option<isize
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-closewindow
 ///
@@ -834,7 +834,7 @@ pub fn minimize(handle: isize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroywindow
 ///
@@ -857,7 +857,7 @@ pub fn close(handle: isize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowtextw
 ///
@@ -883,7 +883,7 @@ pub fn set_text(handle: isize, text: &U16CStr) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent
 ///
@@ -919,7 +919,7 @@ pub fn set_parent(child_handle: isize, new_parent_handle: isize) -> Result<isize
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
 ///
@@ -956,7 +956,7 @@ pub fn show(handle: isize, show_command: SHOW_WINDOW_CMD) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindowasync
 ///
@@ -978,7 +978,7 @@ pub fn show_async(handle: isize, show_command: SHOW_WINDOW_CMD) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroyicon
 ///

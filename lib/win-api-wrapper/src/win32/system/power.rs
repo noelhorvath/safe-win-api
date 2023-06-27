@@ -102,7 +102,7 @@ impl core::fmt::Display for PlatformRole {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus
 ///
@@ -127,7 +127,7 @@ pub fn get_system_power_status() -> Result<SYSTEM_POWER_STATUS> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-issystemresumeautomatic
 ///
@@ -149,7 +149,7 @@ pub fn is_system_resume_automatic() -> Result<bool> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powerclearrequest
 ///
@@ -171,7 +171,7 @@ pub fn clear_request(request_handle: isize, request_type: i32) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powercreaterequest
 ///
@@ -222,7 +222,7 @@ pub fn create_request(context: REASON_CONTEXT) -> Result<isize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-powerclearrequest
 ///
@@ -269,7 +269,7 @@ pub fn set_request(power_request_handle: isize, request_type: i32) -> Result<()>
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powerbase/nf-powerbase-powerdetermineplatformroleex
 ///
@@ -299,7 +299,7 @@ pub fn get_platform_role(version: u32) -> Result<Option<PlatformRole>> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-setsuspendstate
 ///
@@ -354,7 +354,7 @@ pub fn set_suspend_state(hibernate: bool, disable_wake_events: bool) -> Result<(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate
 /// [Remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate#remarks

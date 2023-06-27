@@ -31,7 +31,7 @@ pub mod drag;
 ///
 /// See the [official example] in C++.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
 /// [official example]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
@@ -71,7 +71,7 @@ pub fn parse_args(commandline: &U16CStr) -> Result<Vec<U16CString>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-duplicateicon
 ///
@@ -91,7 +91,7 @@ pub fn duplicate_icon(instance_handle: isize, icon_handle: isize) -> Result<isiz
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-extracticonw
 ///
@@ -139,7 +139,7 @@ pub fn extract_icon_count(file_path: &U16CStr) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-extracticonexw
 ///
@@ -176,7 +176,7 @@ pub fn extract_small_icons(file_path: &U16CStr) -> Result<Vec<isize>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-extracticonexw
 ///
@@ -213,7 +213,7 @@ pub fn extract_large_icons(file_path: &U16CStr) -> Result<Vec<isize>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-initnetworkaddresscontrol
 ///
@@ -240,7 +240,7 @@ pub fn init_network_address_control() -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shappbarmessage
 /// [Windows SDK documentation]: https://learn.microsoft.com/en-us/windows/win32/shell/application-desktop-toolbars#appbar-notification-messages
@@ -305,7 +305,7 @@ pub fn get_assoc_string_len(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-assocquerystringw
 ///
@@ -388,7 +388,7 @@ pub fn get_asssoc_string(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation]
+/// For more information, see the official [documentation]
 /// or [Launching Applications] article.
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecuteexw
@@ -407,7 +407,7 @@ pub fn execute(execute_info: &mut SHELLEXECUTEINFOW) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyicongetrect
 ///
@@ -436,7 +436,7 @@ pub fn get_notify_icon_rect(notify_icon_id: &NOTIFYICONIDENTIFIER) -> Result<REC
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
 ///
@@ -474,7 +474,7 @@ pub fn send_notify_icon_message(message: u32, data: &NOTIFYICONDATAW) -> Result<
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellaboutw
 ///
@@ -523,7 +523,7 @@ pub fn show_about(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellmessageboxw
 ///
@@ -569,7 +569,7 @@ pub fn show_message_box(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shemptyrecyclebinw
 ///
@@ -602,7 +602,7 @@ pub fn empty_bin(window_handle: isize, root_drive_path: &U16CStr, flags: u32) ->
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetdiskfreespaceexw
 ///
@@ -630,7 +630,7 @@ pub fn get_disk_free_space(dir_path: &U16CStr) -> Result<(u64, u64, u64)> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetdrivemedia
 ///
@@ -664,7 +664,7 @@ pub fn get_drive_media(drive: &U16CStr) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shqueryrecyclebinw
 ///
@@ -710,7 +710,7 @@ pub fn query_bin(root_path: &U16CStr) -> Result<SHQUERYRBINFO> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shqueryusernotificationstate
 ///

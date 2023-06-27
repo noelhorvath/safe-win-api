@@ -105,7 +105,7 @@ impl FormatSource for System {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
@@ -153,7 +153,7 @@ pub fn format_message(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
@@ -195,7 +195,7 @@ pub fn format_message_from_module(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
@@ -278,7 +278,7 @@ where
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
 /// ## Possible errors
-///  
+///
 /// * [`ERROR_INSUFFICIENT_BUFFER`][windows_sys::Win32::Foundation::ERROR_RESOURCE_LANG_NOT_FOUND]
 ///     * `buffer` is not large enough to store the formatted message.
 /// * [`ERROR_MORE_DATA`][windows_sys::Win32::Foundation::ERROR_MORE_DATA]
@@ -289,7 +289,7 @@ where
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
@@ -340,7 +340,7 @@ pub fn format_message_with_buffer(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks
@@ -397,7 +397,7 @@ pub fn format_message_from_module_with_buffer(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation] of [`FormatMessageW`].
+/// For more information, see the official [documentation] of [`FormatMessageW`].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
 /// [security-remarks]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew#security-remarks

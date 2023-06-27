@@ -58,7 +58,7 @@ pub use windows_sys::Win32::System::SystemServices::{
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powercanrestoreindividualdefaultpowerscheme
 ///
@@ -82,7 +82,7 @@ pub fn can_restore_default_power_scheme(scheme: &GUID) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powercreatepossiblesetting
 ///
@@ -112,7 +112,7 @@ pub fn create_possible_power_setting(subgroup: &GUID, setting: &GUID, index: u32
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powercreatesetting
 ///
@@ -137,7 +137,7 @@ pub fn create_power_setting(subgroup: &GUID, setting: &GUID) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerdeletescheme
 ///
@@ -160,7 +160,7 @@ pub fn delete(scheme: &GUID) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerduplicatescheme
 ///
@@ -194,7 +194,7 @@ pub fn duplicate(scheme: &GUID) -> Result<GUID> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerenumerate
 ///
@@ -235,7 +235,7 @@ pub fn enum_schemes(index: u32) -> Result<Option<GUID>> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerenumerate
 ///
@@ -279,7 +279,7 @@ pub fn enum_subgroups(index: u32, scheme: &GUID) -> Result<Option<GUID>> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerenumerate
 ///
@@ -310,7 +310,7 @@ pub fn enum_settings(index: u32, scheme: &GUID, subgroup: &GUID) -> Result<Optio
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powergetactivescheme
 ///
@@ -345,7 +345,7 @@ pub fn get_active() -> Result<GUID> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerimportpowerscheme
 ///
@@ -384,7 +384,7 @@ pub fn import(file_path: &U16CStr, guid: Option<&GUID>) -> Result<GUID> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerissettingrangedefined
 ///
@@ -439,7 +439,7 @@ pub fn open_user_power_key(access: u32, open_existing: bool) -> Result<isize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadacdefaultindex
 ///
@@ -515,7 +515,7 @@ pub fn read_ac_value_size(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Res
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreadacvalue
 ///
@@ -567,7 +567,7 @@ pub fn read_ac_value(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Result<R
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreadacvalue
 ///
@@ -613,7 +613,7 @@ pub fn read_ac_value_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadacvalueindex
 ///
@@ -652,7 +652,7 @@ pub fn read_ac_value_index(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Re
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreaddcdefaultindex
 ///
@@ -728,7 +728,7 @@ pub fn read_dc_value_size(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Res
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreaddcvalue
 ///
@@ -780,7 +780,7 @@ pub fn read_dc_value(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Result<R
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerreaddcvalue
 ///
@@ -826,7 +826,7 @@ pub fn read_dc_value_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreaddcvalueindex
 ///
@@ -918,7 +918,7 @@ pub fn read_description_size(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreaddescription
 ///
@@ -986,7 +986,7 @@ pub fn read_description(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreaddescription
 ///
@@ -1084,7 +1084,7 @@ pub fn read_friendly_name_size(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadfriendlyname
 ///
@@ -1154,7 +1154,7 @@ pub fn read_friendly_name(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadfriendlyname
 ///
@@ -1254,7 +1254,7 @@ pub fn read_icon_resource_size(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadiconresourcespecifier
 ///
@@ -1325,7 +1325,7 @@ pub fn read_icon_resource(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadiconresourcespecifier
 ///
@@ -1407,7 +1407,7 @@ pub fn read_possible_description_size(subgroup: &GUID, setting: &GUID, index: u3
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossibledescription
 ///
@@ -1469,7 +1469,7 @@ pub fn read_possible_description(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossibledescription
 ///
@@ -1555,7 +1555,7 @@ pub fn read_possible_friendly_name_size(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossiblefriendlyname
 ///
@@ -1617,7 +1617,7 @@ pub fn read_possible_friendly_name(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossiblefriendlyname
 ///
@@ -1699,7 +1699,7 @@ pub fn read_possible_value_size(subgroup: &GUID, setting: &GUID, index: u32) -> 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossiblevalue
 ///
@@ -1753,7 +1753,7 @@ pub fn read_possible_value(subgroup: &GUID, setting: &GUID, index: u32) -> Resul
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossiblevalue
 ///
@@ -1815,7 +1815,7 @@ pub fn read_possible_value_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadsettingattributes
 ///
@@ -1855,7 +1855,7 @@ pub fn read_attributes(subgroup: &GUID, setting: Option<&GUID>) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritesettingattributes
 ///
@@ -1893,7 +1893,7 @@ pub fn write_attributes(subgroup: &GUID, setting: Option<&GUID>, hide: bool) -> 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadvalueincrement
 ///
@@ -1932,7 +1932,7 @@ pub fn read_value_increment(subgroup: &GUID, setting: &GUID) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadvaluemax
 ///
@@ -1971,7 +1971,7 @@ pub fn read_max_value(subgroup: &GUID, setting: &GUID) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadvaluemin
 ///
@@ -2046,7 +2046,7 @@ pub fn read_value_unit_size(subgroup: &GUID, setting: &GUID) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadvalueunitsspecifier
 ///
@@ -2101,7 +2101,7 @@ pub fn read_value_unit(subgroup: &GUID, setting: &GUID) -> Result<U16CString> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadvalueunitsspecifier
 ///
@@ -2143,7 +2143,7 @@ pub fn read_value_unit_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerremovepowersetting
 ///
@@ -2177,7 +2177,7 @@ pub fn remove_setting(subgroup: &GUID, setting: &GUID) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreplacedefaultpowerschemes
 ///
@@ -2203,7 +2203,7 @@ pub fn replace_default_schemes() -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerrestoredefaultpowerschemes
 ///
@@ -2226,7 +2226,7 @@ pub fn restore_default_power_schemes() -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme
 ///
@@ -2277,7 +2277,7 @@ pub fn set_active_scheme(scheme: &GUID) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powersetactivescheme
 ///
@@ -2321,7 +2321,7 @@ pub fn check_access(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwriteacdefaultindex
 ///
@@ -2368,7 +2368,7 @@ pub fn write_ac_default_index(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerwriteacvalueindex
 ///
@@ -2415,7 +2415,7 @@ pub fn write_ac_value_index(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritedcdefaultindex
 ///
@@ -2462,7 +2462,7 @@ pub fn write_dc_default_index(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powerwritedcvalueindex
 ///
@@ -2515,7 +2515,7 @@ pub fn write_dc_value_index(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritedescription
 ///
@@ -2569,7 +2569,7 @@ pub fn write_description(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritefriendlyname
 ///
@@ -2623,7 +2623,7 @@ pub fn write_friendly_name(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwriteiconresourcespecifier
 ///
@@ -2671,7 +2671,7 @@ pub fn write_icon_resource(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerreadpossibledescription
 ///
@@ -2719,7 +2719,7 @@ pub fn write_possible_description(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritepossiblefriendlyname
 ///
@@ -2767,7 +2767,7 @@ pub fn write_possible_friendly_name(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritepossiblevalue
 ///
@@ -2817,7 +2817,7 @@ pub fn write_possible_value(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritevalueincrement
 ///
@@ -2858,7 +2858,7 @@ pub fn write_value_increment(subgroup: &GUID, setting: &GUID, increment: u32) ->
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritevaluemax
 ///
@@ -2899,7 +2899,7 @@ pub fn write_value_max(subgroup: &GUID, setting: &GUID, max: u32) -> Result<()> 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritevaluemin
 ///
@@ -2942,7 +2942,7 @@ pub fn write_value_min(subgroup: &GUID, setting: &GUID, min: u32) -> Result<()> 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-powerwritevalueunitsspecifier
 ///

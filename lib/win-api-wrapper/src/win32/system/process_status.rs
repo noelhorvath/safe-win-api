@@ -63,7 +63,7 @@ pub fn get_pids(initial_buffer_len: u32) -> Result<Vec<u32>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses
 ///

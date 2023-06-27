@@ -42,7 +42,7 @@ impl TokenInformation for TOKEN_ELEVATION {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
 ///

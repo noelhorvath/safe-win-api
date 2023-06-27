@@ -19,7 +19,7 @@ pub use windows_sys::Win32::System::Power::{
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-getcurrentpowerpolicies
 ///
@@ -46,7 +46,7 @@ pub fn get_current_policies() -> Result<(GLOBAL_POWER_POLICY, POWER_POLICY)> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-writeglobalpwrpolicy
 ///
@@ -70,7 +70,7 @@ pub fn write_global(global_policy: &GLOBAL_POWER_POLICY) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/powrprof/nf-powrprof-readglobalpwrpolicy
 ///

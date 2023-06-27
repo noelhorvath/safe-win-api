@@ -14,7 +14,7 @@ use windows_sys::Win32::UI::Shell::{DragAcceptFiles, DragFinish, DragQueryFileW,
 /// message from `File Manager`. To discontinue accepting dropped files, call the function with
 /// `accept` set to `false`.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragacceptfiles
 ///
@@ -32,7 +32,7 @@ pub fn accept_files(window_handle: isize, accept: bool) {
 ///     * This handle is retrieved from the `wParam` parameter of the
 ///       [`WM_DROPFILES`][crate::win32::ui::messaging::WM_DROPFILES] message.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragfinish
 ///
@@ -105,7 +105,7 @@ pub fn get_file_len(drop_handle: isize, index: u32) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragqueryfilew
 ///
@@ -140,7 +140,7 @@ pub fn get_file(drop_handle: isize, index: u32) -> Result<U16CString> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragquerypoint
 ///

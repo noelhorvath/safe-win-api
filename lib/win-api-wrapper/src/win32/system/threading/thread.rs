@@ -127,7 +127,7 @@ impl Information for MEMORY_PRIORITY_INFORMATION {
 /// # Remarks
 ///
 /// * If the handle is not needed anymore close it using [`close_handle`](crate::win32::foundation::close_handle).
-///  
+///
 /// # Errors
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
@@ -140,7 +140,7 @@ impl Information for MEMORY_PRIORITY_INFORMATION {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openthread
 ///
@@ -151,9 +151,9 @@ pub fn open(id: u32, access_rights: ThreadAccessRights, inherit_handle: bool) ->
 #[allow(clippy::undocumented_unsafe_blocks)]
 /// Ends the calling thread.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
-/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitthread    
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitthread
 ///
 pub fn exit_current(exit_code: u32) {
     unsafe { ExitThread(exit_code) }
@@ -169,7 +169,7 @@ pub fn exit_current(exit_code: u32) {
 /// * Pseudo handles are not inherited by child processes.
 /// * This handle has the [`THREAD_ALL_ACCESS`] access right to the thread object.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentthread
 ///
@@ -180,7 +180,7 @@ pub fn get_current_handle() -> isize {
 #[allow(clippy::undocumented_unsafe_blocks)]
 /// Gets the thread identifier of the calling thread.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentthreadid
 ///
@@ -202,7 +202,7 @@ pub fn get_current_id() -> u32 {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodethread
 ///
@@ -226,7 +226,7 @@ pub fn is_running(handle: isize) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodethread
 ///
@@ -255,7 +255,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessidofthread
 ///
@@ -278,7 +278,7 @@ pub fn get_process_id(handle: isize) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreaddescription
@@ -312,7 +312,7 @@ pub fn get_description(handle: isize) -> Result<U16CString> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadiopendingflag
 ///
@@ -382,7 +382,7 @@ pub fn is_io_pending(handle: isize) -> Result<bool> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadinformation
 ///
@@ -418,7 +418,7 @@ where
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadpriority
 ///
@@ -441,7 +441,7 @@ pub fn get_priority(handle: isize) -> Result<i32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadpriorityboost
 ///
@@ -466,7 +466,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadselectedcpusets
 ///
@@ -492,7 +492,7 @@ pub fn get_selected_cpu_set_count(handle: isize) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadselectedcpusets
 ///
@@ -528,7 +528,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Vec<u32>> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread
 ///
@@ -551,7 +551,7 @@ pub fn resume(handle: isize) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-suspendthread
 ///
@@ -576,7 +576,7 @@ pub fn suspend(handle: isize) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask
 ///
@@ -599,7 +599,7 @@ pub fn set_affinity_mask(handle: isize, affinity_mask: usize) -> Result<usize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 ///
@@ -622,7 +622,7 @@ pub fn set_description(handle: isize, description: &U16CStr) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadidealprocessorex
 ///
@@ -652,7 +652,7 @@ pub fn get_ideal_processor(handle: isize) -> Result<PROCESSOR_NUMBER> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadidealprocessorex
 ///
@@ -686,7 +686,7 @@ pub fn set_ideal_processor(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadselectedcpusets
 ///
@@ -709,7 +709,7 @@ pub fn clear_selected_cpu_sets(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadselectedcpusets
 ///
@@ -733,7 +733,7 @@ pub fn set_selected_cpu_sets(handle: isize, cpu_sets: &[u32]) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadpriority
 ///
@@ -756,7 +756,7 @@ pub fn set_priority(handle: isize, priority: i32) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadpriorityboost
 ///
@@ -793,7 +793,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 /// priority pages. This improves overall system performance because
 /// higher priority pages are less likely to be trimmed from the working
 /// set and then trigger a page fault when they are accessed again.
-///   
+///
 /// ## Power throttling state
 ///
 /// If the specified information type is [`PROCESS_POWER_THROTTLING_STATE`],
@@ -817,7 +817,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 ///           for the tjread.
 ///         * the same as `ControlMask`, the function enables the policy
 ///           specified by `ControlMask` for the tjread.
-///     
+///
 /// ### Policy masks
 ///
 /// | Mask | Meaning |
@@ -865,7 +865,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadinformation
 /// [Quality of Service]: https://learn.microsoft.com/en-us/windows/win32/procthread/quality-of-service
@@ -899,7 +899,7 @@ where
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-switchtothread
 ///
@@ -922,7 +922,7 @@ pub fn switch_to_another() -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread
 ///

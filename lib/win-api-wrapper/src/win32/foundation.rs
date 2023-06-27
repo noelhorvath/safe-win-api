@@ -18,7 +18,7 @@ pub use windows_sys::Win32::Foundation::{FILETIME, MAX_PATH, STILL_ACTIVE, SYSTE
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
 ///

@@ -221,7 +221,7 @@ impl ::core::default::Default for RegistryKeyInfo {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regclosekey
 ///
@@ -271,7 +271,7 @@ pub fn close(handle: isize) -> Result<()> {
 /// * [`HKEY_CURRENT_USER`]
 /// * [`HKEY_LOCAL_MACHINE`]
 /// * [`HKEY_USERS`]
-///  
+///
 /// # Options
 ///
 /// | Option flag | Meaning |
@@ -294,7 +294,7 @@ pub fn close(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexw
 ///
@@ -349,7 +349,7 @@ pub fn create(
 /// * [`HKEY_CURRENT_USER`]
 /// * [`HKEY_LOCAL_MACHINE`]
 /// * [`HKEY_USERS`]
-///  
+///
 /// # Errors
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
@@ -363,7 +363,7 @@ pub fn create(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopenkeyexw
 ///
@@ -425,7 +425,7 @@ pub fn open(
 /// * [`HKEY_CURRENT_USER`]
 /// * [`HKEY_LOCAL_MACHINE`]
 /// * [`HKEY_USERS`]
-///  
+///
 /// # Errors
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
@@ -442,7 +442,7 @@ pub fn open(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopenkeytransactedw
 ///
@@ -477,7 +477,7 @@ pub fn open_transacted(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopencurrentuser
 ///
@@ -524,7 +524,7 @@ pub fn open_current_user(access: RegistryAccessRights) -> Result<isize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopenuserclassesroot
 ///
@@ -586,7 +586,7 @@ pub fn open_user_classes_root(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluew
 ///
@@ -662,7 +662,7 @@ pub fn enum_values(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumkeyexw
 ///
@@ -890,7 +890,7 @@ pub fn get_class_with_buffer(handle: isize, buffer: &mut [u16]) -> Result<u32> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryinfokeyw
 ///
@@ -956,7 +956,7 @@ pub fn get_info(handle: isize) -> Result<RegistryKeyInfo> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryinfokeyw
 ///
@@ -1076,7 +1076,7 @@ pub fn get_info_without_class(handle: isize) -> Result<RegistryKeyInfo> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
 ///
@@ -1144,7 +1144,7 @@ pub fn get_value_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
 ///
@@ -1334,7 +1334,7 @@ pub fn get_multiple_values_size(handle: isize, value_entries: &mut [VALENTW]) ->
 /// # }
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regquerymultiplevaluesw
 ///
@@ -1394,7 +1394,7 @@ pub fn get_multiple_values(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
 ///
@@ -1452,7 +1452,7 @@ pub fn set_value(handle: isize, value_name: &U16CStr, value: &RegistryValue) -> 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
 ///
@@ -1513,7 +1513,7 @@ pub fn set_subkey_value(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regconnectregistryw
 ///
@@ -1552,7 +1552,7 @@ pub fn connect(machine_name: &U16CStr, predifined_key_handle: isize) -> Result<i
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcopytreew
 ///
@@ -1633,7 +1633,7 @@ pub fn copy_tree(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeytransactedw
 ///
@@ -1716,7 +1716,7 @@ pub fn create_transacted(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyexw
 ///
@@ -1778,7 +1778,7 @@ pub fn delete(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeytransactedw
 ///
@@ -1832,7 +1832,7 @@ pub fn delete_transacted(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletevaluew
 ///
@@ -1877,7 +1877,7 @@ pub fn delete_value(handle: isize, value_name: &U16CStr) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyvaluew
 ///
@@ -1928,7 +1928,7 @@ pub fn delete_subkey_value(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletetreew
 ///
@@ -1961,7 +1961,7 @@ pub fn delete_tree(key_handle: isize, subkey_name: &U16CStr) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenablereflectionkey
 ///
@@ -1995,7 +1995,7 @@ pub fn enable_reflection(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdisablereflectionkey
 ///
@@ -2023,7 +2023,7 @@ pub fn disable_reflection(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdisablepredefinedcacheex
 ///
@@ -2088,7 +2088,7 @@ pub fn disable_predefined_cache() -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regflushkey
 ///
@@ -2143,7 +2143,7 @@ pub fn flush(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadkeyw
 ///
@@ -2252,7 +2252,7 @@ pub fn get_mui_string_len(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadmuistringw
 ///
@@ -2327,7 +2327,7 @@ pub fn load_mui_string(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadmuistringw
 ///
@@ -2431,7 +2431,7 @@ pub fn load_mui_string_with_buffer(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regnotifychangekeyvalue
 ///
@@ -2478,7 +2478,7 @@ pub fn notify_on_change(
 ///     * The function maps `predifined_key_handle` to refer to `new_key_handle`. This
 ///       affect only the calling process.
 ///     * If this parameter is `0`, the function restores the default mapping of the
-///       predefined key.    
+///       predefined key.
 ///
 /// # Errors
 ///
@@ -2493,7 +2493,7 @@ pub fn notify_on_change(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regoverridepredefkey
 ///
@@ -2523,7 +2523,7 @@ pub fn override_predefined(predifined_key_handle: isize, new_key_handle: isize) 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryreflectionkey
 ///
@@ -2577,7 +2577,7 @@ pub fn is_reflection_disabled(handle: isize) -> Result<bool> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regrenamekey
 ///
@@ -2639,7 +2639,7 @@ pub fn rename(key_handle: isize, subkey_name: &U16CStr, new_key_name: &U16CStr) 
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regreplacekeyw
 ///
@@ -2717,7 +2717,7 @@ pub fn replace(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regrestorekeyw
 ///
@@ -2784,7 +2784,7 @@ pub fn restore(handle: isize, file_name: &U16CStr, flags: i32) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyw
 ///
@@ -2859,7 +2859,7 @@ pub fn save(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyexw
 ///
@@ -2919,7 +2919,7 @@ pub fn save_with_flags(
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regunloadkeyw
 ///

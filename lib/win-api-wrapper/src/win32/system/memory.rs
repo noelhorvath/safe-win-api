@@ -9,7 +9,7 @@ use windows_sys::Win32::System::Memory::{LocalFree, LocalHandle};
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses
 ///
@@ -23,7 +23,7 @@ pub fn get_local_handle(mem_ptr: *const c_void) -> Result<isize> {
 ///
 /// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-localfree
 ///

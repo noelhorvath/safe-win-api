@@ -32,7 +32,7 @@ pub use windows_sys::Win32::System::LibraryLoader::{
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-freelibrary
 ///
@@ -55,7 +55,7 @@ pub fn free_library(lib_module_handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
 ///
@@ -78,7 +78,7 @@ pub fn get_module_handle(module_name: Option<&U16CStr>) -> Result<isize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexa
 ///
@@ -105,7 +105,7 @@ pub fn get_module_handle_with_flags(module_name: Option<&U16CStr>, flags: u32) -
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryw
 ///
@@ -121,7 +121,7 @@ pub fn load_library(module_file_name: &U16CStr) -> Result<isize> {
 ///
 /// * `module_file_name`: A string that specifies the file name of the module to load.
 /// * `flags`: The action to be taken when loading the module.
-///  
+///
 /// If no flags are specified (`falgs` is `0`), the behaviour of this function is identical to that of
 /// [`load_library`].
 ///
@@ -133,7 +133,7 @@ pub fn load_library(module_file_name: &U16CStr) -> Result<isize> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw
 ///

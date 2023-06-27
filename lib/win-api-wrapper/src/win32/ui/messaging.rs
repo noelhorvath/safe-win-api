@@ -50,7 +50,7 @@ pub type SendAsyncCallback =
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callnexthookex
 ///
@@ -77,7 +77,7 @@ pub fn call_next_hook(hook_code: i32, parameters: &(usize, isize)) -> isize {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
 ///
@@ -124,7 +124,7 @@ pub fn dispatch(message: &MSG) -> isize {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
 ///
@@ -148,7 +148,7 @@ pub fn get(window_handle: isize, message_filter_min: u32, message_filter_max: u3
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagetime
 ///
@@ -161,7 +161,7 @@ pub fn get_last_time() -> i32 {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagepos
 ///
@@ -182,7 +182,7 @@ pub fn get_last_cursor_position() -> POINT {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessageextrainfo
 ///
@@ -199,7 +199,7 @@ pub fn get_extra_info() -> isize {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setmessageextrainfo
 ///
@@ -239,7 +239,7 @@ pub fn set_extra_info(extra_info: isize) -> isize {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
 ///
@@ -296,7 +296,7 @@ pub fn peek(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew
 ///
@@ -317,7 +317,7 @@ pub fn post(window_handle: isize, message: u32, parameters: &(usize, isize)) -> 
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
 ///
@@ -344,7 +344,7 @@ pub fn post_quit(exit_code: i32) {
 ///
 /// * The thread specified by `thread_id` does not have a message queue.
 /// * [`ERROR_INVALID_THREAD_ID`][windows_sys::Win32::Foundation::ERROR_INVALID_THREAD_ID]
-///     * `thread_id` is not a valid thread identifier.  
+///     * `thread_id` is not a valid thread identifier.
 ///     * The thread identified by `thread_id` does not have the [`SE_TCB_NAME`][windows_sys::Win32::Security::SE_TCB_NAME]
 ///       privilege to post a message to a thread that belongs to a process with the same locally unique identifier (`LUID`)
 ///       but is in a different desktop.
@@ -358,7 +358,7 @@ pub fn post_quit(exit_code: i32) {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew
 ///
@@ -383,7 +383,7 @@ pub fn post_thread(thread_id: u32, message: u32, parameters: &(usize, isize)) ->
 ///
 /// See the [official example] in C++.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-replymessage
 /// [offical example]: https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues
@@ -427,7 +427,7 @@ pub fn reply(processing_result: isize) -> bool {
 ///
 /// See the [official example] in C++.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
 /// [official example]: https://learn.microsoft.com/en-us/windows/win32/inputdev/using-keyboard-input
@@ -472,7 +472,7 @@ pub fn send(window_handle: isize, message: u32, parameters: &(usize, isize)) -> 
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendnotifymessagew
 ///
@@ -518,7 +518,7 @@ pub fn send_notify(window_handle: isize, message: u32, parameters: &(usize, isiz
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagetimeoutw
 ///
@@ -558,7 +558,7 @@ pub fn send_with_timeout(
 ///                         pointed to by `callback`.
 ///
 /// If `window_handle` is `0xFFFF` (`HWND_BROADCAST`):
-///     
+///
 /// * The message is sent to all top-level windows in the system, including disabled or
 ///   invisible unowned windoes, overlapped windows, and pop-up windows, but the message is not sent to child windows.
 ///     * Use [`register_window_message`] to obtain a unique message for inter-application communication.
@@ -582,7 +582,7 @@ pub fn send_with_timeout(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagecallbackw
 ///
@@ -613,7 +613,7 @@ pub fn send_with_callback(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-insendmessageex
 ///
@@ -654,7 +654,7 @@ pub fn is_sender_blocked() -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
 ///
@@ -671,7 +671,7 @@ pub fn translate(message: &MSG) -> bool {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translateacceleratorw
 ///
@@ -701,7 +701,7 @@ pub fn translate_accelerator(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowprocw
 ///
@@ -742,7 +742,7 @@ pub fn use_default_procedure(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexw
 ///
@@ -779,7 +779,7 @@ pub fn set_hook(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex
 ///
@@ -800,7 +800,7 @@ pub fn unhook(hook_handle: isize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-waitmessage
 ///
@@ -825,7 +825,7 @@ pub fn wait() -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerwindowmessagew
 ///

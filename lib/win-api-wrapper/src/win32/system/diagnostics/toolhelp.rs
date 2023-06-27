@@ -43,7 +43,7 @@ pub use windows_sys::Win32::System::Diagnostics::ToolHelp::{
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot
 ///
@@ -71,7 +71,7 @@ pub fn create_snapshot(flags: CREATE_TOOLHELP_SNAPSHOT_FLAGS, pid: u32) -> Resul
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-process32firstw
 ///
@@ -104,7 +104,7 @@ pub fn first_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-process32nextw
 ///
@@ -119,7 +119,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 
 /// Retrieves information about the first thread of any process encountered in the specified system snapshot.
 /// If the snapshot does not contain any threads the return value is [`None`].
-///  
+///
 /// # Remarks
 ///
 /// * [`first_thread`] must be called once before calling [`next_thread`] to successfully iterate over the processes.
@@ -137,7 +137,7 @@ pub fn next_process(handle: isize) -> Result<Option<PROCESSENTRY32W>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32first
 ///
@@ -170,7 +170,7 @@ pub fn first_thread(handle: isize) -> Result<Option<THREADENTRY32>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32next
 ///

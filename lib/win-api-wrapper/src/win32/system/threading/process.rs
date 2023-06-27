@@ -121,7 +121,7 @@ impl To<(u16, u16)> for u32 {
 
 /// Ends the calling process and all its threads.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitprocess
 ///
@@ -150,7 +150,7 @@ pub fn exit_current(exit_code: u32) {
 /// }
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocess
 ///
@@ -171,7 +171,7 @@ pub fn get_current_handle() -> isize {
 /// println!("The current process ID is {}.", current_id);
 /// ```
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocessid
 ///
@@ -208,7 +208,7 @@ pub fn get_current_id() -> u32 {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
 ///
@@ -247,7 +247,7 @@ pub fn open(pid: u32, access: u32, inherit_handle: bool) -> Result<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
 ///
@@ -276,7 +276,7 @@ pub fn open_token(handle: isize, access: u32) -> Result<isize> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamew
 ///
@@ -314,7 +314,7 @@ pub fn get_full_image_name(handle: isize, use_win32_path_format: bool) -> Result
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamew
 ///
@@ -349,7 +349,7 @@ pub fn get_full_image_name_with_buffer(
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getprocessaffinitymask
 ///
@@ -378,7 +378,7 @@ pub fn get_affinity_mask(handle: isize) -> Result<(usize, usize)> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessdefaultcpusets
 ///
@@ -415,7 +415,7 @@ pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Vec<u32>>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
 ///
@@ -439,7 +439,7 @@ pub fn is_running(handle: isize) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
 ///
@@ -468,7 +468,7 @@ pub fn get_exit_code(handle: isize) -> Result<Option<u32>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processtopologyapi/nf-processtopologyapi-getprocessgroupaffinity
 ///
@@ -506,7 +506,7 @@ pub fn get_group_affinity(handle: isize) -> Result<Vec<u16>> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processtopologyapi/nf-processtopologyapi-getprocessgroupaffinity
 ///
@@ -534,7 +534,7 @@ pub fn get_group_affinity_with_buffer(handle: isize, buffer: &mut [u16]) -> Resu
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesshandlecount
 ///
@@ -556,7 +556,7 @@ pub fn get_handle_count(handle: isize) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocesscritical
 ///
@@ -578,7 +578,7 @@ pub fn is_critical(handle: isize) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessid
 ///
@@ -600,7 +600,7 @@ pub fn get_id(handle: isize) -> Result<u32> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getprocessiocounters
 ///
@@ -622,7 +622,7 @@ pub fn get_io_counters(handle: isize) -> Result<IO_COUNTERS> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesspriorityboost
 ///
@@ -644,7 +644,7 @@ pub fn has_priority_boost(handle: isize) -> Result<bool> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getpriorityclass
 ///
@@ -675,7 +675,7 @@ pub fn get_priority_class(handle: isize) -> Result<PROCESS_CREATION_FLAGS> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesstimes
 ///
@@ -706,7 +706,7 @@ pub fn get_times(handle: isize) -> Result<[FILETIME; 4]> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessversion
 ///
@@ -728,7 +728,7 @@ pub fn get_version(pid: u32) -> Result<(u16, u16)> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-getprocessworkingsetsize
 ///
@@ -756,7 +756,7 @@ pub fn get_working_set_size(handle: isize) -> Result<(usize, usize)> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess
 ///
@@ -794,7 +794,7 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 /// ### Fields of [`MEMORY_PRIORITY_INFORMATION`]
 ///
 /// `MemoryPriority`: [`u32`] - The memory priority for the process.
-///     * See [Priorities][get_information#priorities] for possible
+///     * See [Priorities][get_information#priorities] for possible values.
 ///
 /// ### Priorities
 ///
@@ -819,8 +819,8 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 ///
 /// ### Protection levels
 ///
-/// | Value | Meaning |
-/// |-------|---------|
+/// | Protection level | Meaning |
+/// |------------------|---------|
 /// | [`PROTECTION_LEVEL_PPL_APP`] | The process is a third party app that is using process protection. |
 /// | [`PROTECTION_LEVEL_NONE`] | The process is not protected. |
 ///
@@ -847,7 +847,7 @@ pub fn terminate(handle: isize, exit_code: u32) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessinformation
 ///
@@ -894,7 +894,7 @@ where
 /// This improves overall system performance because higher priority pages are
 /// less likely to be trimmed from the working set and then trigger a page fault
 /// when they are accessed again.
-///   
+///
 /// ## Power throttling state
 ///
 /// If the specified information type is [`PROCESS_POWER_THROTTLING_STATE`],
@@ -918,7 +918,7 @@ where
 ///           for the process.
 ///         * the same as `ControlMask`, the function enables the policy
 ///           specified by `ControlMask` for the process.
-///     
+///
 /// ### Policy masks
 ///
 /// | Mask | Meaning |
@@ -985,7 +985,7 @@ where
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessinformation
 /// [Quality of Service]: https://learn.microsoft.com/en-us/windows/win32/procthread/quality-of-service
@@ -1019,7 +1019,7 @@ where
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setpriorityclass
 ///
@@ -1036,7 +1036,7 @@ pub fn set_priority_class(handle: isize, class: PROCESS_CREATION_FLAGS) -> Resul
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessaffinityupdatemode
 ///
@@ -1066,7 +1066,7 @@ pub fn set_current_affinity_update_mode(enable_auto_update: bool) -> Result<()> 
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocesspriorityboost
 ///
@@ -1088,7 +1088,7 @@ pub fn set_priority_boost(handle: isize, enable: bool) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setprocessaffinitymask
 ///
@@ -1110,7 +1110,7 @@ pub fn set_affinity_mask(handle: isize, mask: usize) -> Result<()> {
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-setprocessworkingsetsize
 ///
@@ -1132,7 +1132,7 @@ pub fn set_working_set_size(handle: isize, min_size: usize, max_size: usize) -> 
 /// # Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-setprocessworkingsetsize
 ///
@@ -1156,7 +1156,7 @@ pub fn shrink_working_set(handle: isize) -> Result<()> {
 /// ## Examples
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessdefaultcpusets
 ///
@@ -1175,7 +1175,7 @@ pub fn set_default_cpu_sets(handle: isize, cpu_sets: &[u32]) -> Result<()> {
 /// * `handle` is invalid.
 /// * `handle` does not have [`PROCESS_SET_LIMITED_INFORMATION`] access right.
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessdefaultcpusets
 ///
@@ -1200,7 +1200,7 @@ pub fn clear_default_cpu_sets(handle: isize) -> Result<()> {
 ///
 /// TODO
 ///
-/// For more information see the official [documentation].
+/// For more information, see the official [documentation].
 ///
 /// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-waitforinputidle
 ///
