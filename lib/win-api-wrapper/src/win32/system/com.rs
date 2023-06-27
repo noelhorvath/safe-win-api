@@ -2,7 +2,9 @@ use crate::core::Result;
 use crate::{call, call_HRESULT};
 use core::ptr;
 use std::os::raw::c_void;
-use windows_sys::Win32::System::Com::{CoInitializeEx, CoTaskMemAlloc, CoTaskMemFree};
+use windows_sys::Win32::System::Com::{
+    CoInitializeEx, CoTaskMemAlloc, CoTaskMemFree, CoTaskMemRealloc,
+};
 
 pub use windows_sys::Win32::System::Com::{
     COINIT_APARTMENTTHREADED, COINIT_DISABLE_OLE1DDE, COINIT_MULTITHREADED,
@@ -70,4 +72,26 @@ pub fn mem_alloc(size: usize) -> Result<*mut c_void> {
 ///
 pub fn mem_free(ptr: *const c_void) {
     unsafe { CoTaskMemFree(ptr) }
+}
+
+/// Changes the size of a previously allocated block of task memory.
+///
+/// # Errors
+///
+/// If the function fails an [error][crate::core::error::Error] is returned providing information about the cause of the failure.
+///
+/// ## Possible errors
+///
+/// * There is no sufficient memory available.
+///
+/// # Examples
+///
+/// TODO
+///
+/// For more information see the official [documentation].
+///
+/// [documentation]: https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cotaskmemrealloc
+///
+pub fn mem_realloc(ptr: *const c_void, new_size: usize) -> Result<*mut c_void> {
+    call! { CoTaskMemRealloc(ptr, new_size) != ptr::null_mut() }
 }
