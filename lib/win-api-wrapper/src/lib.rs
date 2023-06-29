@@ -1,7 +1,7 @@
 //! A library that uses the [windows-rs] crate to wrap unsafe Windows API calls, making them safer and easier to use.
 //!
 //! [windows-rs]: https://github.com/microsoft/windows-rs
-
+#![no_std]
 #![warn(
     clippy::await_holding_lock,
     clippy::borrow_as_ptr,
@@ -109,9 +109,7 @@
     nonstandard_style
 )]
 
-#[macro_use]
-extern crate alloc;
-
+pub use tinyvec_alloc::*;
 pub use widestring::{u16cstr, u16str, U16CStr, U16CString, U16Str, U16String};
 
 /// Contains error-related types and macros, helper functions and common traits.

@@ -1,3 +1,5 @@
+use crate::alloc::boxed::Box;
+use crate::alloc::{self};
 use crate::core::error::{Code, Error};
 use crate::core::Result;
 use crate::{call_WIN32_ERROR, default_sized, from_BOOL, to_BOOL};
@@ -783,7 +785,7 @@ pub fn get_class(handle: isize) -> Result<U16CString> {
         return Ok(U16CString::new());
     }
 
-    let mut buffer = vec![0; class_length as usize];
+    let mut buffer = alloc::vec![0; class_length as usize];
     call_WIN32_ERROR! {
         RegQueryInfoKeyW(
             handle,
@@ -900,7 +902,7 @@ pub fn get_info(handle: isize) -> Result<RegistryKeyInfo> {
         handle,
         ..Default::default()
     };
-    let mut buffer = vec![0; class_len as usize];
+    let mut buffer = alloc::vec![0; class_len as usize];
     call_WIN32_ERROR! {
         RegQueryInfoKeyW(
             handle,
@@ -1156,7 +1158,7 @@ pub fn get_value(
 ) -> Result<RegistryValue> {
     let mut reg_value = RegistryValue::default();
     let mut max_value_len = get_info_without_class(handle)?.max_value_len;
-    let mut buffer = vec![0_u8; max_value_len as usize];
+    let mut buffer = alloc::vec![0_u8; max_value_len as usize];
     call_WIN32_ERROR! {
         RegGetValueW(
             handle,
@@ -1285,7 +1287,7 @@ pub fn get_multiple_values_size(handle: isize, value_entries: &mut [VALENTW]) ->
 ///     KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE,
 /// )?;
 /// let key_info = registry::get_info_without_class(handle)?;
-/// let mut value_name_buffer = vec![0_u16; key_info.max_value_name_len as usize + 1];
+/// let mut value_name_buffer = alloc::vec![0_u16; key_info.max_value_name_len as usize + 1];
 /// let mut value_names = Vec::with_capacity(key_info.value_count as usize);
 /// let mut i = 0;
 /// while let Some(value_info) =
@@ -1305,7 +1307,7 @@ pub fn get_multiple_values_size(handle: isize, value_entries: &mut [VALENTW]) ->
 ///     })
 ///     .collect();
 /// let buffer_size = registry::get_multiple_values_size(handle, value_entries.as_mut_slice())?;
-/// let mut buffer = vec![0; buffer_size as usize];
+/// let mut buffer = alloc::vec![0; buffer_size as usize];
 /// let bytes_written =
 ///     registry::get_multiple_values(handle, value_entries.as_mut_slice(), buffer.as_mut_slice())?;
 /// // the returned size should be the same as the `buffer`'s length
@@ -2262,7 +2264,7 @@ pub fn load_mui_string(
     directory: &U16CStr,
 ) -> Result<U16CString> {
     let mut buffer_len = get_mui_string_len(key_handle, value_name, directory)?;
-    let mut buffer = vec![0; buffer_len as usize];
+    let mut buffer = alloc::vec![0; buffer_len as usize];
     call_WIN32_ERROR! {
         RegLoadMUIStringW(
             key_handle,

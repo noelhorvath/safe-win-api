@@ -1,7 +1,7 @@
 use crate::core::Result;
 use crate::{call, call_HRESULT};
+use core::ffi::c_void;
 use core::ptr;
-use std::os::raw::c_void;
 use windows_sys::Win32::System::Com::{
     CoInitializeEx, CoTaskMemAlloc, CoTaskMemFree, CoTaskMemRealloc,
 };

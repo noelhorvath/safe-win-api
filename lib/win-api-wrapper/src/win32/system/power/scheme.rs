@@ -1,3 +1,4 @@
+use crate::alloc::{self};
 use crate::core::{get_wide_string_len_from_bytes, guid_from_array, Result, GUID};
 use crate::win32::system::registry::RegistryValue;
 use crate::{call, call_WIN32_ERROR, free, from_BOOL};
@@ -521,7 +522,7 @@ pub fn read_ac_value_size(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Res
 ///
 pub fn read_ac_value(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Result<RegistryValue> {
     let mut buffer_size = read_ac_value_size(scheme, subgroup, setting)?;
-    let buffer = vec![0; buffer_size as usize];
+    let buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadACValue(
             0,
@@ -734,7 +735,7 @@ pub fn read_dc_value_size(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Res
 ///
 pub fn read_dc_value(scheme: &GUID, subgroup: &GUID, setting: &GUID) -> Result<RegistryValue> {
     let mut buffer_size = read_dc_value_size(scheme, subgroup, setting)?;
-    let buffer = vec![0; buffer_size as usize];
+    let buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadDCValue(
             0,
@@ -928,7 +929,7 @@ pub fn read_description(
     setting: Option<&GUID>,
 ) -> Result<U16CString> {
     let mut buffer_size = read_description_size(scheme, subgroup, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadDescription(
             0,
@@ -1094,7 +1095,7 @@ pub fn read_friendly_name(
     setting: Option<&GUID>,
 ) -> Result<U16CString> {
     let mut buffer_size = read_friendly_name_size(scheme, subgroup, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadFriendlyName(
             0,
@@ -1264,7 +1265,7 @@ pub fn read_icon_resource(
     setting: Option<&GUID>,
 ) -> Result<U16CString> {
     let mut buffer_size = read_icon_resource_size(scheme, subgroup, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadIconResourceSpecifier(
             0,
@@ -1417,7 +1418,7 @@ pub fn read_possible_description(
     index: u32,
 ) -> Result<U16CString> {
     let mut buffer_size = read_possible_description_size(subgroup, setting, index)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadPossibleDescription(
             0,
@@ -1565,7 +1566,7 @@ pub fn read_possible_friendly_name(
     index: u32,
 ) -> Result<U16CString> {
     let mut buffer_size = read_possible_friendly_name_size(subgroup, setting, index)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call! {
         PowerReadPossibleFriendlyName(
             0,
@@ -1705,7 +1706,7 @@ pub fn read_possible_value_size(subgroup: &GUID, setting: &GUID, index: u32) -> 
 ///
 pub fn read_possible_value(subgroup: &GUID, setting: &GUID, index: u32) -> Result<RegistryValue> {
     let mut buffer_size = read_possible_value_size(subgroup, setting, index)?;
-    let buffer = vec![0; buffer_size as usize];
+    let buffer = alloc::vec![0; buffer_size as usize];
     call_WIN32_ERROR! {
         PowerReadPossibleValue(
             0,
@@ -2052,7 +2053,7 @@ pub fn read_value_unit_size(subgroup: &GUID, setting: &GUID) -> Result<u32> {
 ///
 pub fn read_value_unit(subgroup: &GUID, setting: &GUID) -> Result<U16CString> {
     let mut buffer_size = read_value_unit_size(subgroup, setting)?;
-    let mut buffer = vec![0; buffer_size as usize];
+    let mut buffer = alloc::vec![0; buffer_size as usize];
     call! {
         PowerReadValueUnitsSpecifier(
             0,

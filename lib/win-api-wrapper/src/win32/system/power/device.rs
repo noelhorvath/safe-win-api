@@ -1,3 +1,5 @@
+use crate::alloc::vec::Vec;
+use crate::alloc::{self};
 use crate::core::error::Error;
 use crate::core::{get_wide_string_len_from_bytes, multi_string_bytes_to_strings, Result};
 use crate::win32::foundation::MAX_PATH;
@@ -595,7 +597,7 @@ pub fn has_device(
     }
 
     let buffer_size = (device_name.len() + 1) * size_of::<u16>(); // size has to include the null terminator as well
-    let mut buffer = vec![0_u8; buffer_size];
+    let mut buffer = alloc::vec![0_u8; buffer_size];
     // Safety: `device_name` is valid string poninter for `name_size` length.
     let filter_bytes_slice =
         unsafe { core::slice::from_raw_parts(device_name.as_ptr() as *const u8, buffer_size) };

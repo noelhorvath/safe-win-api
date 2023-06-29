@@ -1,5 +1,7 @@
 use super::super::kernel::PROCESSOR_NUMBER;
 use super::MEMORY_PRIORITY_INFORMATION;
+use crate::alloc::vec::Vec;
+use crate::alloc::{self};
 use crate::core::Result;
 use crate::win32::foundation::STILL_ACTIVE;
 use crate::{call, call_BOOL, default_sized, free, to_BOOL};
@@ -509,7 +511,7 @@ pub fn get_selected_cpu_sets(handle: isize) -> Result<Vec<u32>> {
             buffer.as_mut_ptr(),
             buffer.len() as u32,
             &mut count,
-        ) -> mut buffer = vec![0; count as usize]
+        ) -> mut buffer = alloc::vec![0; count as usize]
     }
 }
 

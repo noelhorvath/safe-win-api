@@ -1,3 +1,4 @@
+use crate::alloc::{self};
 use crate::core::Result;
 use crate::{call, call_BOOL, from_BOOL, to_BOOL};
 use core::ptr;
@@ -412,7 +413,7 @@ pub fn get_text_len(handle: isize) -> Result<i32> {
 ///
 pub fn get_text(handle: isize) -> Result<U16CString> {
     let mut len = get_text_len(handle)?;
-    let mut buffer = vec![0; len as usize];
+    let mut buffer = alloc::vec![0; len as usize];
     len = call! {
         GetWindowTextW(
             handle,

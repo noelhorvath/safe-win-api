@@ -1,3 +1,5 @@
+use crate::alloc::vec::Vec;
+use crate::alloc::{self};
 use crate::call_BOOL;
 use crate::core::Result;
 use core::mem::size_of;
@@ -25,7 +27,7 @@ pub const MAX_PID_BUFFER_LEN: usize = (u32::MAX >> 1) as usize + 1;
 /// TODO
 ///
 pub fn get_pids(initial_buffer_len: u32) -> Result<Vec<u32>> {
-    let mut buffer = vec![0_u32; initial_buffer_len as usize];
+    let mut buffer = alloc::vec![0_u32; initial_buffer_len as usize];
     let mut bytes_written = 0;
     while buffer.len() < MAX_PID_BUFFER_LEN {
         bytes_written = 0;

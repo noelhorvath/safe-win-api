@@ -1,3 +1,5 @@
+use crate::alloc::vec::Vec;
+use crate::alloc::{self};
 use crate::core::Result;
 use crate::{call, call_BOOL, call_HRESULT, default_sized, free};
 use core::ptr::{self};
@@ -149,7 +151,7 @@ pub fn extract_small_icons(file_path: &U16CStr) -> Result<Vec<isize>> {
         return Ok(Vec::new());
     }
 
-    let mut buffer = vec![0; icon_count as usize];
+    let mut buffer = alloc::vec![0; icon_count as usize];
     icon_count = call! {
         ExtractIconExW(
             file_path.as_ptr(),
@@ -186,7 +188,7 @@ pub fn extract_large_icons(file_path: &U16CStr) -> Result<Vec<isize>> {
         return Ok(Vec::new());
     }
 
-    let mut buffer = vec![0; icon_count as usize];
+    let mut buffer = alloc::vec![0; icon_count as usize];
     icon_count = call! {
         ExtractIconExW(
             file_path.as_ptr(),
@@ -317,7 +319,7 @@ pub fn get_asssoc_string(
 ) -> Result<U16CString> {
     let mut char_count =
         get_assoc_string_len(search_flags, string_type, association_string, extra)?;
-    let mut buffer = vec![0_u16; char_count as usize];
+    let mut buffer = alloc::vec![0_u16; char_count as usize];
     call_HRESULT! {
         AssocQueryStringW(
             search_flags,

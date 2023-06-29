@@ -1,4 +1,6 @@
 use super::MEMORY_PRIORITY_INFORMATION;
+use crate::alloc::vec::Vec;
+use crate::alloc::{self};
 use crate::core::{Result, To};
 use crate::win32::foundation::{ERROR_INSUFFICIENT_BUFFER, FILETIME, STILL_ACTIVE};
 use crate::{call, call_BOOL, default_sized, to_BOOL};
@@ -389,7 +391,7 @@ pub fn get_default_cpu_sets(handle: isize) -> Result<Option<Vec<u32>>> {
         return Ok(None);
     }
 
-    let mut buffer = vec![0_u32; count as usize];
+    let mut buffer = alloc::vec![0_u32; count as usize];
     call_BOOL! {
         GetProcessDefaultCpuSets(
             handle,
@@ -486,7 +488,7 @@ pub fn get_group_affinity(handle: isize) -> Result<Vec<u16>> {
     call_BOOL! { GetProcessGroupAffinity(
         handle,
         &mut count,
-        buffer.as_mut_ptr()) -> mut buffer = vec![0; count as usize]
+        buffer.as_mut_ptr()) -> mut buffer = alloc::vec![0; count as usize]
     }
 }
 

@@ -1,3 +1,5 @@
+use crate::alloc::boxed::Box;
+use crate::alloc::vec::Vec;
 use crate::core::Result;
 use crate::{call_NTSTATUS, default_sized, to_BOOL};
 use core::mem::size_of;
@@ -37,7 +39,7 @@ impl PowerPolicy {
 }
 
 impl core::fmt::Display for PowerPolicy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::Current => write!(f, "Current"),
             Self::AC => write!(f, "AC"),

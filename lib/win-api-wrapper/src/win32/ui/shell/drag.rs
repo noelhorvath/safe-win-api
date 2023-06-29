@@ -1,3 +1,4 @@
+use crate::alloc::{self};
 use crate::core::Result;
 use crate::U16CString;
 use crate::{call, default_sized, from_BOOL, to_BOOL};
@@ -112,7 +113,7 @@ pub fn get_file_len(drop_handle: isize, index: u32) -> Result<u32> {
 pub fn get_file(drop_handle: isize, index: u32) -> Result<U16CString> {
     // The passed length to `DragQueryFileW` needs to include the null terminator.
     let file_len = get_file_len(drop_handle, index)? + 1;
-    let mut buffer = vec![0; file_len as usize];
+    let mut buffer = alloc::vec![0; file_len as usize];
     call! {
         DragQueryFileW(
             drop_handle,
