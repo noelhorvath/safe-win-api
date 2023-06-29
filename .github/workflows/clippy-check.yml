@@ -1,13 +1,27 @@
-on: [push, pull_request]
-name: Clippy check
+name: Clippy
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - main
+      - dev
 
 env:
-  RUSTFLAGS: "-Dwarnings"
+  RUSTFLAGS: -Dwarnings
 
 jobs:
-  clippy_check:
-    runs-on: windows-latest
+  cargo_clippy:
+    name: Check
+    runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v3
-      - name: Run Clippy
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Update toolchain
+        run: rustup update --no-self-update nightly && rustup default nightly-x86_64-pc-windows-msvc
+      - name: Install clippy
+        run: rustup component add clippy
+      - name: Run clippy
         run: cargo clippy --all-targets --all-features
