@@ -8,6 +8,9 @@ edition = "2021"
 target = ["x86_64-pc-windows-msvc"]
 
 [dependencies]
+tinyvec-alloc = { git = "https://github.com/noelhorvath/tinyvec-alloc.git", branch = "experimental/alloc", features = [
+    "alloc",
+] }
 bitflags = { version = "2.3.*" }
 widestring = { version = "1.0.*", features = ["alloc"] }
 windows-sys = { version = "0.48.*", features = [
